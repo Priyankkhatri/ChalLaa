@@ -11,6 +11,7 @@ import {
   ScrollView,
 } from 'react-native';
 import * as Location from 'expo-location';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import api from '../../services/api';
@@ -30,13 +31,13 @@ const CATEGORIES = [
 ];
 
 const CATEGORY_COLORS = {
-  grocery: { bg: '#E0F2FE', text: '#0284C7', iconColor: '#0284C7' },
-  food: { bg: '#FEF3C7', text: '#D97706', iconColor: '#D97706' },
-  medicine: { bg: '#FEE2E2', text: '#DC2626', iconColor: '#DC2626' },
-  courier: { bg: '#F3E8FF', text: '#7C3AED', iconColor: '#7C3AED' },
-  stationery: { bg: '#ECFDF5', text: '#059669', iconColor: '#059669' },
-  laundry: { bg: '#EFF6FF', text: '#2563EB', iconColor: '#2563EB' },
-  other: { bg: '#F1F5F9', text: '#475569', iconColor: '#475569' },
+  grocery: { bg: '#E0F2FE', text: '#0284C7' },
+  food: { bg: '#FEF3C7', text: '#D97706' },
+  medicine: { bg: '#FEE2E2', text: '#DC2626' },
+  courier: { bg: '#F3E8FF', text: '#7C3AED' },
+  stationery: { bg: '#ECFDF5', text: '#059669' },
+  laundry: { bg: '#EFF6FF', text: '#2563EB' },
+  other: { bg: '#F1F5F9', text: '#475569' },
 };
 
 export default function DiscoveryFeedScreen() {
@@ -54,7 +55,6 @@ export default function DiscoveryFeedScreen() {
   const [userCoords, setUserCoords] = useState(null);
   const [locationName, setLocationName] = useState('Locating campus...');
 
-  // Fetch Location and nearby Errands
   const initializeFeed = useCallback(async () => {
     try {
       setError(null);
@@ -204,8 +204,15 @@ export default function DiscoveryFeedScreen() {
             </View>
           </View>
 
-          <View style={styles.helpBtn}>
-            <Text style={styles.helpBtnText}>Help Peer 🏃</Text>
+          <View style={styles.helpBtnWrapper}>
+            <LinearGradient
+              colors={['#4F46E5', '#6366F1']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.helpBtn}
+            >
+              <Text style={styles.helpBtnText}>Help Peer 🏃</Text>
+            </LinearGradient>
           </View>
         </View>
       </TouchableOpacity>
@@ -319,11 +326,18 @@ export default function DiscoveryFeedScreen() {
                 Be the first to post a campus request or expand your search radius!
               </Text>
               <TouchableOpacity
-                style={styles.emptyActionButton}
+                style={styles.emptyActionWrapper}
                 onPress={() => router.push('/errand/post')}
               >
-                <Ionicons name="add-circle" size={18} color={Colors.white} />
-                <Text style={styles.emptyActionText}>Post an Errand</Text>
+                <LinearGradient
+                  colors={['#4F46E5', '#6366F1']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.emptyActionButton}
+                >
+                  <Ionicons name="add-circle" size={18} color={Colors.white} />
+                  <Text style={styles.emptyActionText}>Post an Errand</Text>
+                </LinearGradient>
               </TouchableOpacity>
             </View>
           }
@@ -332,11 +346,18 @@ export default function DiscoveryFeedScreen() {
 
       {/* Floating Action Button (FAB) */}
       <TouchableOpacity
-        style={styles.fab}
+        style={styles.fabWrapper}
         activeOpacity={0.85}
         onPress={() => router.push('/errand/post')}
       >
-        <Ionicons name="add" size={28} color={Colors.white} />
+        <LinearGradient
+          colors={['#4F46E5', '#7C3AED']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.fab}
+        >
+          <Ionicons name="add" size={28} color={Colors.white} />
+        </LinearGradient>
       </TouchableOpacity>
     </View>
   );
@@ -574,30 +595,35 @@ const styles = StyleSheet.create({
     color: '#B45309',
     fontWeight: '600',
   },
-  helpBtn: {
-    backgroundColor: Colors.primaryLight,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 6,
+  helpBtnWrapper: {
     borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: Colors.primaryMuted,
+    overflow: 'hidden',
+    ...Shadows.subtle,
+  },
+  helpBtn: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 7,
+    borderRadius: BorderRadius.full,
   },
   helpBtnText: {
     fontSize: Typography.xs,
     fontWeight: 'bold',
-    color: Colors.primaryDark,
+    color: Colors.white,
   },
-  fab: {
+  fabWrapper: {
     position: 'absolute',
     bottom: Spacing.lg,
     right: Spacing.lg,
+    borderRadius: 28,
+    overflow: 'hidden',
+    ...Shadows.glow,
+  },
+  fab: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    ...Shadows.glow,
   },
   centerLoading: {
     flex: 1,
@@ -637,11 +663,14 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     marginBottom: Spacing.lg,
   },
+  emptyActionWrapper: {
+    borderRadius: BorderRadius.md,
+    overflow: 'hidden',
+  },
   emptyActionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-    backgroundColor: Colors.primary,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm + 2,
     borderRadius: BorderRadius.md,

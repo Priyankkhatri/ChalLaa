@@ -13,13 +13,14 @@ import {
   Linking,
 } from 'react-native';
 import { router } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as Contacts from 'expo-contacts';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
 export default function ProfileScreen() {
-  const { user, logout, updateUser, refreshProfile } = useAuth();
+  const { user, logout, updateUser } = useAuth();
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(user?.name || '');
@@ -180,8 +181,13 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      {/* Hero Profile Header */}
-      <View style={styles.heroCard}>
+      {/* Luxury Gradient Profile Header */}
+      <LinearGradient
+        colors={['#4F46E5', '#6366F1', '#7C3AED']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.heroCard}
+      >
         <View style={styles.avatarGlow}>
           <View style={styles.avatarCircle}>
             <Text style={styles.avatarText}>
@@ -195,67 +201,69 @@ export default function ProfileScreen() {
 
         {/* Badges Row */}
         <View style={styles.badgeRow}>
-          <View style={[styles.badge, user?.isVerified ? styles.badgeSuccess : styles.badgeWarning]}>
+          <View style={styles.glassBadge}>
             <Ionicons
               name={user?.isVerified ? 'checkmark-circle' : 'hourglass-outline'}
               size={14}
-              color={user?.isVerified ? Colors.secondaryDark : Colors.accentDark}
+              color={user?.isVerified ? '#4ADE80' : '#FCD34D'}
             />
-            <Text
-              style={[
-                styles.badgeText,
-                user?.isVerified ? styles.badgeTextSuccess : styles.badgeTextWarning,
-              ]}
-            >
-              {user?.isVerified ? 'Verified Student' : 'Pending Verification'}
+            <Text style={styles.glassBadgeText}>
+              {user?.isVerified ? 'Verified Student' : 'Pending ID'}
             </Text>
           </View>
 
-          <View style={[styles.badge, styles.badgeKarma]}>
-            <Ionicons name="star" size={14} color="#D97706" />
-            <Text style={styles.badgeTextKarma}>Karma: {user?.karmaScore ?? 100}</Text>
+          <View style={styles.glassBadge}>
+            <Ionicons name="star" size={14} color="#FCD34D" />
+            <Text style={styles.glassBadgeText}>Karma: {user?.karmaScore ?? 100}</Text>
           </View>
         </View>
 
-        {/* Quick Stats Grid */}
+        {/* Glassmorphism Quick Stats Grid */}
         <View style={styles.statsGrid}>
-          <View style={styles.statBox}>
-            <Ionicons name="sparkles" size={18} color={Colors.accent} />
-            <Text style={styles.statNumber}>{user?.karmaScore ?? 100}</Text>
-            <Text style={styles.statLabel}>Karma ⭐</Text>
+          <View style={styles.glassStatBox}>
+            <Ionicons name="sparkles" size={18} color="#FCD34D" />
+            <Text style={styles.glassStatNumber}>{user?.karmaScore ?? 100}</Text>
+            <Text style={styles.glassStatLabel}>Karma ⭐</Text>
           </View>
 
-          <View style={styles.statBox}>
-            <Ionicons name="shield-checkmark" size={18} color={Colors.secondary} />
-            <Text style={styles.statNumber}>{user?.isVerified ? '100%' : '50%'}</Text>
-            <Text style={styles.statLabel}>Trust Score</Text>
+          <View style={styles.glassStatBox}>
+            <Ionicons name="shield-checkmark" size={18} color="#4ADE80" />
+            <Text style={styles.glassStatNumber}>{user?.isVerified ? '100%' : '50%'}</Text>
+            <Text style={styles.glassStatLabel}>Trust Score</Text>
           </View>
 
-          <View style={styles.statBox}>
-            <Ionicons name="people" size={18} color={Colors.primary} />
-            <Text style={styles.statNumber}>{user?.trustedContacts?.length || 0}</Text>
-            <Text style={styles.statLabel}>Circle</Text>
+          <View style={styles.glassStatBox}>
+            <Ionicons name="people" size={18} color="#93C5FD" />
+            <Text style={styles.glassStatNumber}>{user?.trustedContacts?.length || 0}</Text>
+            <Text style={styles.glassStatLabel}>Circle</Text>
           </View>
         </View>
-      </View>
+      </LinearGradient>
 
       {/* Admin Portal Launcher Banner (Admin Only) */}
       {user?.role === 'admin' ? (
         <TouchableOpacity
-          style={styles.adminBanner}
           activeOpacity={0.85}
           onPress={() => router.push('/admin')}
+          style={styles.adminBannerWrapper}
         >
-          <View style={styles.adminIconCircle}>
-            <Ionicons name="shield-half" size={24} color={Colors.white} />
-          </View>
-          <View style={styles.adminBannerText}>
-            <Text style={styles.adminBannerTitle}>Campus Moderation Panel</Text>
-            <Text style={styles.adminBannerSub}>
-              Manage disputes, student verifications & platform KPIs
-            </Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color={Colors.white} />
+          <LinearGradient
+            colors={['#1E1B4B', '#312E81']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.adminBanner}
+          >
+            <View style={styles.adminIconCircle}>
+              <Ionicons name="shield-half" size={24} color="#818CF8" />
+            </View>
+            <View style={styles.adminBannerText}>
+              <Text style={styles.adminBannerTitle}>Campus Moderation Panel</Text>
+              <Text style={styles.adminBannerSub}>
+                Manage disputes, student verifications & platform KPIs
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={Colors.white} />
+          </LinearGradient>
         </TouchableOpacity>
       ) : null}
 
@@ -303,15 +311,22 @@ export default function ProfileScreen() {
             />
 
             <TouchableOpacity
-              style={[styles.saveButton, savingProfile && styles.btnDisabled]}
               onPress={handleSaveProfile}
               disabled={savingProfile}
+              style={styles.saveBtnWrapper}
             >
-              {savingProfile ? (
-                <ActivityIndicator color={Colors.white} />
-              ) : (
-                <Text style={styles.saveButtonText}>Save Details</Text>
-              )}
+              <LinearGradient
+                colors={['#4F46E5', '#6366F1']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={[styles.saveButton, savingProfile && styles.btnDisabled]}
+              >
+                {savingProfile ? (
+                  <ActivityIndicator color={Colors.white} />
+                ) : (
+                  <Text style={styles.saveButtonText}>Save Details</Text>
+                )}
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         ) : (
@@ -326,7 +341,7 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Account Role</Text>
-              <Text style={[styles.infoValue, { textTransform: 'capitalize', fontWeight: 'bold' }]}>
+              <Text style={[styles.infoValue, { textTransform: 'capitalize', fontWeight: 'bold', color: Colors.primary }]}>
                 {user?.role || 'Student'}
               </Text>
             </View>
@@ -527,44 +542,41 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   heroCard: {
-    backgroundColor: Colors.card,
     borderRadius: BorderRadius.xl,
     padding: Spacing.xl,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.border,
-    ...Shadows.card,
+    ...Shadows.glow,
   },
   avatarGlow: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: Colors.primaryLight,
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.sm,
   },
   avatarCircle: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    backgroundColor: Colors.primary,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: Colors.white,
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarText: {
     fontSize: Typography.title,
     fontWeight: 'bold',
-    color: Colors.white,
+    color: Colors.primary,
   },
   userName: {
     fontSize: Typography.xl,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: Colors.white,
   },
   userEmail: {
-    fontSize: Typography.sm,
-    color: Colors.textSecondary,
+    fontSize: Typography.xs,
+    color: 'rgba(255,255,255,0.8)',
     marginTop: 2,
   },
   badgeRow: {
@@ -574,39 +586,19 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
   },
-  badge: {
+  glassBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: Spacing.sm + 2,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: Spacing.sm + 4,
     paddingVertical: 4,
     borderRadius: BorderRadius.full,
   },
-  badgeSuccess: {
-    backgroundColor: '#DCFCE7',
-  },
-  badgeWarning: {
-    backgroundColor: '#FEF3C7',
-  },
-  badgeKarma: {
-    backgroundColor: '#FEF3C7',
-    borderWidth: 1,
-    borderColor: '#FDE68A',
-  },
-  badgeText: {
+  glassBadgeText: {
     fontSize: Typography.xs - 2,
     fontWeight: 'bold',
-  },
-  badgeTextSuccess: {
-    color: Colors.secondaryDark,
-  },
-  badgeTextWarning: {
-    color: '#B45309',
-  },
-  badgeTextKarma: {
-    fontSize: Typography.xs - 2,
-    fontWeight: 'bold',
-    color: '#B45309',
+    color: Colors.white,
   },
   statsGrid: {
     flexDirection: 'row',
@@ -614,39 +606,46 @@ const styles = StyleSheet.create({
     marginTop: Spacing.lg,
     paddingTop: Spacing.md,
     borderTopWidth: 1,
-    borderTopColor: Colors.borderLight,
+    borderTopColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'space-around',
   },
-  statBox: {
+  glassStatBox: {
     alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
+    minWidth: 80,
   },
-  statNumber: {
+  glassStatNumber: {
     fontSize: Typography.base,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: Colors.white,
     marginTop: 2,
   },
-  statLabel: {
-    fontSize: Typography.xs - 2,
-    color: Colors.textSecondary,
+  glassStatLabel: {
+    fontSize: Typography.xs - 3,
+    color: 'rgba(255,255,255,0.85)',
     textTransform: 'uppercase',
     marginTop: 2,
-    fontWeight: '600',
+    fontWeight: 'bold',
+  },
+  adminBannerWrapper: {
+    borderRadius: BorderRadius.xl,
+    overflow: 'hidden',
+    ...Shadows.card,
   },
   adminBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.primaryDark,
-    borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     gap: Spacing.md,
-    ...Shadows.subtle,
   },
   adminIconCircle: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.15)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -758,13 +757,15 @@ const styles = StyleSheet.create({
     color: Colors.text,
     backgroundColor: Colors.white,
   },
-  saveButton: {
-    backgroundColor: Colors.primary,
-    height: 44,
+  saveBtnWrapper: {
+    marginTop: Spacing.md,
     borderRadius: BorderRadius.md,
+    overflow: 'hidden',
+  },
+  saveButton: {
+    height: 44,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: Spacing.md,
   },
   saveButtonText: {
     color: Colors.white,

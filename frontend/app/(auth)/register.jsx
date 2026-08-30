@@ -11,8 +11,10 @@ import {
   ScrollView,
 } from 'react-native';
 import { router } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
-import { Colors, Spacing, Typography, BorderRadius } from '../../constants/theme';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
 export default function RegisterScreen() {
   const { register } = useAuth();
@@ -66,96 +68,126 @@ export default function RegisterScreen() {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.header}>
+        <LinearGradient
+          colors={['#4F46E5', '#7C3AED']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroHeader}
+        >
           <Text style={styles.appName}>Create Account ✨</Text>
-          <Text style={styles.subtext}>Join your campus & hostel errand coordination network</Text>
-        </View>
+          <Text style={styles.subtext}>Join your campus & hostel peer network</Text>
+        </LinearGradient>
 
         {errorMessage ? (
           <View style={styles.errorContainer}>
+            <Ionicons name="alert-circle" size={18} color={Colors.danger} />
             <Text style={styles.errorText}>{errorMessage}</Text>
           </View>
         ) : null}
 
-        <View style={styles.form}>
+        <View style={styles.formCard}>
           <Text style={styles.label}>Full Name *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g. Priyank Khatri"
-            placeholderTextColor={Colors.textMuted}
-            value={name}
-            onChangeText={(val) => {
-              setName(val);
-              if (errorMessage) setErrorMessage(null);
-            }}
-          />
+          <View style={styles.inputWrapper}>
+            <Ionicons name="person-outline" size={18} color={Colors.textMuted} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. Priyank Khatri"
+              placeholderTextColor={Colors.textMuted}
+              value={name}
+              onChangeText={(val) => {
+                setName(val);
+                if (errorMessage) setErrorMessage(null);
+              }}
+            />
+          </View>
 
           <Text style={styles.label}>Hostel / College Email *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g. priyank@campus.edu"
-            placeholderTextColor={Colors.textMuted}
-            value={email}
-            onChangeText={(val) => {
-              setEmail(val);
-              if (errorMessage) setErrorMessage(null);
-            }}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            autoCorrect={false}
-          />
+          <View style={styles.inputWrapper}>
+            <Ionicons name="mail-outline" size={18} color={Colors.textMuted} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. priyank@campus.edu"
+              placeholderTextColor={Colors.textMuted}
+              value={email}
+              onChangeText={(val) => {
+                setEmail(val);
+                if (errorMessage) setErrorMessage(null);
+              }}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+          </View>
 
-          <Text style={styles.label}>Password (min 6 chars) *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Create a strong password"
-            placeholderTextColor={Colors.textMuted}
-            value={password}
-            onChangeText={(val) => {
-              setPassword(val);
-              if (errorMessage) setErrorMessage(null);
-            }}
-            secureTextEntry
-            autoCapitalize="none"
-          />
+          <Text style={styles.label}>Password (min 6 characters) *</Text>
+          <View style={styles.inputWrapper}>
+            <Ionicons name="lock-closed-outline" size={18} color={Colors.textMuted} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="••••••••"
+              placeholderTextColor={Colors.textMuted}
+              value={password}
+              onChangeText={(val) => {
+                setPassword(val);
+                if (errorMessage) setErrorMessage(null);
+              }}
+              secureTextEntry
+              autoCapitalize="none"
+            />
+          </View>
 
-          <Text style={styles.label}>Phone Number</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g. +91 9876543210"
-            placeholderTextColor={Colors.textMuted}
-            value={phone}
-            onChangeText={setPhone}
-            keyboardType="phone-pad"
-          />
+          <Text style={styles.label}>Phone Number (Optional)</Text>
+          <View style={styles.inputWrapper}>
+            <Ionicons name="call-outline" size={18} color={Colors.textMuted} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. +91 9876543210"
+              placeholderTextColor={Colors.textMuted}
+              value={phone}
+              onChangeText={setPhone}
+              keyboardType="phone-pad"
+            />
+          </View>
 
-          <Text style={styles.label}>Hostel / Room No / Student ID</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g. Block B, Room 204"
-            placeholderTextColor={Colors.textMuted}
-            value={hostelOrCollegeId}
-            onChangeText={setHostelOrCollegeId}
-          />
+          <Text style={styles.label}>Hostel Block & Room ID (Optional)</Text>
+          <View style={styles.inputWrapper}>
+            <Ionicons name="business-outline" size={18} color={Colors.textMuted} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. Hostel 4, Room 302"
+              placeholderTextColor={Colors.textMuted}
+              value={hostelOrCollegeId}
+              onChangeText={setHostelOrCollegeId}
+            />
+          </View>
 
           <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleRegister}
             disabled={loading}
-            activeOpacity={0.8}
+            activeOpacity={0.85}
+            style={styles.buttonWrapper}
           >
-            {loading ? (
-              <ActivityIndicator color={Colors.white} />
-            ) : (
-              <Text style={styles.buttonText}>Sign Up</Text>
-            )}
+            <LinearGradient
+              colors={['#4F46E5', '#6366F1']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={[styles.button, loading && styles.buttonDisabled]}
+            >
+              {loading ? (
+                <ActivityIndicator color={Colors.white} />
+              ) : (
+                <View style={styles.buttonInner}>
+                  <Text style={styles.buttonText}>Register Student Account</Text>
+                  <Ionicons name="checkmark-circle" size={18} color={Colors.white} />
+                </View>
+              )}
+            </LinearGradient>
           </TouchableOpacity>
         </View>
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>Already have an account? </Text>
           <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
-            <Text style={styles.linkText}>Log in</Text>
+            <Text style={styles.linkText}>Log In</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -169,90 +201,106 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: Spacing.lg,
-    paddingVertical: Spacing.xl,
+    padding: Spacing.md,
+    paddingTop: Platform.OS === 'ios' ? Spacing.xl : Spacing.md,
+    paddingBottom: Spacing.xxl,
+    gap: Spacing.md,
   },
-  header: {
+  heroHeader: {
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
     alignItems: 'center',
-    marginBottom: Spacing.lg,
+    ...Shadows.glow,
   },
   appName: {
-    fontSize: Typography.xxl,
+    fontSize: Typography.xl,
     fontWeight: 'bold',
-    color: Colors.primary,
-    marginBottom: Spacing.xs,
+    color: Colors.white,
+    marginBottom: 2,
   },
   subtext: {
-    fontSize: Typography.sm,
-    color: Colors.textSecondary,
+    fontSize: Typography.xs,
+    color: 'rgba(255,255,255,0.8)',
     textAlign: 'center',
-    paddingHorizontal: Spacing.md,
   },
   errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
     backgroundColor: Colors.dangerBg,
     borderColor: Colors.danger,
     borderWidth: 1,
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
-    marginBottom: Spacing.md,
   },
   errorText: {
     color: Colors.danger,
-    fontSize: Typography.sm,
-    textAlign: 'center',
+    fontSize: Typography.xs,
+    flex: 1,
   },
-  form: {
+  formCard: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
-    borderColor: Colors.border,
     borderWidth: 1,
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    borderColor: Colors.border,
+    ...Shadows.card,
   },
   label: {
-    fontSize: Typography.sm,
+    fontSize: Typography.xs,
     fontWeight: '600',
     color: Colors.text,
-    marginBottom: Spacing.xs,
-    marginTop: Spacing.sm,
+    marginBottom: 4,
+    marginTop: Spacing.xs,
   },
-  input: {
-    height: 48,
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 46,
     borderWidth: 1,
     borderColor: Colors.border,
     borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.md,
-    fontSize: Typography.base,
-    color: Colors.text,
     backgroundColor: Colors.white,
+    paddingHorizontal: Spacing.sm,
+    marginBottom: Spacing.xs,
+  },
+  inputIcon: {
+    marginRight: Spacing.xs,
+  },
+  input: {
+    flex: 1,
+    fontSize: Typography.sm,
+    color: Colors.text,
+  },
+  buttonWrapper: {
+    marginTop: Spacing.lg,
+    borderRadius: BorderRadius.md,
+    overflow: 'hidden',
+    ...Shadows.glow,
   },
   button: {
-    backgroundColor: Colors.primary,
     height: 48,
-    borderRadius: BorderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: Spacing.lg,
+  },
+  buttonInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
   },
   buttonDisabled: {
     opacity: 0.6,
   },
   buttonText: {
     color: Colors.white,
-    fontSize: Typography.base,
+    fontSize: Typography.sm,
     fontWeight: 'bold',
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: Spacing.lg,
+    marginTop: Spacing.xs,
   },
   footerText: {
     fontSize: Typography.sm,

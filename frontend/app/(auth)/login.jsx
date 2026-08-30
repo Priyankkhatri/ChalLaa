@@ -11,9 +11,10 @@ import {
   ScrollView,
 } from 'react-native';
 import { router } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
-import { Colors, Spacing, Typography, BorderRadius } from '../../constants/theme';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
 export default function LoginScreen() {
   const { login } = useAuth();
@@ -62,14 +63,20 @@ export default function LoginScreen() {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.header}>
+        {/* Gradient Hero Header */}
+        <LinearGradient
+          colors={['#4F46E5', '#7C3AED', '#6366F1']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroHeader}
+        >
           <View style={styles.logoBadge}>
-            <Ionicons name="bicycle" size={32} color={Colors.white} />
+            <Ionicons name="bicycle" size={32} color={Colors.primary} />
           </View>
           <Text style={styles.appName}>ChalLaa 🏃</Text>
-          <Text style={styles.tagline}>Peer-to-Peer Errand Coordination</Text>
+          <Text style={styles.tagline}>Campus Peer-to-Peer Errands</Text>
           <Text style={styles.subtext}>Hyperlocal Hostel & Campus Community</Text>
-        </View>
+        </LinearGradient>
 
         {errorMessage ? (
           <View style={styles.errorContainer}>
@@ -78,79 +85,112 @@ export default function LoginScreen() {
           </View>
         ) : null}
 
-        <View style={styles.form}>
+        {/* Login Form Card */}
+        <View style={styles.formCard}>
+          <Text style={styles.formTitle}>Welcome Back</Text>
+          <Text style={styles.formSubtitle}>Sign in to your campus account</Text>
+
           <Text style={styles.label}>College / Hostel Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g. aryan@campus.edu"
-            placeholderTextColor={Colors.textMuted}
-            value={email}
-            onChangeText={(val) => {
-              setEmail(val);
-              if (errorMessage) setErrorMessage(null);
-            }}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            autoCorrect={false}
-          />
+          <View style={styles.inputWrapper}>
+            <Ionicons name="mail-outline" size={18} color={Colors.textMuted} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. aryan@campus.edu"
+              placeholderTextColor={Colors.textMuted}
+              value={email}
+              onChangeText={(val) => {
+                setEmail(val);
+                if (errorMessage) setErrorMessage(null);
+              }}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              autoCorrect={false}
+            />
+          </View>
 
           <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="••••••••"
-            placeholderTextColor={Colors.textMuted}
-            value={password}
-            onChangeText={(val) => {
-              setPassword(val);
-              if (errorMessage) setErrorMessage(null);
-            }}
-            secureTextEntry
-            autoCapitalize="none"
-          />
+          <View style={styles.inputWrapper}>
+            <Ionicons name="lock-closed-outline" size={18} color={Colors.textMuted} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="••••••••"
+              placeholderTextColor={Colors.textMuted}
+              value={password}
+              onChangeText={(val) => {
+                setPassword(val);
+                if (errorMessage) setErrorMessage(null);
+              }}
+              secureTextEntry
+              autoCapitalize="none"
+            />
+          </View>
 
+          {/* Gradient Submit Button */}
           <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
             onPress={() => handleLogin()}
             disabled={loading}
-            activeOpacity={0.8}
+            activeOpacity={0.85}
+            style={styles.buttonWrapper}
           >
-            {loading ? (
-              <ActivityIndicator color={Colors.white} />
-            ) : (
-              <Text style={styles.buttonText}>Log In to Campus Feed</Text>
-            )}
+            <LinearGradient
+              colors={['#4F46E5', '#6366F1']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={[styles.button, loading && styles.buttonDisabled]}
+            >
+              {loading ? (
+                <ActivityIndicator color={Colors.white} />
+              ) : (
+                <View style={styles.buttonInner}>
+                  <Text style={styles.buttonText}>Log In to Campus Feed</Text>
+                  <Ionicons name="arrow-forward" size={18} color={Colors.white} />
+                </View>
+              )}
+            </LinearGradient>
           </TouchableOpacity>
         </View>
 
         {/* 1-Tap Quick Demo Login Section */}
         <View style={styles.demoSection}>
-          <Text style={styles.demoTitle}>Quick 1-Tap Demo Logins:</Text>
+          <Text style={styles.demoTitle}>⚡ 1-Tap Quick Demo Logins</Text>
           <View style={styles.demoButtonsRow}>
             <TouchableOpacity
               style={styles.demoChip}
               onPress={() => fillDemoAccount('aryan@campus.edu', 'Password@123')}
               disabled={loading}
+              activeOpacity={0.8}
             >
-              <Ionicons name="shield-checkmark" size={14} color={Colors.primary} />
-              <Text style={styles.demoChipText}>Admin (Aryan)</Text>
+              <View style={[styles.demoIconCircle, { backgroundColor: '#EEF2FF' }]}>
+                <Ionicons name="shield-checkmark" size={14} color={Colors.primary} />
+              </View>
+              <Text style={styles.demoChipTitle}>Admin</Text>
+              <Text style={styles.demoChipSub}>Aryan</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.demoChip}
               onPress={() => fillDemoAccount('priya@campus.edu', 'Password@123')}
               disabled={loading}
+              activeOpacity={0.8}
             >
-              <Ionicons name="person" size={14} color={Colors.secondaryDark} />
-              <Text style={styles.demoChipText}>Student (Priya)</Text>
+              <View style={[styles.demoIconCircle, { backgroundColor: '#ECFDF5' }]}>
+                <Ionicons name="person" size={14} color={Colors.secondaryDark} />
+              </View>
+              <Text style={styles.demoChipTitle}>Student</Text>
+              <Text style={styles.demoChipSub}>Priya</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.demoChip}
               onPress={() => fillDemoAccount('rahul@campus.edu', 'Password@123')}
               disabled={loading}
+              activeOpacity={0.8}
             >
-              <Ionicons name="bicycle" size={14} color="#D97706" />
-              <Text style={styles.demoChipText}>Runner (Rahul)</Text>
+              <View style={[styles.demoIconCircle, { backgroundColor: '#FEF3C7' }]}>
+                <Ionicons name="bicycle" size={14} color="#D97706" />
+              </View>
+              <Text style={styles.demoChipTitle}>Runner</Text>
+              <Text style={styles.demoChipSub}>Rahul</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -172,43 +212,42 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: Spacing.lg,
+    padding: Spacing.md,
+    paddingTop: Platform.OS === 'ios' ? Spacing.xl : Spacing.md,
+    paddingBottom: Spacing.xxl,
+    gap: Spacing.md,
   },
-  header: {
+  heroHeader: {
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.xl,
     alignItems: 'center',
-    marginBottom: Spacing.lg,
+    ...Shadows.glow,
   },
   logoBadge: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.white,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.sm,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    ...Shadows.card,
   },
   appName: {
-    fontSize: Typography.title + 6,
+    fontSize: Typography.title,
     fontWeight: 'bold',
-    color: Colors.primary,
+    color: Colors.white,
     marginBottom: 2,
   },
   tagline: {
-    fontSize: Typography.base,
+    fontSize: Typography.sm,
     fontWeight: '600',
-    color: Colors.text,
+    color: 'rgba(255,255,255,0.9)',
     marginBottom: 2,
   },
   subtext: {
-    fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    fontSize: Typography.xs - 1,
+    color: 'rgba(255,255,255,0.75)',
     textAlign: 'center',
   },
   errorContainer: {
@@ -220,49 +259,71 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
-    marginBottom: Spacing.md,
   },
   errorText: {
     color: Colors.danger,
     fontSize: Typography.xs,
     flex: 1,
   },
-  form: {
+  formCard: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
-    borderColor: Colors.border,
     borderWidth: 1,
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    borderColor: Colors.border,
+    ...Shadows.card,
+  },
+  formTitle: {
+    fontSize: Typography.lg,
+    fontWeight: 'bold',
+    color: Colors.text,
+  },
+  formSubtitle: {
+    fontSize: Typography.xs,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.md,
   },
   label: {
     fontSize: Typography.xs,
     fontWeight: '600',
     color: Colors.text,
-    marginBottom: Spacing.xs,
-    marginTop: Spacing.sm,
+    marginBottom: 4,
+    marginTop: Spacing.xs,
   },
-  input: {
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
     height: 48,
     borderWidth: 1,
     borderColor: Colors.border,
     borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.md,
+    backgroundColor: Colors.white,
+    paddingHorizontal: Spacing.sm,
+    marginBottom: Spacing.xs,
+  },
+  inputIcon: {
+    marginRight: Spacing.xs,
+  },
+  input: {
+    flex: 1,
     fontSize: Typography.sm,
     color: Colors.text,
-    backgroundColor: Colors.white,
+  },
+  buttonWrapper: {
+    marginTop: Spacing.lg,
+    borderRadius: BorderRadius.md,
+    overflow: 'hidden',
+    ...Shadows.glow,
   },
   button: {
-    backgroundColor: Colors.primary,
     height: 48,
-    borderRadius: BorderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: Spacing.lg,
+  },
+  buttonInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
   },
   buttonDisabled: {
     opacity: 0.6,
@@ -273,12 +334,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   demoSection: {
-    marginTop: Spacing.lg,
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
+    ...Shadows.subtle,
   },
   demoTitle: {
     fontSize: Typography.xs,
@@ -286,6 +347,7 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     marginBottom: Spacing.sm,
     textAlign: 'center',
+    textTransform: 'uppercase',
   },
   demoButtonsRow: {
     flexDirection: 'row',
@@ -294,27 +356,36 @@ const styles = StyleSheet.create({
   },
   demoChip: {
     flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
     backgroundColor: Colors.background,
     paddingVertical: Spacing.sm,
     paddingHorizontal: 4,
-    borderRadius: BorderRadius.sm,
+    borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: Colors.borderLight,
+    borderColor: Colors.border,
   },
-  demoChipText: {
-    fontSize: Typography.xs - 2,
+  demoIconCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  demoChipTitle: {
+    fontSize: Typography.xs,
     fontWeight: 'bold',
     color: Colors.text,
+  },
+  demoChipSub: {
+    fontSize: Typography.xs - 2,
+    color: Colors.textSecondary,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: Spacing.lg,
+    marginTop: Spacing.xs,
   },
   footerText: {
     fontSize: Typography.sm,
