@@ -11,6 +11,7 @@ const { errorHandler, notFoundHandler } = require('./src/middleware/error.middle
 // Routes
 const authRoutes = require('./src/routes/auth.routes');
 const userRoutes = require('./src/routes/user.routes');
+const errandRoutes = require('./src/routes/errand.routes');
 
 const app = express();
 const server = http.createServer(app);
@@ -43,6 +44,7 @@ app.get('/api/health', (req, res) => {
 // Mount API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/errands', errandRoutes);
 
 // Socket.io connection placeholder
 io.on('connection', (socket) => {
