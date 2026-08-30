@@ -18,6 +18,8 @@ import { getSocket } from '../../services/socket';
 import { sendLocalNotification } from '../../services/notifications';
 import { Colors, Spacing, Typography, BorderRadius } from '../../constants/theme';
 
+import TrackingSection from '../../components/TrackingSection';
+
 const STATUS_STEPS = ['posted', 'accepted', 'in_progress', 'delivered'];
 
 export default function ErrandDetailScreen() {
@@ -248,260 +250,266 @@ export default function ErrandDetailScreen() {
           />
         }
       >
-        {/* Errand Header Card */}
-        <View style={styles.card}>
-          <View style={styles.headerTopRow}>
-            <View style={styles.categoryBadge}>
-              <Text style={styles.categoryBadgeText}>
-                {errand.category?.toUpperCase() || 'GENERAL'}
-              </Text>
+        {activeTab === 'tracking' ? (
+          <TrackingSection errand={errand} currentUser={user} />
+        ) : activeTab === 'overview' ? (
+          <>
+            {/* Errand Header Card */}
+            <View style={styles.card}>
+              <View style={styles.headerTopRow}>
+                <View style={styles.categoryBadge}>
+                  <Text style={styles.categoryBadgeText}>
+                    {errand.category?.toUpperCase() || 'GENERAL'}
+                  </Text>
+                </View>
+                <View style={styles.budgetBadge}>
+                  <Text style={styles.budgetText}>Budget: ₹{errand.budget || 0}</Text>
+                </View>
+              </View>
+
+              <Text style={styles.title}>{errand.title}</Text>
+              {errand.description ? (
+                <Text style={styles.description}>{errand.description}</Text>
+              ) : null}
+
+              <View style={styles.addressRow}>
+                <Ionicons name="location" size={16} color={Colors.primary} />
+                <Text style={styles.addressText}>{errand.address || 'Campus Hostels'}</Text>
+              </View>
             </View>
-            <View style={styles.budgetBadge}>
-              <Text style={styles.budgetText}>Budget: ₹{errand.budget || 0}</Text>
-            </View>
-          </View>
 
-          <Text style={styles.title}>{errand.title}</Text>
-          {errand.description ? (
-            <Text style={styles.description}>{errand.description}</Text>
-          ) : null}
+            {/* Status Lifecycle Stepper Timeline */}
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>Status Lifecycle</Text>
 
-          <View style={styles.addressRow}>
-            <Ionicons name="location" size={16} color={Colors.primary} />
-            <Text style={styles.addressText}>{errand.address || 'Campus Hostels'}</Text>
-          </View>
-        </View>
+              {errand.status === 'cancelled' ? (
+                <View style={styles.cancelledBanner}>
+                  <Ionicons name="close-circle" size={20} color={Colors.danger} />
+                  <Text style={styles.cancelledText}>This errand has been CANCELLED.</Text>
+                </View>
+              ) : (
+                <View style={styles.stepperContainer}>
+                  {STATUS_STEPS.map((step, idx) => {
+                    const isCompleted = currentStepIndex >= idx;
+                    const isCurrent = currentStepIndex === idx;
 
-        {/* Status Lifecycle Stepper Timeline */}
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Status Lifecycle</Text>
+                    const stepTitles = {
+                      posted: 'Posted',
+                      accepted: 'Accepted',
+                      in_progress: 'In Progress',
+                      delivered: 'Delivered',
+                    };
 
-          {errand.status === 'cancelled' ? (
-            <View style={styles.cancelledBanner}>
-              <Ionicons name="close-circle" size={20} color={Colors.danger} />
-              <Text style={styles.cancelledText}>This errand has been CANCELLED.</Text>
-            </View>
-          ) : (
-            <View style={styles.stepperContainer}>
-              {STATUS_STEPS.map((step, idx) => {
-                const isCompleted = currentStepIndex >= idx;
-                const isCurrent = currentStepIndex === idx;
+                    return (
+                      <View key={step} style={styles.stepItem}>
+                        <View
+                          style={[
+                            styles.stepCircle,
+                            isCompleted && styles.stepCircleCompleted,
+                            isCurrent && styles.stepCircleCurrent,
+                          ]}
+                        >
+                          {isCompleted ? (
+                            <Ionicons name="checkmark" size={14} color={Colors.white} />
+                          ) : (
+                            <Text style={styles.stepNumber}>{idx + 1}</Text>
+                          )}
+                        </View>
+                        <Text
+                          style={[
+                            styles.stepLabel,
+                            isCurrent && styles.stepLabelCurrent,
+                            isCompleted && styles.stepLabelCompleted,
+                          ]}
+                        >
+                          {stepTitles[step]}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              )}
 
-                const stepTitles = {
-                  posted: 'Posted',
-                  accepted: 'Accepted',
-                  in_progress: 'In Progress',
-                  delivered: 'Delivered',
-                };
-
-                return (
-                  <View key={step} style={styles.stepItem}>
-                    <View
-                      style={[
-                        styles.stepCircle,
-                        isCompleted && styles.stepCircleCompleted,
-                        isCurrent && styles.stepCircleCurrent,
-                      ]}
-                    >
-                      {isCompleted ? (
-                        <Ionicons name="checkmark" size={14} color={Colors.white} />
-                      ) : (
-                        <Text style={styles.stepNumber}>{idx + 1}</Text>
-                      )}
-                    </View>
-                    <Text
-                      style={[
-                        styles.stepLabel,
-                        isCurrent && styles.stepLabelCurrent,
-                        isCompleted && styles.stepLabelCompleted,
-                      ]}
-                    >
-                      {stepTitles[step]}
+              {/* Status History Log with Timestamps */}
+              <View style={styles.historyBox}>
+                <Text style={styles.historyTitle}>Activity Log</Text>
+                {errand.statusHistory?.map((hist, index) => (
+                  <View key={index} style={styles.historyRow}>
+                    <Ionicons name="time-outline" size={14} color={Colors.textSecondary} />
+                    <Text style={styles.historyText}>
+                      <Text style={styles.historyStatus}>{hist.status.toUpperCase()}:</Text>{' '}
+                      {new Date(hist.timestamp).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}{' '}
+                      - {new Date(hist.timestamp).toLocaleDateString()}
                     </Text>
                   </View>
-                );
-              })}
+                ))}
+              </View>
             </View>
-          )}
 
-          {/* Status History Log with Timestamps */}
-          <View style={styles.historyBox}>
-            <Text style={styles.historyTitle}>Activity Log</Text>
-            {errand.statusHistory?.map((hist, index) => (
-              <View key={index} style={styles.historyRow}>
-                <Ionicons name="time-outline" size={14} color={Colors.textSecondary} />
-                <Text style={styles.historyText}>
-                  <Text style={styles.historyStatus}>{hist.status.toUpperCase()}:</Text>{' '}
-                  {new Date(hist.timestamp).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}{' '}
-                  - {new Date(hist.timestamp).toLocaleDateString()}
-                </Text>
-              </View>
-            ))}
-          </View>
-        </View>
+            {/* People Involved (Requester & Runner Cards) */}
+            <View style={styles.peopleSection}>
+              {/* Requester Card */}
+              <View style={styles.personCard}>
+                <Text style={styles.personRoleLabel}>Requester (Posted By)</Text>
+                <View style={styles.personDetailsRow}>
+                  <View style={styles.personAvatar}>
+                    <Text style={styles.personAvatarText}>
+                      {errand.requesterId?.name ? errand.requesterId.name.charAt(0).toUpperCase() : 'U'}
+                    </Text>
+                  </View>
+                  <View style={styles.personInfo}>
+                    <View style={styles.nameRow}>
+                      <Text style={styles.personName}>{errand.requesterId?.name || 'Peer'}</Text>
+                      {errand.requesterId?.isVerified ? (
+                        <Ionicons name="checkmark-circle" size={14} color={Colors.secondaryDark} />
+                      ) : null}
+                    </View>
+                    <Text style={styles.personSubtext}>
+                      Hostel: {errand.requesterId?.hostelOrCollegeId || 'Hostel Campus'}
+                    </Text>
+                    <Text style={styles.personKarma}>⭐ {errand.requesterId?.karmaScore ?? 100} Karma</Text>
+                  </View>
 
-        {/* People Involved (Requester & Runner Cards) */}
-        <View style={styles.peopleSection}>
-          {/* Requester Card */}
-          <View style={styles.personCard}>
-            <Text style={styles.personRoleLabel}>Requester (Posted By)</Text>
-            <View style={styles.personDetailsRow}>
-              <View style={styles.personAvatar}>
-                <Text style={styles.personAvatarText}>
-                  {errand.requesterId?.name ? errand.requesterId.name.charAt(0).toUpperCase() : 'U'}
-                </Text>
-              </View>
-              <View style={styles.personInfo}>
-                <View style={styles.nameRow}>
-                  <Text style={styles.personName}>{errand.requesterId?.name || 'Peer'}</Text>
-                  {errand.requesterId?.isVerified ? (
-                    <Ionicons name="checkmark-circle" size={14} color={Colors.secondaryDark} />
+                  {errand.requesterId?.phone && !isRequester ? (
+                    <TouchableOpacity
+                      style={styles.callBtn}
+                      onPress={() => Linking.openURL(`tel:${errand.requesterId.phone}`)}
+                    >
+                      <Ionicons name="call" size={16} color={Colors.primary} />
+                    </TouchableOpacity>
                   ) : null}
                 </View>
-                <Text style={styles.personSubtext}>
-                  Hostel: {errand.requesterId?.hostelOrCollegeId || 'Hostel Campus'}
-                </Text>
-                <Text style={styles.personKarma}>⭐ {errand.requesterId?.karmaScore ?? 100} Karma</Text>
               </View>
 
-              {errand.requesterId?.phone && !isRequester ? (
+              {/* Runner Card */}
+              <View style={styles.personCard}>
+                <Text style={styles.personRoleLabel}>Runner (Fulfilling Task)</Text>
+                {errand.runnerId ? (
+                  <View style={styles.personDetailsRow}>
+                    <View style={[styles.personAvatar, { backgroundColor: '#DCFCE7' }]}>
+                      <Text style={[styles.personAvatarText, { color: Colors.secondaryDark }]}>
+                        {errand.runnerId?.name ? errand.runnerId.name.charAt(0).toUpperCase() : 'R'}
+                      </Text>
+                    </View>
+                    <View style={styles.personInfo}>
+                      <View style={styles.nameRow}>
+                        <Text style={styles.personName}>{errand.runnerId?.name || 'Runner'}</Text>
+                        {errand.runnerId?.isVerified ? (
+                          <Ionicons name="checkmark-circle" size={14} color={Colors.secondaryDark} />
+                        ) : null}
+                      </View>
+                      <Text style={styles.personSubtext}>
+                        Hostel: {errand.runnerId?.hostelOrCollegeId || 'Hostel Campus'}
+                      </Text>
+                      <Text style={styles.personKarma}>⭐ {errand.runnerId?.karmaScore ?? 100} Karma</Text>
+                    </View>
+
+                    {errand.runnerId?.phone && !isRunner ? (
+                      <TouchableOpacity
+                        style={styles.callBtn}
+                        onPress={() => Linking.openURL(`tel:${errand.runnerId.phone}`)}
+                      >
+                        <Ionicons name="call" size={16} color={Colors.primary} />
+                      </TouchableOpacity>
+                    ) : null}
+                  </View>
+                ) : (
+                  <View style={styles.unassignedBox}>
+                    <Ionicons name="hourglass-outline" size={20} color={Colors.accent} />
+                    <Text style={styles.unassignedText}>
+                      Waiting for a peer to accept this errand.
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </View>
+
+            {/* Dynamic Lifecycle Action Buttons */}
+            <View style={styles.actionSection}>
+              {/* Case 1: Errand is posted and user is not requester -> User can accept */}
+              {errand.status === 'posted' && !isRequester ? (
                 <TouchableOpacity
-                  style={styles.callBtn}
-                  onPress={() => Linking.openURL(`tel:${errand.requesterId.phone}`)}
+                  style={[styles.primaryActionBtn, actionLoading && styles.btnDisabled]}
+                  onPress={handleAcceptErrand}
+                  disabled={actionLoading}
                 >
-                  <Ionicons name="call" size={16} color={Colors.primary} />
+                  {actionLoading ? (
+                    <ActivityIndicator color={Colors.white} />
+                  ) : (
+                    <>
+                      <Ionicons name="bicycle" size={20} color={Colors.white} />
+                      <Text style={styles.primaryActionBtnText}>Accept Errand (Become Runner)</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              ) : null}
+
+              {/* Case 2: Errand is accepted and user is runner -> Runner starts task */}
+              {errand.status === 'accepted' && isRunner ? (
+                <TouchableOpacity
+                  style={[styles.primaryActionBtn, actionLoading && styles.btnDisabled]}
+                  onPress={() => handleUpdateStatus('in_progress')}
+                  disabled={actionLoading}
+                >
+                  {actionLoading ? (
+                    <ActivityIndicator color={Colors.white} />
+                  ) : (
+                    <>
+                      <Ionicons name="navigate" size={20} color={Colors.white} />
+                      <Text style={styles.primaryActionBtnText}>Start Errand & Share Live Location</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              ) : null}
+
+              {/* Case 3: Errand is in_progress and user is runner -> Runner completes task */}
+              {errand.status === 'in_progress' && isRunner ? (
+                <TouchableOpacity
+                  style={[
+                    styles.primaryActionBtn,
+                    { backgroundColor: Colors.secondary },
+                    actionLoading && styles.btnDisabled,
+                  ]}
+                  onPress={() => handleUpdateStatus('delivered')}
+                  disabled={actionLoading}
+                >
+                  {actionLoading ? (
+                    <ActivityIndicator color={Colors.white} />
+                  ) : (
+                    <>
+                      <Ionicons name="checkmark-done" size={20} color={Colors.white} />
+                      <Text style={styles.primaryActionBtnText}>Mark as Delivered</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              ) : null}
+
+              {/* Case 4: Errand is delivered and user is requester -> Settlement & rating */}
+              {errand.status === 'delivered' ? (
+                <View style={styles.deliveredSuccessBox}>
+                  <Ionicons name="checkmark-circle" size={28} color={Colors.secondaryDark} />
+                  <Text style={styles.deliveredSuccessText}>
+                    Errand Completed Successfully!
+                  </Text>
+                </View>
+              ) : null}
+
+              {/* Cancel button if applicable before completion */}
+              {(errand.status === 'posted' || errand.status === 'accepted') && (isRequester || isRunner) ? (
+                <TouchableOpacity
+                  style={styles.cancelBtn}
+                  onPress={() => handleUpdateStatus('cancelled')}
+                  disabled={actionLoading}
+                >
+                  <Text style={styles.cancelBtnText}>Cancel Errand</Text>
                 </TouchableOpacity>
               ) : null}
             </View>
-          </View>
-
-          {/* Runner Card */}
-          <View style={styles.personCard}>
-            <Text style={styles.personRoleLabel}>Runner (Fulfilling Task)</Text>
-            {errand.runnerId ? (
-              <View style={styles.personDetailsRow}>
-                <View style={[styles.personAvatar, { backgroundColor: '#DCFCE7' }]}>
-                  <Text style={[styles.personAvatarText, { color: Colors.secondaryDark }]}>
-                    {errand.runnerId?.name ? errand.runnerId.name.charAt(0).toUpperCase() : 'R'}
-                  </Text>
-                </View>
-                <View style={styles.personInfo}>
-                  <View style={styles.nameRow}>
-                    <Text style={styles.personName}>{errand.runnerId?.name || 'Runner'}</Text>
-                    {errand.runnerId?.isVerified ? (
-                      <Ionicons name="checkmark-circle" size={14} color={Colors.secondaryDark} />
-                    ) : null}
-                  </View>
-                  <Text style={styles.personSubtext}>
-                    Hostel: {errand.runnerId?.hostelOrCollegeId || 'Hostel Campus'}
-                  </Text>
-                  <Text style={styles.personKarma}>⭐ {errand.runnerId?.karmaScore ?? 100} Karma</Text>
-                </View>
-
-                {errand.runnerId?.phone && !isRunner ? (
-                  <TouchableOpacity
-                    style={styles.callBtn}
-                    onPress={() => Linking.openURL(`tel:${errand.runnerId.phone}`)}
-                  >
-                    <Ionicons name="call" size={16} color={Colors.primary} />
-                  </TouchableOpacity>
-                ) : null}
-              </View>
-            ) : (
-              <View style={styles.unassignedBox}>
-                <Ionicons name="hourglass-outline" size={20} color={Colors.accent} />
-                <Text style={styles.unassignedText}>
-                  Waiting for a peer to accept this errand.
-                </Text>
-              </View>
-            )}
-          </View>
-        </View>
-
-        {/* Dynamic Lifecycle Action Buttons */}
-        <View style={styles.actionSection}>
-          {/* Case 1: Errand is posted and user is not requester -> User can accept */}
-          {errand.status === 'posted' && !isRequester ? (
-            <TouchableOpacity
-              style={[styles.primaryActionBtn, actionLoading && styles.btnDisabled]}
-              onPress={handleAcceptErrand}
-              disabled={actionLoading}
-            >
-              {actionLoading ? (
-                <ActivityIndicator color={Colors.white} />
-              ) : (
-                <>
-                  <Ionicons name="bicycle" size={20} color={Colors.white} />
-                  <Text style={styles.primaryActionBtnText}>Accept Errand (Become Runner)</Text>
-                </>
-              )}
-            </TouchableOpacity>
-          ) : null}
-
-          {/* Case 2: Errand is accepted and user is runner -> Runner starts task */}
-          {errand.status === 'accepted' && isRunner ? (
-            <TouchableOpacity
-              style={[styles.primaryActionBtn, actionLoading && styles.btnDisabled]}
-              onPress={() => handleUpdateStatus('in_progress')}
-              disabled={actionLoading}
-            >
-              {actionLoading ? (
-                <ActivityIndicator color={Colors.white} />
-              ) : (
-                <>
-                  <Ionicons name="navigate" size={20} color={Colors.white} />
-                  <Text style={styles.primaryActionBtnText}>Start Errand & Share Live Location</Text>
-                </>
-              )}
-            </TouchableOpacity>
-          ) : null}
-
-          {/* Case 3: Errand is in_progress and user is runner -> Runner completes task */}
-          {errand.status === 'in_progress' && isRunner ? (
-            <TouchableOpacity
-              style={[
-                styles.primaryActionBtn,
-                { backgroundColor: Colors.secondary },
-                actionLoading && styles.btnDisabled,
-              ]}
-              onPress={() => handleUpdateStatus('delivered')}
-              disabled={actionLoading}
-            >
-              {actionLoading ? (
-                <ActivityIndicator color={Colors.white} />
-              ) : (
-                <>
-                  <Ionicons name="checkmark-done" size={20} color={Colors.white} />
-                  <Text style={styles.primaryActionBtnText}>Mark as Delivered</Text>
-                </>
-              )}
-            </TouchableOpacity>
-          ) : null}
-
-          {/* Case 4: Errand is delivered and user is requester -> Settlement & rating */}
-          {errand.status === 'delivered' ? (
-            <View style={styles.deliveredSuccessBox}>
-              <Ionicons name="checkmark-circle" size={28} color={Colors.secondaryDark} />
-              <Text style={styles.deliveredSuccessText}>
-                Errand Completed Successfully!
-              </Text>
-            </View>
-          ) : null}
-
-          {/* Cancel button if applicable before completion */}
-          {(errand.status === 'posted' || errand.status === 'accepted') && (isRequester || isRunner) ? (
-            <TouchableOpacity
-              style={styles.cancelBtn}
-              onPress={() => handleUpdateStatus('cancelled')}
-              disabled={actionLoading}
-            >
-              <Text style={styles.cancelBtnText}>Cancel Errand</Text>
-            </TouchableOpacity>
-          ) : null}
-        </View>
+          </>
+        ) : null}
       </ScrollView>
     </View>
   );
