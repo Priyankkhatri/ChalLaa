@@ -13,6 +13,10 @@ const authRoutes = require('./src/routes/auth.routes');
 const userRoutes = require('./src/routes/user.routes');
 const errandRoutes = require('./src/routes/errand.routes');
 
+// Sockets
+const registerChatSocket = require('./src/sockets/chat.socket');
+const registerLocationSocket = require('./src/sockets/location.socket');
+
 const app = express();
 const server = http.createServer(app);
 
@@ -46,9 +50,14 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/errands', errandRoutes);
 
-// Socket.io connection placeholder
+// Socket.io connection and room event routing
 io.on('connection', (socket) => {
   console.log(`[Socket.io] Client connected: ${socket.id}`);
+
+  // Register feature sockets
+  registerChatSocket(io, socket);
+  registerLocationSocket(io, socket);
+
   socket.on('disconnect', () => {
     console.log(`[Socket.io] Client disconnected: ${socket.id}`);
   });
