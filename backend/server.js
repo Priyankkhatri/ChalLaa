@@ -8,6 +8,10 @@ const env = require('./src/config/env');
 const connectDB = require('./src/config/db');
 const { errorHandler, notFoundHandler } = require('./src/middleware/error.middleware');
 
+// Routes
+const authRoutes = require('./src/routes/auth.routes');
+const userRoutes = require('./src/routes/user.routes');
+
 const app = express();
 const server = http.createServer(app);
 
@@ -35,6 +39,10 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// Mount API routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 // Socket.io connection placeholder
 io.on('connection', (socket) => {
