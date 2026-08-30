@@ -10,11 +10,13 @@ import {
   FlatList,
   Alert,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
+import { router } from 'expo-router';
 import * as Contacts from 'expo-contacts';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
-import { Colors, Spacing, Typography, BorderRadius } from '../../constants/theme';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
 export default function ProfileScreen() {
   const { user, logout, updateUser, refreshProfile } = useAuth();
@@ -29,7 +31,7 @@ export default function ProfileScreen() {
   const [contactsModalVisible, setContactsModalVisible] = useState(false);
   const [deviceContacts, setDeviceContacts] = useState([]);
   const [loadingContacts, setLoadingContacts] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchContactText, setSearchContactText] = useState('');
 
   // Manual contact modal state
   const [manualContactModalVisible, setManualContactModalVisible] = useState(false);
@@ -44,7 +46,7 @@ export default function ProfileScreen() {
     }
   }, [user]);
 
-  // Handle Profile Update
+  // Save profile changes
   const handleSaveProfile = async () => {
     if (!name.trim()) {
       Alert.alert('Validation Error', 'Name cannot be empty.');
@@ -59,68 +61,69 @@ export default function ProfileScreen() {
         hostelOrCollegeId: hostelOrCollegeId.trim(),
       });
       setIsEditing(false);
-      Alert.alert('Success', 'Profile updated successfully.');
+      Alert.alert('Profile Updated', 'Your profile details have been saved successfully.');
     } catch (error) {
-      Alert.alert('Error', error.response?.data?.message || 'Failed to update profile.');
+      Alert.alert('Update Failed', error.response?.data?.message || 'Could not update profile.');
     } finally {
       setSavingProfile(false);
     }
   };
 
-  // Import Device Contacts using expo-contacts per Unit 4 conventions
+  // Device contact import via expo-contacts per Unit 4 conventions
   const handleOpenDeviceContacts = async () => {
+    setLoadingContacts(true);
     try {
-      setLoadingContacts(true);
       const { status } = await Contacts.requestPermissionsAsync();
-
       if (status !== 'granted') {
         Alert.alert(
           'Permission Denied',
-          'Permission to access device contacts was denied. You can add contacts manually instead.'
+          'Contact access is required to import trusted peers directly from your phone address book.'
         );
         setLoadingContacts(false);
         return;
       }
 
-      setContactsModalVisible(true);
       const { data } = await Contacts.getContactsAsync({
-        fields: [Contacts.Fields.Name, Contacts.Fields.PhoneNumbers],
+        fields: [Contacts.Fields.PhoneNumbers, Contacts.Fields.Emails],
+        sort: Contacts.SortTypes.FirstName,
       });
 
       if (data && data.length > 0) {
-        // Filter contacts that have valid phone numbers
-        const validContacts = data
-          .filter((c) => c.name && c.phoneNumbers && c.phoneNumbers.length > 0)
+        const parsed = data
+          .filter((c) => c.phoneNumbers && c.phoneNumbers.length > 0)
           .map((c) => ({
             id: c.id,
-            name: c.name,
+            name: c.name || `${c.firstName || ''} ${c.lastName || ''}`.trim() || 'Unnamed',
             phone: c.phoneNumbers[0].number,
           }));
-        setDeviceContacts(validContacts);
+
+        setDeviceContacts(parsed);
+        setContactsModalVisible(true);
       } else {
-        setDeviceContacts([]);
+        Alert.alert('No Contacts', 'No phone contacts found on device.');
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to load device contacts.');
+      console.warn('[Contacts error]', error);
+      Alert.alert('Error', 'Failed to retrieve device contacts.');
     } finally {
       setLoadingContacts(false);
     }
   };
 
-  // Add Contact to Trusted Contacts List
+  // Add trusted contact
   const handleAddTrustedContact = async (contactName, contactPhone) => {
     if (!contactName.trim() || !contactPhone.trim()) {
-      Alert.alert('Validation Error', 'Both contact name and phone number are required.');
+      Alert.alert('Validation Error', 'Please provide both name and phone number.');
       return;
     }
 
     const currentContacts = user?.trustedContacts || [];
-    // Check if duplicate
     const exists = currentContacts.some(
       (c) => c.phone.replace(/\s+/g, '') === contactPhone.replace(/\s+/g, '')
     );
+
     if (exists) {
-      Alert.alert('Already Added', 'This contact is already in your trusted contacts list.');
+      Alert.alert('Already Added', 'This contact is already in your trusted circle.');
       return;
     }
 
@@ -128,29 +131,29 @@ export default function ProfileScreen() {
 
     try {
       await updateUser({ trustedContacts: updated });
-      setContactsModalVisible(false);
       setManualContactModalVisible(false);
+      setContactsModalVisible(false);
       setNewContactName('');
       setNewContactPhone('');
-      Alert.alert('Success', `${contactName} added to trusted contacts.`);
+      Alert.alert('Added', `${contactName} has been added to your trusted circle!`);
     } catch (error) {
-      Alert.alert('Error', 'Failed to update trusted contacts.');
+      Alert.alert('Error', error.response?.data?.message || 'Failed to save contact.');
     }
   };
 
-  // Remove Contact
-  const handleRemoveContact = (indexToRemove) => {
+  // Remove trusted contact
+  const handleRemoveContact = async (contactId) => {
     Alert.alert('Remove Contact', 'Are you sure you want to remove this trusted contact?', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Remove',
         style: 'destructive',
         onPress: async () => {
-          const currentContacts = user?.trustedContacts || [];
-          const updated = currentContacts.filter((_, idx) => idx !== indexToRemove);
+          const current = user?.trustedContacts || [];
+          const updated = current.filter((c) => c._id !== contactId);
           try {
             await updateUser({ trustedContacts: updated });
-          } catch (error) {
+          } catch (err) {
             Alert.alert('Error', 'Failed to remove contact.');
           }
         },
@@ -158,7 +161,6 @@ export default function ProfileScreen() {
     ]);
   };
 
-  // Logout with confirmation
   const handleLogout = () => {
     Alert.alert('Log Out', 'Are you sure you want to log out of ChalLaa?', [
       { text: 'Cancel', style: 'cancel' },
@@ -170,31 +172,34 @@ export default function ProfileScreen() {
     ]);
   };
 
-  const filteredDeviceContacts = deviceContacts.filter(
+  const filteredContacts = deviceContacts.filter(
     (c) =>
-      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.phone.includes(searchQuery)
+      c.name.toLowerCase().includes(searchContactText.toLowerCase()) ||
+      c.phone.includes(searchContactText)
   );
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      {/* User Header Profile Card */}
-      <View style={styles.profileCard}>
-        <View style={styles.avatarCircle}>
-          <Text style={styles.avatarText}>
-            {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
-          </Text>
+      {/* Hero Profile Header */}
+      <View style={styles.heroCard}>
+        <View style={styles.avatarGlow}>
+          <View style={styles.avatarCircle}>
+            <Text style={styles.avatarText}>
+              {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+            </Text>
+          </View>
         </View>
 
-        <Text style={styles.userName}>{user?.name || 'User'}</Text>
+        <Text style={styles.userName}>{user?.name || 'Student'}</Text>
         <Text style={styles.userEmail}>{user?.email || ''}</Text>
 
+        {/* Badges Row */}
         <View style={styles.badgeRow}>
           <View style={[styles.badge, user?.isVerified ? styles.badgeSuccess : styles.badgeWarning]}>
             <Ionicons
-              name={user?.isVerified ? 'checkmark-circle' : 'time-outline'}
+              name={user?.isVerified ? 'checkmark-circle' : 'hourglass-outline'}
               size={14}
-              color={user?.isVerified ? Colors.secondaryDark : Colors.accent}
+              color={user?.isVerified ? Colors.secondaryDark : Colors.accentDark}
             />
             <Text
               style={[
@@ -212,19 +217,60 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {user?.role === 'admin' ? (
-          <View style={[styles.badge, styles.badgeAdmin]}>
-            <Ionicons name="shield-checkmark" size={14} color={Colors.primary} />
-            <Text style={styles.badgeTextAdmin}>Hostel / Campus Admin</Text>
+        {/* Quick Stats Grid */}
+        <View style={styles.statsGrid}>
+          <View style={styles.statBox}>
+            <Ionicons name="sparkles" size={18} color={Colors.accent} />
+            <Text style={styles.statNumber}>{user?.karmaScore ?? 100}</Text>
+            <Text style={styles.statLabel}>Karma ⭐</Text>
           </View>
-        ) : null}
+
+          <View style={styles.statBox}>
+            <Ionicons name="shield-checkmark" size={18} color={Colors.secondary} />
+            <Text style={styles.statNumber}>{user?.isVerified ? '100%' : '50%'}</Text>
+            <Text style={styles.statLabel}>Trust Score</Text>
+          </View>
+
+          <View style={styles.statBox}>
+            <Ionicons name="people" size={18} color={Colors.primary} />
+            <Text style={styles.statNumber}>{user?.trustedContacts?.length || 0}</Text>
+            <Text style={styles.statLabel}>Circle</Text>
+          </View>
+        </View>
       </View>
+
+      {/* Admin Portal Launcher Banner (Admin Only) */}
+      {user?.role === 'admin' ? (
+        <TouchableOpacity
+          style={styles.adminBanner}
+          activeOpacity={0.85}
+          onPress={() => router.push('/admin')}
+        >
+          <View style={styles.adminIconCircle}>
+            <Ionicons name="shield-half" size={24} color={Colors.white} />
+          </View>
+          <View style={styles.adminBannerText}>
+            <Text style={styles.adminBannerTitle}>Campus Moderation Panel</Text>
+            <Text style={styles.adminBannerSub}>
+              Manage disputes, student verifications & platform KPIs
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={Colors.white} />
+        </TouchableOpacity>
+      ) : null}
 
       {/* Account Details Section */}
       <View style={styles.sectionCard}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Account Details</Text>
-          <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
+          <View style={styles.sectionTitleRow}>
+            <Ionicons name="person-circle-outline" size={20} color={Colors.primary} />
+            <Text style={styles.sectionTitle}>Campus Identity</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.editToggleBtn}
+            onPress={() => setIsEditing(!isEditing)}
+          >
+            <Ionicons name={isEditing ? 'close' : 'create-outline'} size={14} color={Colors.primary} />
             <Text style={styles.editLink}>{isEditing ? 'Cancel' : 'Edit'}</Text>
           </TouchableOpacity>
         </View>
@@ -248,84 +294,100 @@ export default function ProfileScreen() {
               keyboardType="phone-pad"
             />
 
-            <Text style={styles.label}>Hostel / Room / ID</Text>
+            <Text style={styles.label}>Hostel / College ID</Text>
             <TextInput
               style={styles.input}
               value={hostelOrCollegeId}
               onChangeText={setHostelOrCollegeId}
-              placeholder="e.g. Block B, Room 204"
+              placeholder="e.g. Hostel 4, Room 302"
             />
 
             <TouchableOpacity
-              style={[styles.primaryButton, savingProfile && styles.buttonDisabled]}
+              style={[styles.saveButton, savingProfile && styles.btnDisabled]}
               onPress={handleSaveProfile}
               disabled={savingProfile}
             >
               {savingProfile ? (
-                <ActivityIndicator color={Colors.white} size="small" />
+                <ActivityIndicator color={Colors.white} />
               ) : (
-                <Text style={styles.primaryButtonText}>Save Changes</Text>
+                <Text style={styles.saveButtonText}>Save Details</Text>
               )}
             </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.infoList}>
             <View style={styles.infoRow}>
-              <Ionicons name="call-outline" size={18} color={Colors.textSecondary} />
-              <Text style={styles.infoLabel}>Phone:</Text>
-              <Text style={styles.infoValue}>{user?.phone || 'Not set'}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Ionicons name="home-outline" size={18} color={Colors.textSecondary} />
-              <Text style={styles.infoLabel}>Hostel / ID:</Text>
+              <Text style={styles.infoLabel}>Hostel / Room</Text>
               <Text style={styles.infoValue}>{user?.hostelOrCollegeId || 'Not set'}</Text>
             </View>
             <View style={styles.infoRow}>
-              <Ionicons name="shield-outline" size={18} color={Colors.textSecondary} />
-              <Text style={styles.infoLabel}>Role:</Text>
-              <Text style={styles.infoValue}>{user?.role?.toUpperCase() || 'USER'}</Text>
+              <Text style={styles.infoLabel}>Phone</Text>
+              <Text style={styles.infoValue}>{user?.phone || 'Not set'}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Account Role</Text>
+              <Text style={[styles.infoValue, { textTransform: 'capitalize', fontWeight: 'bold' }]}>
+                {user?.role || 'Student'}
+              </Text>
             </View>
           </View>
         )}
       </View>
 
-      {/* Trusted Contacts Section (PRD FR-1.3 & Unit 4 expo-contacts) */}
+      {/* Trusted Contacts Section (Unit 4 expo-contacts) */}
       <View style={styles.sectionCard}>
         <View style={styles.sectionHeader}>
-          <View>
-            <Text style={styles.sectionTitle}>Trusted Contacts</Text>
-            <Text style={styles.sectionSubtitle}>
-              Peers who can vouch for you and coordinate safety
-            </Text>
+          <View style={styles.sectionTitleRow}>
+            <Ionicons name="heart-circle-outline" size={20} color={Colors.secondary} />
+            <Text style={styles.sectionTitle}>Trusted Peer Circle</Text>
+          </View>
+          <View style={styles.trustedCountBadge}>
+            <Text style={styles.trustedCountText}>{user?.trustedContacts?.length || 0} Peers</Text>
           </View>
         </View>
 
+        <Text style={styles.sectionSubtitle}>
+          Trusted peers are prioritized for notification dispatch and quick delivery handovers.
+        </Text>
+
         {user?.trustedContacts && user.trustedContacts.length > 0 ? (
-          user.trustedContacts.map((contact, index) => (
-            <View key={contact._id || index} style={styles.contactItem}>
-              <View style={styles.contactIcon}>
-                <Ionicons name="person" size={18} color={Colors.primary} />
+          user.trustedContacts.map((contact) => (
+            <View key={contact._id || contact.phone} style={styles.contactCard}>
+              <View style={styles.contactAvatar}>
+                <Text style={styles.contactAvatarText}>{contact.name.charAt(0).toUpperCase()}</Text>
               </View>
               <View style={styles.contactInfo}>
                 <Text style={styles.contactName}>{contact.name}</Text>
                 <Text style={styles.contactPhone}>{contact.phone}</Text>
               </View>
+
               <TouchableOpacity
-                onPress={() => handleRemoveContact(index)}
-                style={styles.removeContactBtn}
+                style={styles.contactCallBtn}
+                onPress={() => Linking.openURL(`tel:${contact.phone}`)}
               >
-                <Ionicons name="trash-outline" size={18} color={Colors.danger} />
+                <Ionicons name="call" size={16} color={Colors.primary} />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.contactDeleteBtn}
+                onPress={() => handleRemoveContact(contact._id)}
+              >
+                <Ionicons name="trash-outline" size={16} color={Colors.danger} />
               </TouchableOpacity>
             </View>
           ))
         ) : (
-          <View style={styles.emptyContacts}>
-            <Ionicons name="people-outline" size={36} color={Colors.textMuted} />
-            <Text style={styles.emptyContactsText}>No trusted contacts added yet.</Text>
+          <View style={styles.emptyContactsBox}>
+            <Ionicons name="people-outline" size={32} color={Colors.textMuted} />
+            <Text style={styles.emptyContactsTitle}>No Trusted Contacts Added</Text>
+            <Text style={styles.emptyContactsSub}>
+              Add your roommates or close peers for safe, reliable errand coordination.
+            </Text>
           </View>
         )}
 
-        <View style={styles.contactActionsRow}>
+        {/* Contact Action Buttons */}
+        <View style={styles.contactActionButtonsRow}>
           <TouchableOpacity
             style={styles.actionBtnSecondary}
             onPress={handleOpenDeviceContacts}
@@ -336,7 +398,7 @@ export default function ProfileScreen() {
             ) : (
               <>
                 <Ionicons name="phone-portrait-outline" size={16} color={Colors.primary} />
-                <Text style={styles.actionBtnSecondaryText}>Import Phone</Text>
+                <Text style={styles.actionBtnSecondaryText}>Import Contacts</Text>
               </>
             )}
           </TouchableOpacity>
@@ -345,22 +407,11 @@ export default function ProfileScreen() {
             style={styles.actionBtnPrimary}
             onPress={() => setManualContactModalVisible(true)}
           >
-            <Ionicons name="add" size={16} color={Colors.white} />
-            <Text style={styles.actionBtnPrimaryText}>Add Manually</Text>
+            <Ionicons name="add-circle-outline" size={16} color={Colors.white} />
+            <Text style={styles.actionBtnPrimaryText}>Add Peer</Text>
           </TouchableOpacity>
         </View>
       </View>
-
-      {/* Admin Panel Entry Link (Admin Only) */}
-      {user?.role === 'admin' ? (
-        <TouchableOpacity
-          style={styles.adminButton}
-          onPress={() => router.push('/admin')}
-        >
-          <Ionicons name="shield-half-outline" size={20} color={Colors.white} />
-          <Text style={styles.adminButtonText}>Campus Admin Dashboard</Text>
-        </TouchableOpacity>
-      ) : null}
 
       {/* Logout Button */}
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -376,22 +427,21 @@ export default function ProfileScreen() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Import Trusted Contact</Text>
+            <Text style={styles.modalTitle}>Import Phone Contacts</Text>
             <TouchableOpacity onPress={() => setContactsModalVisible(false)}>
               <Ionicons name="close" size={24} color={Colors.text} />
             </TouchableOpacity>
           </View>
 
           <TextInput
-            style={styles.searchBar}
-            placeholder="Search device contacts..."
-            placeholderTextColor={Colors.textMuted}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
+            style={styles.modalSearchInput}
+            placeholder="Search contact by name or number..."
+            value={searchContactText}
+            onChangeText={setSearchContactText}
           />
 
           <FlatList
-            data={filteredDeviceContacts}
+            data={filteredContacts}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <TouchableOpacity
@@ -399,13 +449,13 @@ export default function ProfileScreen() {
                 onPress={() => handleAddTrustedContact(item.name, item.phone)}
               >
                 <View style={styles.deviceContactAvatar}>
-                  <Text style={styles.deviceContactInitial}>{item.name.charAt(0)}</Text>
+                  <Text style={styles.deviceContactAvatarText}>{item.name.charAt(0).toUpperCase()}</Text>
                 </View>
-                <View style={styles.deviceContactDetails}>
+                <View style={styles.deviceContactInfo}>
                   <Text style={styles.deviceContactName}>{item.name}</Text>
                   <Text style={styles.deviceContactPhone}>{item.phone}</Text>
                 </View>
-                <Ionicons name="add-circle-outline" size={24} color={Colors.primary} />
+                <Ionicons name="add-circle" size={24} color={Colors.primary} />
               </TouchableOpacity>
             )}
             ListEmptyComponent={
@@ -474,29 +524,38 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: Spacing.md,
     paddingBottom: Spacing.xxl,
+    gap: Spacing.md,
   },
-  profileCard: {
+  heroCard: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.lg,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.xl,
     alignItems: 'center',
-    marginBottom: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
+    ...Shadows.card,
   },
-  avatarCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+  avatarGlow: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
     backgroundColor: Colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  avatarCircle: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   avatarText: {
     fontSize: Typography.title,
     fontWeight: 'bold',
-    color: Colors.primary,
+    color: Colors.white,
   },
   userName: {
     fontSize: Typography.xl,
@@ -510,42 +569,33 @@ const styles = StyleSheet.create({
   },
   badgeRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    marginTop: Spacing.md,
+    gap: Spacing.xs,
+    marginTop: Spacing.sm,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
   },
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
     paddingHorizontal: Spacing.sm + 2,
-    paddingVertical: Spacing.xs,
+    paddingVertical: 4,
     borderRadius: BorderRadius.full,
   },
   badgeSuccess: {
-    backgroundColor: Colors.successBg,
-    borderColor: Colors.secondary,
-    borderWidth: 1,
+    backgroundColor: '#DCFCE7',
   },
   badgeWarning: {
-    backgroundColor: Colors.warningBg,
-    borderColor: Colors.accent,
-    borderWidth: 1,
+    backgroundColor: '#FEF3C7',
   },
   badgeKarma: {
     backgroundColor: '#FEF3C7',
-    borderColor: '#F59E0B',
     borderWidth: 1,
-  },
-  badgeAdmin: {
-    backgroundColor: Colors.primaryLight,
-    borderColor: Colors.primary,
-    borderWidth: 1,
-    marginTop: Spacing.sm,
+    borderColor: '#FDE68A',
   },
   badgeText: {
-    fontSize: Typography.xs,
-    fontWeight: '600',
+    fontSize: Typography.xs - 2,
+    fontWeight: 'bold',
   },
   badgeTextSuccess: {
     color: Colors.secondaryDark,
@@ -554,28 +604,83 @@ const styles = StyleSheet.create({
     color: '#B45309',
   },
   badgeTextKarma: {
-    fontSize: Typography.xs,
-    fontWeight: '700',
+    fontSize: Typography.xs - 2,
+    fontWeight: 'bold',
     color: '#B45309',
   },
-  badgeTextAdmin: {
-    fontSize: Typography.xs,
+  statsGrid: {
+    flexDirection: 'row',
+    width: '100%',
+    marginTop: Spacing.lg,
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.borderLight,
+    justifyContent: 'space-around',
+  },
+  statBox: {
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: Typography.base,
     fontWeight: 'bold',
-    color: Colors.primaryDark,
+    color: Colors.text,
+    marginTop: 2,
+  },
+  statLabel: {
+    fontSize: Typography.xs - 2,
+    color: Colors.textSecondary,
+    textTransform: 'uppercase',
+    marginTop: 2,
+    fontWeight: '600',
+  },
+  adminBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.primaryDark,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    gap: Spacing.md,
+    ...Shadows.subtle,
+  },
+  adminIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  adminBannerText: {
+    flex: 1,
+  },
+  adminBannerTitle: {
+    color: Colors.white,
+    fontSize: Typography.sm,
+    fontWeight: 'bold',
+  },
+  adminBannerSub: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: Typography.xs - 1,
+    marginTop: 2,
   },
   sectionCard: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    marginBottom: Spacing.md,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.border,
+    ...Shadows.card,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.xs,
+  },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   sectionTitle: {
     fontSize: Typography.base,
@@ -585,12 +690,33 @@ const styles = StyleSheet.create({
   sectionSubtitle: {
     fontSize: Typography.xs,
     color: Colors.textSecondary,
-    marginTop: 2,
+    marginBottom: Spacing.md,
+    lineHeight: 16,
+  },
+  editToggleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    backgroundColor: Colors.primaryLight,
+    borderRadius: BorderRadius.full,
   },
   editLink: {
-    fontSize: Typography.sm,
+    fontSize: Typography.xs,
     fontWeight: 'bold',
     color: Colors.primary,
+  },
+  trustedCountBadge: {
+    backgroundColor: Colors.secondaryLight,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.full,
+  },
+  trustedCountText: {
+    fontSize: Typography.xs - 2,
+    fontWeight: 'bold',
+    color: Colors.secondaryDark,
   },
   infoList: {
     gap: Spacing.sm,
@@ -598,20 +724,22 @@ const styles = StyleSheet.create({
   },
   infoRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
+    justifyContent: 'space-between',
+    paddingVertical: Spacing.xs,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
   },
   infoLabel: {
     fontSize: Typography.sm,
     color: Colors.textSecondary,
-    fontWeight: '500',
   },
   infoValue: {
     fontSize: Typography.sm,
-    color: Colors.text,
     fontWeight: '600',
+    color: Colors.text,
   },
   editForm: {
+    gap: Spacing.xs,
     marginTop: Spacing.xs,
   },
   label: {
@@ -619,43 +747,44 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.text,
     marginTop: Spacing.xs,
-    marginBottom: 4,
   },
   input: {
-    height: 42,
+    height: 44,
     borderWidth: 1,
     borderColor: Colors.border,
     borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.sm,
+    paddingHorizontal: Spacing.md,
     fontSize: Typography.sm,
     color: Colors.text,
     backgroundColor: Colors.white,
-    marginBottom: Spacing.xs,
   },
-  primaryButton: {
+  saveButton: {
     backgroundColor: Colors.primary,
     height: 44,
     borderRadius: BorderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: Spacing.sm,
+    marginTop: Spacing.md,
   },
-  buttonDisabled: {
+  saveButtonText: {
+    color: Colors.white,
+    fontWeight: 'bold',
+    fontSize: Typography.sm,
+  },
+  btnDisabled: {
     opacity: 0.6,
   },
-  primaryButtonText: {
-    color: Colors.white,
-    fontSize: Typography.sm,
-    fontWeight: 'bold',
-  },
-  contactItem: {
+  contactCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: Spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.borderLight,
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.sm + 2,
+    marginBottom: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
   },
-  contactIcon: {
+  contactAvatar: {
     width: 36,
     height: 36,
     borderRadius: 18,
@@ -664,32 +793,62 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: Spacing.sm,
   },
+  contactAvatarText: {
+    color: Colors.primary,
+    fontWeight: 'bold',
+    fontSize: Typography.sm,
+  },
   contactInfo: {
     flex: 1,
   },
   contactName: {
     fontSize: Typography.sm,
-    fontWeight: '600',
+    fontWeight: 'bold',
     color: Colors.text,
   },
   contactPhone: {
-    fontSize: Typography.xs,
+    fontSize: Typography.xs - 1,
     color: Colors.textSecondary,
   },
-  removeContactBtn: {
-    padding: Spacing.xs,
+  contactCallBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.primaryLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 6,
   },
-  emptyContacts: {
-    paddingVertical: Spacing.md,
+  contactDeleteBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.dangerBg,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyContactsBox: {
     alignItems: 'center',
     justifyContent: 'center',
+    padding: Spacing.lg,
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.md,
+    marginVertical: Spacing.xs,
   },
-  emptyContactsText: {
+  emptyContactsTitle: {
     fontSize: Typography.sm,
-    color: Colors.textMuted,
+    fontWeight: 'bold',
+    color: Colors.text,
     marginTop: Spacing.xs,
   },
-  contactActionsRow: {
+  emptyContactsSub: {
+    fontSize: Typography.xs - 1,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginTop: 2,
+    lineHeight: 16,
+  },
+  contactActionButtonsRow: {
     flexDirection: 'row',
     gap: Spacing.sm,
     marginTop: Spacing.md,
@@ -699,55 +858,53 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-    height: 40,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    borderColor: Colors.primary,
+    gap: 4,
+    height: 42,
     backgroundColor: Colors.primaryLight,
+    borderRadius: BorderRadius.md,
   },
   actionBtnSecondaryText: {
-    fontSize: Typography.sm,
-    fontWeight: '600',
     color: Colors.primary,
+    fontSize: Typography.xs,
+    fontWeight: 'bold',
   },
   actionBtnPrimary: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-    height: 40,
-    borderRadius: BorderRadius.md,
+    gap: 4,
+    height: 42,
     backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.md,
   },
   actionBtnPrimaryText: {
-    fontSize: Typography.sm,
-    fontWeight: '600',
     color: Colors.white,
+    fontSize: Typography.xs,
+    fontWeight: 'bold',
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: Spacing.sm,
-    backgroundColor: Colors.dangerBg,
-    borderColor: Colors.danger,
+    gap: Spacing.xs,
+    backgroundColor: Colors.card,
     borderWidth: 1,
+    borderColor: Colors.danger,
     borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
+    height: 48,
     marginTop: Spacing.xs,
   },
   logoutButtonText: {
-    fontSize: Typography.base,
-    fontWeight: 'bold',
     color: Colors.danger,
+    fontSize: Typography.sm,
+    fontWeight: 'bold',
   },
   modalContainer: {
     flex: 1,
     backgroundColor: Colors.background,
-    padding: Spacing.md,
-    paddingTop: Spacing.xl,
+    paddingTop: Spacing.xxl,
+    paddingHorizontal: Spacing.md,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -760,25 +917,25 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: Colors.text,
   },
-  searchBar: {
+  modalSearchInput: {
     height: 44,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    backgroundColor: Colors.card,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
-    backgroundColor: Colors.white,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    fontSize: Typography.sm,
     marginBottom: Spacing.md,
   },
   deviceContactItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: Spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.borderLight,
-    backgroundColor: Colors.white,
-    paddingHorizontal: Spacing.sm,
-    borderRadius: BorderRadius.sm,
-    marginBottom: 4,
+    backgroundColor: Colors.card,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   deviceContactAvatar: {
     width: 36,
@@ -789,42 +946,50 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: Spacing.sm,
   },
-  deviceContactInitial: {
-    fontSize: Typography.base,
-    fontWeight: 'bold',
+  deviceContactAvatarText: {
     color: Colors.primary,
+    fontWeight: 'bold',
+    fontSize: Typography.sm,
   },
-  deviceContactDetails: {
+  deviceContactInfo: {
     flex: 1,
   },
   deviceContactName: {
     fontSize: Typography.sm,
-    fontWeight: '600',
+    fontWeight: 'bold',
     color: Colors.text,
   },
   deviceContactPhone: {
     fontSize: Typography.xs,
     color: Colors.textSecondary,
   },
+  emptyContacts: {
+    alignItems: 'center',
+    padding: Spacing.xl,
+  },
+  emptyContactsText: {
+    color: Colors.textSecondary,
+    fontSize: Typography.sm,
+  },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.lg,
   },
   dialogCard: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
     width: '100%',
     maxWidth: 400,
   },
   dialogTitle: {
-    fontSize: Typography.lg,
+    fontSize: Typography.base,
     fontWeight: 'bold',
     color: Colors.text,
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.sm,
   },
   dialogButtonsRow: {
     flexDirection: 'row',
@@ -838,7 +1003,8 @@ const styles = StyleSheet.create({
   },
   dialogCancelText: {
     color: Colors.textSecondary,
-    fontWeight: '600',
+    fontWeight: 'bold',
+    fontSize: Typography.xs,
   },
   dialogSubmitBtn: {
     backgroundColor: Colors.primary,
@@ -849,20 +1015,6 @@ const styles = StyleSheet.create({
   dialogSubmitText: {
     color: Colors.white,
     fontWeight: 'bold',
-  },
-  adminButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.sm,
-    backgroundColor: '#3B82F6',
-    borderRadius: BorderRadius.md,
-    height: 48,
-    marginTop: Spacing.md,
-  },
-  adminButtonText: {
-    color: Colors.white,
-    fontSize: Typography.sm,
-    fontWeight: 'bold',
+    fontSize: Typography.xs,
   },
 });

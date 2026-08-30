@@ -1,51 +1,63 @@
-import { Platform } from 'react-native';
-
-// Theme tokens following React Native course module conventions
 export const Colors = {
-  light: {
-    text: '#0F172A',
-    background: '#F8FAFC',
-    tint: '#2563EB',
-    icon: '#64748B',
-    tabIconDefault: '#94A3B8',
-    tabIconSelected: '#2563EB',
-  },
-  dark: {
-    text: '#ECEDEE',
-    background: '#0F172A',
-    tint: '#3B82F6',
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: '#3B82F6',
-  },
-  primary: '#2563EB', // Blue 600
-  primaryDark: '#1D4ED8',
-  primaryLight: '#DBEAFE',
-  secondary: '#10B981', // Emerald 500 (success / runner active)
-  secondaryDark: '#059669',
-  accent: '#F59E0B', // Amber (pending / warnings)
-  danger: '#EF4444', // Red (errors / cancel)
-  background: '#F8FAFC', // Slate 50
+  // Brand Primary (Electric Indigo / Royal Blue)
+  primary: '#4F46E5',
+  primaryDark: '#3730A3',
+  primaryLight: '#EEF2FF',
+  primaryMuted: '#818CF8',
+
+  // Secondary (Energetic Emerald / Teal)
+  secondary: '#10B981',
+  secondaryDark: '#047857',
+  secondaryLight: '#ECFDF5',
+
+  // Accent & Actions (Radiant Amber / Coral)
+  accent: '#F59E0B',
+  accentDark: '#B45309',
+  accentLight: '#FEF3C7',
+
+  coral: '#FF6B6B',
+  coralLight: '#FFE3E3',
+  purple: '#8B5CF6',
+  purpleLight: '#F3E8FF',
+
+  // Neutrals & Surfaces
+  background: '#F8FAFC',
   card: '#FFFFFF',
-  text: '#0F172A', // Slate 900
-  textSecondary: '#64748B', // Slate 500
-  textMuted: '#94A3B8', // Slate 400
-  border: '#E2E8F0', // Slate 200
+  cardAlt: '#F1F5F9',
+
+  // Typography Colors
+  text: '#0F172A',
+  textSecondary: '#64748B',
+  textMuted: '#94A3B8',
+  textLight: '#CBD5E1',
+
+  // Borders & Dividers
+  border: '#E2E8F0',
   borderLight: '#F1F5F9',
+  borderFocus: '#6366F1',
+
+  // Feedback & Status
+  success: '#10B981',
+  successBg: '#ECFDF5',
+  warning: '#F59E0B',
+  warningBg: '#FEF3C7',
+  danger: '#EF4444',
+  dangerBg: '#FEE2E2',
+  info: '#3B82F6',
+  infoBg: '#EFF6FF',
+
   white: '#FFFFFF',
   black: '#000000',
-  successBg: '#ECFDF5',
-  warningBg: '#FFFBEB',
-  dangerBg: '#FEF2F2',
 };
 
 export const Spacing = {
+  xxs: 2,
   xs: 4,
   sm: 8,
   md: 16,
   lg: 24,
   xl: 32,
-  xxl: 40,
+  xxl: 48,
 };
 
 export const Typography = {
@@ -56,35 +68,38 @@ export const Typography = {
   xl: 20,
   xxl: 24,
   title: 28,
+  hero: 34,
 };
 
 export const BorderRadius = {
-  sm: 6,
-  md: 10,
+  xs: 4,
+  sm: 8,
+  md: 12,
   lg: 16,
+  xl: 24,
   full: 9999,
 };
 
-export const Fonts = Platform.select({
-  ios: {
-    regular: 'System',
-    medium: 'System',
-    bold: 'System',
-    mono: 'Courier',
-    rounded: 'System',
+export const Shadows = {
+  subtle: {
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
-  android: {
-    regular: 'Roboto',
-    medium: 'Roboto-Medium',
-    bold: 'Roboto-Bold',
-    mono: 'monospace',
-    rounded: 'Roboto',
+  card: {
+    shadowColor: '#4F46E5',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 3,
   },
-  default: {
-    regular: 'sans-serif',
-    medium: 'sans-serif-medium',
-    bold: 'sans-serif',
-    mono: 'monospace',
-    rounded: 'sans-serif',
+  glow: {
+    shadowColor: '#4F46E5',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 6,
   },
-});
+};

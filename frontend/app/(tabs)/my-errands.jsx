@@ -13,20 +13,20 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import { Colors, Spacing, Typography, BorderRadius } from '../../constants/theme';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
 const ROLE_FILTERS = [
-  { id: 'all', label: 'All Errands' },
-  { id: 'posted', label: 'Posted by Me' },
-  { id: 'accepted', label: 'Accepted (Runner)' },
+  { id: 'all', label: 'All Tasks' },
+  { id: 'posted', label: 'Requested by Me' },
+  { id: 'accepted', label: 'I am Running' },
 ];
 
-const STATUS_COLORS = {
-  posted: { bg: '#DBEAFE', text: '#1D4ED8', label: 'Posted' },
-  accepted: { bg: '#FEF3C7', text: '#B45309', label: 'Accepted' },
-  in_progress: { bg: '#E0E7FF', text: '#4338CA', label: 'In Progress' },
-  delivered: { bg: '#DCFCE7', text: '#047857', label: 'Delivered' },
-  cancelled: { bg: '#FEE2E2', text: '#B91C1C', label: 'Cancelled' },
+const STATUS_CONFIG = {
+  posted: { bg: '#EFF6FF', text: '#2563EB', label: 'Posted', icon: 'time-outline' },
+  accepted: { bg: '#FEF3C7', text: '#D97706', label: 'Accepted', icon: 'bicycle-outline' },
+  in_progress: { bg: '#EEF2FF', text: '#4F46E5', label: 'In Progress', icon: 'navigate-outline' },
+  delivered: { bg: '#ECFDF5', text: '#059669', label: 'Delivered', icon: 'checkmark-circle-outline' },
+  cancelled: { bg: '#FEE2E2', text: '#DC2626', label: 'Cancelled', icon: 'close-circle-outline' },
 };
 
 export default function MyErrandsScreen() {
@@ -58,7 +58,7 @@ export default function MyErrandsScreen() {
   useEffect(() => {
     setLoading(true);
     fetchMyErrands();
-  }, [selectedRole]);
+  }, [selectedRole, fetchMyErrands]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -69,24 +69,23 @@ export default function MyErrandsScreen() {
     const isRequester = item.requesterId?._id === user?._id || item.requesterId === user?._id;
     const isRunner = item.runnerId?._id === user?._id || item.runnerId === user?._id;
 
-    const statusStyle = STATUS_COLORS[item.status] || STATUS_COLORS.posted;
-
+    const statusConf = STATUS_CONFIG[item.status] || STATUS_CONFIG.posted;
     const otherPerson = isRequester ? item.runnerId : item.requesterId;
     const otherRoleLabel = isRequester ? 'Runner' : 'Requester';
 
     return (
       <TouchableOpacity
         style={styles.card}
-        activeOpacity={0.7}
+        activeOpacity={0.8}
         onPress={() => router.push(`/errand/${item._id}`)}
       >
         <View style={styles.cardHeader}>
           {/* My Role Badge */}
           <View style={[styles.roleBadge, isRequester ? styles.roleRequester : styles.roleRunner]}>
             <Ionicons
-              name={isRequester ? 'person-outline' : 'bicycle-outline'}
+              name={isRequester ? 'person' : 'bicycle'}
               size={12}
-              color={isRequester ? Colors.primaryDark : Colors.secondaryDark}
+              color={isRequester ? Colors.primary : Colors.secondaryDark}
             />
             <Text
               style={[
@@ -99,50 +98,43 @@ export default function MyErrandsScreen() {
           </View>
 
           {/* Status Badge */}
-          <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}>
-            <Text style={[styles.statusBadgeText, { color: statusStyle.text }]}>
-              {statusStyle.label}
+          <View style={[styles.statusBadge, { backgroundColor: statusConf.bg }]}>
+            <Ionicons name={statusConf.icon} size={12} color={statusConf.text} />
+            <Text style={[styles.statusBadgeText, { color: statusConf.text }]}>
+              {statusConf.label}
             </Text>
           </View>
         </View>
 
-        <Text style={styles.cardTitle}>{item.title}</Text>
+        <Text style={styles.errandTitle}>{item.title}</Text>
 
         <View style={styles.detailsRow}>
-          <View style={styles.detailItem}>
-            <Ionicons name="pricetag-outline" size={14} color={Colors.textSecondary} />
-            <Text style={styles.detailText}>Budget: ₹{item.budget || 0}</Text>
+          <View style={styles.budgetBox}>
+            <Text style={styles.budgetLabel}>Budget</Text>
+            <Text style={styles.budgetValue}>₹{item.budget || 0}</Text>
           </View>
 
-          <View style={styles.detailItem}>
-            <Ionicons name="folder-outline" size={14} color={Colors.textSecondary} />
-            <Text style={styles.detailText}>{item.category?.toUpperCase() || 'GENERAL'}</Text>
+          <View style={styles.divider} />
+
+          <View style={styles.personBox}>
+            <Text style={styles.personLabel}>{otherRoleLabel}</Text>
+            <Text style={styles.personValue} numberOfLines={1}>
+              {otherPerson ? otherPerson.name : 'Waiting for runner...'}
+            </Text>
           </View>
         </View>
 
-        {otherPerson ? (
-          <View style={styles.counterpartyRow}>
-            <Ionicons name="people-outline" size={14} color={Colors.primary} />
-            <Text style={styles.counterpartyText}>
-              {otherRoleLabel}: <Text style={styles.counterpartyName}>{otherPerson.name || 'Peer'}</Text>
+        <View style={styles.cardFooter}>
+          <View style={styles.dateRow}>
+            <Ionicons name="calendar-outline" size={12} color={Colors.textMuted} />
+            <Text style={styles.dateText}>
+              {new Date(item.createdAt).toLocaleDateString()}
             </Text>
           </View>
-        ) : (
-          <View style={styles.counterpartyRow}>
-            <Ionicons name="hourglass-outline" size={14} color={Colors.accent} />
-            <Text style={styles.counterpartyText}>Waiting for a runner to accept...</Text>
-          </View>
-        )}
-
-        <View style={styles.cardFooter}>
-          <Text style={styles.timeText}>
-            {new Date(item.createdAt).toLocaleDateString()} at{' '}
-            {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </Text>
 
           <View style={styles.viewDetailsRow}>
-            <Text style={styles.viewDetailsText}>Details</Text>
-            <Ionicons name="chevron-forward" size={14} color={Colors.primary} />
+            <Text style={styles.viewDetailsText}>Open Task</Text>
+            <Ionicons name="arrow-forward" size={14} color={Colors.primary} />
           </View>
         </View>
       </TouchableOpacity>
@@ -151,28 +143,22 @@ export default function MyErrandsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Role Segmented Filter */}
-      <View style={styles.filterBar}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filterScroll}
-        >
-          {ROLE_FILTERS.map((filter) => {
-            const active = selectedRole === filter.id;
-            return (
-              <TouchableOpacity
-                key={filter.id}
-                style={[styles.filterTab, active && styles.filterTabActive]}
-                onPress={() => setSelectedRole(filter.id)}
-              >
-                <Text style={[styles.filterTabText, active && styles.filterTabTextActive]}>
-                  {filter.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+      {/* Segmented Role Filter Tabs */}
+      <View style={styles.segmentedControl}>
+        {ROLE_FILTERS.map((f) => {
+          const isSelected = selectedRole === f.id;
+          return (
+            <TouchableOpacity
+              key={f.id}
+              style={[styles.segmentBtn, isSelected && styles.segmentBtnActive]}
+              onPress={() => setSelectedRole(f.id)}
+            >
+              <Text style={[styles.segmentText, isSelected && styles.segmentTextActive]}>
+                {f.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
       {/* Main List */}
@@ -197,32 +183,25 @@ export default function MyErrandsScreen() {
           }
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Ionicons name="clipboard-outline" size={56} color={Colors.textMuted} />
-              <Text style={styles.emptyTitle}>No Errands Found</Text>
+              <View style={styles.emptyIconBox}>
+                <Ionicons name="clipboard-outline" size={40} color={Colors.primary} />
+              </View>
+              <Text style={styles.emptyTitle}>No Errands in this View</Text>
               <Text style={styles.emptySubtitle}>
                 {selectedRole === 'posted'
-                  ? "You haven't posted any errands yet. Need something picked up from the market or mess?"
+                  ? 'You haven\'t posted any errand requests yet.'
                   : selectedRole === 'accepted'
-                  ? "You haven't accepted any errands yet. Check the nearby feed to help out a peer!"
-                  : "You don't have any active or past errands yet."}
+                  ? 'You haven\'t accepted any errands as a runner yet.'
+                  : 'You have no active or completed errands.'}
               </Text>
-              <View style={styles.emptyActionsRow}>
-                <TouchableOpacity
-                  style={styles.actionBtnPrimary}
-                  onPress={() => router.push('/errand/post')}
-                >
-                  <Ionicons name="add" size={16} color={Colors.white} />
-                  <Text style={styles.actionBtnPrimaryText}>Post Errand</Text>
-                </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={styles.actionBtnSecondary}
-                  onPress={() => router.push('/(tabs)')}
-                >
-                  <Ionicons name="compass-outline" size={16} color={Colors.primary} />
-                  <Text style={styles.actionBtnSecondaryText}>Discover</Text>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                style={styles.emptyPostBtn}
+                onPress={() => router.push('/errand/post')}
+              >
+                <Ionicons name="add-circle" size={18} color={Colors.white} />
+                <Text style={styles.emptyPostBtnText}>Post a Request</Text>
+              </TouchableOpacity>
             </View>
           }
         />
@@ -236,54 +215,47 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  filterBar: {
-    backgroundColor: Colors.card,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    paddingVertical: Spacing.sm,
-  },
-  filterScroll: {
+  segmentedControl: {
     flexDirection: 'row',
-    paddingHorizontal: Spacing.md,
-    gap: Spacing.sm,
-  },
-  filterTab: {
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 6,
-    borderRadius: BorderRadius.full,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.card,
+    margin: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    padding: 4,
     borderWidth: 1,
     borderColor: Colors.border,
+    ...Shadows.subtle,
   },
-  filterTabActive: {
+  segmentBtn: {
+    flex: 1,
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+    borderRadius: BorderRadius.md,
+  },
+  segmentBtnActive: {
     backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
+    ...Shadows.subtle,
   },
-  filterTabText: {
+  segmentText: {
     fontSize: Typography.xs,
     fontWeight: '600',
     color: Colors.textSecondary,
   },
-  filterTabTextActive: {
+  segmentTextActive: {
     color: Colors.white,
     fontWeight: 'bold',
   },
   listContent: {
-    padding: Spacing.md,
+    paddingHorizontal: Spacing.md,
     paddingBottom: Spacing.xxl,
+    gap: Spacing.md,
   },
   card: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.md,
-    marginBottom: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    ...Shadows.card,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -296,27 +268,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     paddingHorizontal: Spacing.sm,
-    paddingVertical: 2,
-    borderRadius: BorderRadius.sm,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.full,
   },
   roleRequester: {
     backgroundColor: Colors.primaryLight,
   },
   roleRunner: {
-    backgroundColor: '#DCFCE7',
+    backgroundColor: Colors.secondaryLight,
   },
   roleBadgeText: {
     fontSize: Typography.xs - 2,
     fontWeight: 'bold',
   },
   roleTextRequester: {
-    color: Colors.primaryDark,
+    color: Colors.primary,
   },
   roleTextRunner: {
     color: Colors.secondaryDark,
   },
   statusBadge: {
-    paddingHorizontal: Spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: Spacing.sm + 2,
     paddingVertical: 3,
     borderRadius: BorderRadius.full,
   },
@@ -324,42 +299,55 @@ const styles = StyleSheet.create({
     fontSize: Typography.xs - 2,
     fontWeight: 'bold',
   },
-  cardTitle: {
+  errandTitle: {
     fontSize: Typography.base,
     fontWeight: 'bold',
     color: Colors.text,
-    marginTop: Spacing.xs,
+    marginVertical: Spacing.xs,
   },
   detailsRow: {
     flexDirection: 'row',
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.sm,
+    marginTop: Spacing.xs,
     alignItems: 'center',
-    gap: Spacing.md,
-    marginTop: Spacing.sm,
   },
-  detailItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
+  budgetBox: {
+    paddingRight: Spacing.md,
   },
-  detailText: {
-    fontSize: Typography.xs,
+  budgetLabel: {
+    fontSize: Typography.xs - 2,
     color: Colors.textSecondary,
-    fontWeight: '500',
-  },
-  counterpartyRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginTop: Spacing.sm,
-    paddingTop: Spacing.xs,
-  },
-  counterpartyText: {
-    fontSize: Typography.xs,
-    color: Colors.textSecondary,
-  },
-  counterpartyName: {
+    textTransform: 'uppercase',
     fontWeight: 'bold',
+  },
+  budgetValue: {
+    fontSize: Typography.sm,
+    fontWeight: 'bold',
+    color: Colors.secondaryDark,
+    marginTop: 2,
+  },
+  divider: {
+    width: 1,
+    height: 24,
+    backgroundColor: Colors.border,
+    marginRight: Spacing.md,
+  },
+  personBox: {
+    flex: 1,
+  },
+  personLabel: {
+    fontSize: Typography.xs - 2,
+    color: Colors.textSecondary,
+    textTransform: 'uppercase',
+    fontWeight: 'bold',
+  },
+  personValue: {
+    fontSize: Typography.xs,
+    fontWeight: '600',
     color: Colors.text,
+    marginTop: 2,
   },
   cardFooter: {
     flexDirection: 'row',
@@ -370,14 +358,19 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: Colors.borderLight,
   },
-  timeText: {
+  dateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  dateText: {
     fontSize: Typography.xs - 2,
     color: Colors.textMuted,
   },
   viewDetailsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
+    gap: 4,
   },
   viewDetailsText: {
     fontSize: Typography.xs,
@@ -388,64 +381,51 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: Spacing.xl,
   },
   loadingText: {
     marginTop: Spacing.sm,
-    fontSize: Typography.sm,
     color: Colors.textSecondary,
+    fontSize: Typography.sm,
   },
   emptyState: {
-    padding: Spacing.xxl,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: Spacing.lg,
+    paddingVertical: Spacing.xxl,
+    paddingHorizontal: Spacing.xl,
+  },
+  emptyIconBox: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: Colors.primaryLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
   },
   emptyTitle: {
     fontSize: Typography.lg,
     fontWeight: 'bold',
     color: Colors.text,
-    marginTop: Spacing.md,
   },
   emptySubtitle: {
-    fontSize: Typography.sm,
+    fontSize: Typography.xs,
     color: Colors.textSecondary,
     textAlign: 'center',
-    marginTop: Spacing.xs,
-    lineHeight: 20,
+    marginTop: 4,
+    lineHeight: 18,
+    marginBottom: Spacing.lg,
   },
-  emptyActionsRow: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-    marginTop: Spacing.lg,
-  },
-  actionBtnPrimary: {
+  emptyPostBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: Spacing.xs,
     backgroundColor: Colors.primary,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm + 2,
     borderRadius: BorderRadius.md,
   },
-  actionBtnPrimaryText: {
+  emptyPostBtnText: {
     color: Colors.white,
-    fontSize: Typography.sm,
-    fontWeight: 'bold',
-  },
-  actionBtnSecondary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: Colors.primaryLight,
-    borderWidth: 1,
-    borderColor: Colors.primary,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.md,
-  },
-  actionBtnSecondaryText: {
-    color: Colors.primary,
     fontSize: Typography.sm,
     fontWeight: 'bold',
   },

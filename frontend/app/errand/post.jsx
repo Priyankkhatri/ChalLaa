@@ -15,23 +15,25 @@ import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import api from '../../services/api';
-import { Colors, Spacing, Typography, BorderRadius } from '../../constants/theme';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
 const CATEGORIES = [
-  { id: 'grocery', label: 'Grocery', icon: 'cart-outline' },
-  { id: 'food', label: 'Food / Mess', icon: 'fast-food-outline' },
-  { id: 'medicine', label: 'Pharmacy', icon: 'medkit-outline' },
-  { id: 'courier', label: 'Courier', icon: 'cube-outline' },
-  { id: 'stationery', label: 'Stationery', icon: 'document-text-outline' },
-  { id: 'laundry', label: 'Laundry', icon: 'shirt-outline' },
-  { id: 'other', label: 'Other', icon: 'ellipsis-horizontal-circle-outline' },
+  { id: 'grocery', label: 'Grocery', icon: 'cart' },
+  { id: 'food', label: 'Food & Mess', icon: 'fast-food' },
+  { id: 'medicine', label: 'Pharmacy', icon: 'medkit' },
+  { id: 'courier', label: 'Courier', icon: 'cube' },
+  { id: 'stationery', label: 'Stationery', icon: 'document-text' },
+  { id: 'laundry', label: 'Laundry', icon: 'shirt' },
+  { id: 'other', label: 'Other', icon: 'ellipsis-horizontal' },
 ];
+
+const BUDGET_PRESETS = [50, 100, 150, 200, 300];
 
 export default function PostErrandScreen() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('grocery');
-  const [budget, setBudget] = useState('');
+  const [budget, setBudget] = useState('100');
   const [address, setAddress] = useState('');
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
@@ -40,7 +42,6 @@ export default function PostErrandScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
 
-  // Auto-fetch location on component mount per Unit 4 conventions
   useEffect(() => {
     fetchCurrentLocation();
   }, []);
@@ -53,14 +54,9 @@ export default function PostErrandScreen() {
       const { status } = await Location.requestForegroundPermissionsAsync();
 
       if (status !== 'granted') {
-        Alert.alert(
-          'Location Permission Needed',
-          'Location permission allows nearby hostel peers to discover your errand and fulfill it accurately. Please grant permission or enter your address manually.'
-        );
-        // Fallback default coordinates if GPS permission is denied
         setLatitude(28.6139);
         setLongitude(77.209);
-        setAddress('Campus / Hostel Area (Manual)');
+        setAddress('Campus Hostels Area');
         setLoadingLocation(false);
         return;
       }
@@ -74,7 +70,6 @@ export default function PostErrandScreen() {
       setLatitude(lat);
       setLongitude(lng);
 
-      // Reverse geocode to get human-readable campus/city address
       const geocodeResults = await Location.reverseGeocodeAsync({
         latitude: lat,
         longitude: lng,
@@ -87,23 +82,19 @@ export default function PostErrandScreen() {
           item.street,
           item.district || item.subregion,
           item.city,
-          item.postalCode,
         ]
           .filter(Boolean)
           .join(', ');
 
-        setAddress(formattedAddress || `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`);
+        setAddress(formattedAddress || `Campus (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
       } else {
-        setAddress(`Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`);
+        setAddress(`Campus (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
       }
     } catch (error) {
       console.warn('[Location fetch error]', error);
-      Alert.alert('Location Notice', 'Could not detect exact GPS. You can enter the location manually.');
-      if (!latitude) {
-        setLatitude(28.6139);
-        setLongitude(77.209);
-        setAddress('Campus Hostels');
-      }
+      setLatitude(28.6139);
+      setLongitude(77.209);
+      setAddress('Campus Hostels (Manual)');
     } finally {
       setLoadingLocation(false);
     }
@@ -111,49 +102,47 @@ export default function PostErrandScreen() {
 
   const handleSubmit = async () => {
     if (!title.trim()) {
-      setErrorMessage('Please enter an errand title (e.g. "Pick up 1L Milk & Eggs").');
+      setErrorMessage('Please enter an errand title.');
       return;
     }
 
-    if (latitude === null || longitude === null) {
-      setErrorMessage('GPS coordinates are required to geofence your errand.');
+    const numericBudget = parseFloat(budget);
+    if (isNaN(numericBudget) || numericBudget < 0) {
+      setErrorMessage('Please enter a valid budget amount.');
       return;
     }
 
-    const numericBudget = parseFloat(budget) || 0;
-    if (numericBudget < 0) {
-      setErrorMessage('Estimated budget cannot be negative.');
-      return;
-    }
+    const lat = latitude || 28.6139;
+    const lng = longitude || 77.209;
 
     setErrorMessage(null);
     setSubmitting(true);
 
     try {
-      const payload = {
+      await api.post('/errands', {
         title: title.trim(),
         description: description.trim(),
         category,
         budget: numericBudget,
-        latitude,
-        longitude,
         address: address.trim() || 'Campus Hostels',
-      };
-
-      await api.post('/errands', payload);
-      Alert.alert('Errand Posted!', 'Nearby peers will now be able to discover and accept your errand.', [
-        {
-          text: 'View My Errands',
-          onPress: () => {
-            router.replace('/(tabs)/my-errands');
-          },
+        location: {
+          type: 'Point',
+          coordinates: [lng, lat],
         },
-      ]);
+      });
+
+      Alert.alert(
+        'Errand Posted! 🚀',
+        'Nearby hostel peers can now discover and fulfill your request.',
+        [
+          {
+            text: 'View My Errands',
+            onPress: () => router.replace('/(tabs)/my-errands'),
+          },
+        ]
+      );
     } catch (error) {
-      const msg =
-        error.response?.data?.message || error.message || 'Failed to post errand. Please try again.';
-      setErrorMessage(msg);
-      Alert.alert('Error', msg);
+      setErrorMessage(error.response?.data?.message || 'Failed to post errand. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -164,30 +153,56 @@ export default function PostErrandScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Post an Errand 📦</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+        {/* Header Intro */}
+        <View style={styles.headerCard}>
+          <Text style={styles.headerTitle}>What do you need done? 🏃</Text>
           <Text style={styles.headerSubtitle}>
-            Heading out or need something picked up? Broadcast to your campus community.
+            Broadcast an errand to nearby campus peers heading your way.
           </Text>
         </View>
 
         {errorMessage ? (
-          <View style={styles.errorBanner}>
-            <Ionicons name="alert-circle" size={20} color={Colors.danger} />
-            <Text style={styles.errorBannerText}>{errorMessage}</Text>
+          <View style={styles.errorBox}>
+            <Ionicons name="alert-circle" size={16} color={Colors.danger} />
+            <Text style={styles.errorText}>{errorMessage}</Text>
           </View>
         ) : null}
 
-        <View style={styles.card}>
-          {/* Title */}
-          <Text style={styles.label}>Errand Title *</Text>
+        {/* 1. Category Selection */}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>1. Choose Category</Text>
+          <View style={styles.categoryGrid}>
+            {CATEGORIES.map((cat) => {
+              const isSelected = category === cat.id;
+              return (
+                <TouchableOpacity
+                  key={cat.id}
+                  style={[styles.categoryTile, isSelected && styles.categoryTileActive]}
+                  onPress={() => setCategory(cat.id)}
+                >
+                  <Ionicons
+                    name={cat.icon}
+                    size={22}
+                    color={isSelected ? Colors.primary : Colors.textSecondary}
+                  />
+                  <Text style={[styles.categoryTileText, isSelected && styles.categoryTileTextActive]}>
+                    {cat.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
+        {/* 2. Task Details */}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>2. Task Details</Text>
+
+          <Text style={styles.inputLabel}>Title *</Text>
           <TextInput
             style={styles.input}
-            placeholder="e.g. 1L Milk from Mother Dairy"
+            placeholder="e.g. 2 Packets of Maggi & 1 Amul Milk"
             placeholderTextColor={Colors.textMuted}
             value={title}
             onChangeText={(val) => {
@@ -196,53 +211,27 @@ export default function PostErrandScreen() {
             }}
           />
 
-          {/* Category Selector Chips */}
-          <Text style={styles.label}>Category *</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.categoryChipsContainer}
-          >
-            {CATEGORIES.map((cat) => {
-              const selected = category === cat.id;
-              return (
-                <TouchableOpacity
-                  key={cat.id}
-                  style={[styles.chip, selected && styles.chipSelected]}
-                  onPress={() => setCategory(cat.id)}
-                >
-                  <Ionicons
-                    name={cat.icon}
-                    size={16}
-                    color={selected ? Colors.white : Colors.textSecondary}
-                  />
-                  <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
-                    {cat.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-
-          {/* Description */}
-          <Text style={styles.label}>Description & Specific Instructions</Text>
+          <Text style={styles.inputLabel}>Notes & Instructions (Optional)</Text>
           <TextInput
             style={[styles.input, styles.textArea]}
-            placeholder="e.g. Blue packet only, please ask for bill. Deliver to Room 302."
+            placeholder="e.g. Please pick up from Night Canteen and deliver to Hostel 4 Room 302."
             placeholderTextColor={Colors.textMuted}
             value={description}
             onChangeText={setDescription}
             multiline
             numberOfLines={3}
           />
+        </View>
 
-          {/* Budget */}
-          <Text style={styles.label}>Estimated Item Budget / Reimbursement (₹)</Text>
+        {/* 3. Budget & Compensation */}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>3. Estimated Budget (₹)</Text>
+
           <View style={styles.budgetInputRow}>
-            <Text style={styles.currencyPrefix}>₹</Text>
+            <Text style={styles.rupeeSymbol}>₹</Text>
             <TextInput
-              style={[styles.input, styles.budgetInput]}
-              placeholder="e.g. 65"
+              style={styles.budgetInput}
+              placeholder="100"
               placeholderTextColor={Colors.textMuted}
               value={budget}
               onChangeText={setBudget}
@@ -250,63 +239,72 @@ export default function PostErrandScreen() {
             />
           </View>
 
-          {/* Location & Reverse Geocoding Box */}
-          <View style={styles.locationSection}>
-            <View style={styles.locationSectionHeader}>
-              <View style={styles.locationTitleRow}>
-                <Ionicons name="location" size={18} color={Colors.primary} />
-                <Text style={styles.locationSectionTitle}>Pickup / Drop Location</Text>
-              </View>
+          {/* Quick preset chips */}
+          <View style={styles.presetChipsRow}>
+            {BUDGET_PRESETS.map((amt) => (
               <TouchableOpacity
-                style={styles.refreshLocBtn}
-                onPress={fetchCurrentLocation}
-                disabled={loadingLocation}
+                key={amt}
+                style={[styles.presetChip, budget === amt.toString() && styles.presetChipActive]}
+                onPress={() => setBudget(amt.toString())}
               >
-                {loadingLocation ? (
-                  <ActivityIndicator size="small" color={Colors.primary} />
-                ) : (
-                  <>
-                    <Ionicons name="refresh" size={14} color={Colors.primary} />
-                    <Text style={styles.refreshLocBtnText}>GPS</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </View>
-
-            <TextInput
-              style={styles.input}
-              placeholder="Hostel address / Room location"
-              placeholderTextColor={Colors.textMuted}
-              value={address}
-              onChangeText={setAddress}
-            />
-
-            {latitude && longitude ? (
-              <View style={styles.coordsBadge}>
-                <Ionicons name="navigate-outline" size={14} color={Colors.secondaryDark} />
-                <Text style={styles.coordsText}>
-                  Coordinates: {latitude.toFixed(4)}, {longitude.toFixed(4)}
+                <Text
+                  style={[
+                    styles.presetChipText,
+                    budget === amt.toString() && styles.presetChipTextActive,
+                  ]}
+                >
+                  ₹{amt}
                 </Text>
-              </View>
-            ) : null}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* 4. Delivery Destination */}
+        <View style={styles.sectionCard}>
+          <View style={styles.locationHeaderRow}>
+            <Text style={styles.sectionTitle}>4. Delivery Location</Text>
+            <TouchableOpacity
+              style={styles.refreshLocBtn}
+              onPress={fetchCurrentLocation}
+              disabled={loadingLocation}
+            >
+              {loadingLocation ? (
+                <ActivityIndicator size="small" color={Colors.primary} />
+              ) : (
+                <>
+                  <Ionicons name="locate" size={14} color={Colors.primary} />
+                  <Text style={styles.refreshLocText}>GPS Auto-Detect</Text>
+                </>
+              )}
+            </TouchableOpacity>
           </View>
 
-          {/* Submit Button */}
-          <TouchableOpacity
-            style={[styles.submitButton, submitting && styles.buttonDisabled]}
-            onPress={handleSubmit}
-            disabled={submitting}
-          >
-            {submitting ? (
-              <ActivityIndicator color={Colors.white} />
-            ) : (
-              <>
-                <Ionicons name="paper-plane" size={18} color={Colors.white} />
-                <Text style={styles.submitButtonText}>Post Errand</Text>
-              </>
-            )}
-          </TouchableOpacity>
+          <TextInput
+            style={styles.input}
+            placeholder="e.g. Hostel 4, Room 302"
+            placeholderTextColor={Colors.textMuted}
+            value={address}
+            onChangeText={setAddress}
+          />
         </View>
+
+        {/* Submit Button */}
+        <TouchableOpacity
+          style={[styles.submitButton, submitting && styles.btnDisabled]}
+          onPress={handleSubmit}
+          disabled={submitting}
+          activeOpacity={0.85}
+        >
+          {submitting ? (
+            <ActivityIndicator color={Colors.white} />
+          ) : (
+            <>
+              <Ionicons name="paper-plane" size={18} color={Colors.white} />
+              <Text style={styles.submitButtonText}>Broadcast Errand to Campus</Text>
+            </>
+          )}
+        </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -320,51 +318,90 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: Spacing.md,
     paddingBottom: Spacing.xxl,
+    gap: Spacing.md,
   },
-  header: {
-    marginBottom: Spacing.md,
+  headerCard: {
+    backgroundColor: Colors.primaryLight,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
   },
   headerTitle: {
-    fontSize: Typography.xl,
+    fontSize: Typography.lg,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: Colors.primaryDark,
   },
   headerSubtitle: {
-    fontSize: Typography.sm,
+    fontSize: Typography.xs,
     color: Colors.textSecondary,
-    marginTop: 4,
-    lineHeight: 20,
+    marginTop: 2,
+    lineHeight: 16,
   },
-  errorBanner: {
+  errorBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.sm,
+    gap: Spacing.xs,
     backgroundColor: Colors.dangerBg,
     borderColor: Colors.danger,
     borderWidth: 1,
     borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    marginBottom: Spacing.md,
+    padding: Spacing.sm + 2,
   },
-  errorBannerText: {
-    flex: 1,
+  errorText: {
     color: Colors.danger,
-    fontSize: Typography.sm,
-    fontWeight: '500',
+    fontSize: Typography.xs,
+    flex: 1,
   },
-  card: {
+  sectionCard: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.border,
+    ...Shadows.card,
   },
-  label: {
+  sectionTitle: {
     fontSize: Typography.sm,
-    fontWeight: '600',
+    fontWeight: 'bold',
     color: Colors.text,
-    marginTop: Spacing.sm,
-    marginBottom: 6,
+    marginBottom: Spacing.sm,
+  },
+  categoryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.xs,
+  },
+  categoryTile: {
+    width: '31%',
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    gap: 4,
+  },
+  categoryTileActive: {
+    backgroundColor: Colors.primaryLight,
+    borderColor: Colors.primary,
+  },
+  categoryTileText: {
+    fontSize: Typography.xs - 2,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+    textAlign: 'center',
+  },
+  categoryTileTextActive: {
+    color: Colors.primary,
+    fontWeight: 'bold',
+  },
+  inputLabel: {
+    fontSize: Typography.xs,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+    marginTop: Spacing.xs,
+    marginBottom: 4,
   },
   input: {
     height: 46,
@@ -372,106 +409,83 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
-    fontSize: Typography.base,
+    fontSize: Typography.sm,
     color: Colors.text,
     backgroundColor: Colors.white,
-  },
-  textArea: {
-    height: 80,
-    paddingTop: Spacing.sm,
-    textAlignVertical: 'top',
-  },
-  categoryChipsContainer: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-    paddingVertical: Spacing.xs,
     marginBottom: Spacing.xs,
   },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.background,
-  },
-  chipSelected: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  chipText: {
-    fontSize: Typography.sm,
-    color: Colors.textSecondary,
-    fontWeight: '500',
-  },
-  chipTextSelected: {
-    color: Colors.white,
-    fontWeight: 'bold',
+  textArea: {
+    height: 72,
+    textAlignVertical: 'top',
+    paddingTop: Spacing.sm,
   },
   budgetInputRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: Spacing.sm,
   },
-  currencyPrefix: {
-    fontSize: Typography.lg,
+  rupeeSymbol: {
+    fontSize: Typography.xxl,
     fontWeight: 'bold',
     color: Colors.textSecondary,
     marginRight: Spacing.sm,
   },
   budgetInput: {
     flex: 1,
-  },
-  locationSection: {
-    marginTop: Spacing.md,
-    padding: Spacing.md,
-    backgroundColor: Colors.background,
+    height: 48,
+    borderWidth: 1,
+    borderColor: Colors.border,
     borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    fontSize: Typography.xl,
+    fontWeight: 'bold',
+    color: Colors.text,
+    backgroundColor: Colors.white,
+  },
+  presetChipsRow: {
+    flexDirection: 'row',
+    gap: Spacing.xs,
+  },
+  presetChip: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.full,
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  locationSectionHeader: {
+  presetChipActive: {
+    backgroundColor: Colors.secondary,
+    borderColor: Colors.secondary,
+  },
+  presetChipText: {
+    fontSize: Typography.xs,
+    fontWeight: 'bold',
+    color: Colors.textSecondary,
+  },
+  presetChipTextActive: {
+    color: Colors.white,
+  },
+  locationHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: Spacing.sm,
   },
-  locationTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  locationSectionTitle: {
-    fontSize: Typography.sm,
-    fontWeight: 'bold',
-    color: Colors.text,
-  },
   refreshLocBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
-    borderRadius: BorderRadius.sm,
     backgroundColor: Colors.primaryLight,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.full,
   },
-  refreshLocBtnText: {
-    fontSize: Typography.xs,
+  refreshLocText: {
+    fontSize: Typography.xs - 2,
     fontWeight: 'bold',
     color: Colors.primary,
-  },
-  coordsBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginTop: Spacing.xs,
-  },
-  coordsText: {
-    fontSize: Typography.xs,
-    color: Colors.secondaryDark,
-    fontWeight: '500',
   },
   submitButton: {
     flexDirection: 'row',
@@ -480,15 +494,15 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     backgroundColor: Colors.primary,
     height: 50,
-    borderRadius: BorderRadius.md,
-    marginTop: Spacing.xl,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
+    borderRadius: BorderRadius.lg,
+    ...Shadows.glow,
   },
   submitButtonText: {
     color: Colors.white,
     fontSize: Typography.base,
     fontWeight: 'bold',
+  },
+  btnDisabled: {
+    opacity: 0.6,
   },
 });
