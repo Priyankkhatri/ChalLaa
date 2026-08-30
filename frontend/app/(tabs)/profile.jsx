@@ -351,6 +351,17 @@ export default function ProfileScreen() {
         </View>
       </View>
 
+      {/* Admin Panel Entry Link (Admin Only) */}
+      {user?.role === 'admin' ? (
+        <TouchableOpacity
+          style={styles.adminButton}
+          onPress={() => router.push('/admin')}
+        >
+          <Ionicons name="shield-half-outline" size={20} color={Colors.white} />
+          <Text style={styles.adminButtonText}>Campus Admin Dashboard</Text>
+        </TouchableOpacity>
+      ) : null}
+
       {/* Logout Button */}
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Ionicons name="log-out-outline" size={20} color={Colors.danger} />
@@ -837,6 +848,21 @@ const styles = StyleSheet.create({
   },
   dialogSubmitText: {
     color: Colors.white,
+    fontWeight: 'bold',
+  },
+  adminButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    backgroundColor: '#3B82F6',
+    borderRadius: BorderRadius.md,
+    height: 48,
+    marginTop: Spacing.md,
+  },
+  adminButtonText: {
+    color: Colors.white,
+    fontSize: Typography.sm,
     fontWeight: 'bold',
   },
 });
