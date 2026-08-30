@@ -44,10 +44,9 @@ function NavigationGuard() {
       >
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="errand/post" options={{ title: 'Post Errand', presentation: 'card' }} />
+        <Stack.Screen name="errand/post" options={{ title: 'Post New Errand', presentation: 'card' }} />
         <Stack.Screen name="errand/[id]" options={{ title: 'Errand Details' }} />
-        <Stack.Screen name="admin/dashboard" options={{ title: 'Admin Dashboard' }} />
-        <Stack.Screen name="admin/reports" options={{ title: 'Dispute Reports' }} />
+        <Stack.Screen name="admin/index" options={{ title: 'Campus Moderation Panel' }} />
       </Stack>
       <StatusBar style="auto" />
     </>
