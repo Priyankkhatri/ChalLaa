@@ -24,7 +24,7 @@ const errandSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ['grocery', 'food', 'medicine', 'courier', 'stationery', 'laundry', 'other'],
+      enum: ['grocery', 'food', 'medicine', 'pharmacy', 'courier', 'stationery', 'laundry', 'other'],
       default: 'other',
     },
     budget: {
