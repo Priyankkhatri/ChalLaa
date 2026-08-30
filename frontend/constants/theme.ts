@@ -1,53 +1,48 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
-
-import { Platform } from 'react-native';
-
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
-
+// Theme tokens following React Native course module conventions
 export const Colors = {
-  light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
-  },
-  dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
-  },
+  primary: '#2563EB', // Blue 600
+  primaryDark: '#1D4ED8',
+  primaryLight: '#DBEAFE',
+  secondary: '#10B981', // Emerald 500 (success / runner active)
+  secondaryDark: '#059669',
+  accent: '#F59E0B', // Amber (pending / warnings)
+  danger: '#EF4444', // Red (errors / cancel)
+  background: '#F8FAFC', // Slate 50
+  card: '#FFFFFF',
+  text: '#0F172A', // Slate 900
+  textSecondary: '#64748B', // Slate 500
+  textMuted: '#94A3B8', // Slate 400
+  border: '#E2E8F0', // Slate 200
+  borderLight: '#F1F5F9',
+  white: '#FFFFFF',
+  black: '#000000',
+  successBg: '#ECFDF5',
+  warningBg: '#FFFBEB',
+  dangerBg: '#FEF2F2',
 };
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
-    mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-  },
-});
+export const Spacing = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 40,
+};
+
+export const Typography = {
+  xs: 12,
+  sm: 14,
+  base: 16,
+  lg: 18,
+  xl: 20,
+  xxl: 24,
+  title: 28,
+};
+
+export const BorderRadius = {
+  sm: 6,
+  md: 10,
+  lg: 16,
+  full: 9999,
+};
