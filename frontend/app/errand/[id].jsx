@@ -19,6 +19,7 @@ import { sendLocalNotification } from '../../services/notifications';
 import { Colors, Spacing, Typography, BorderRadius } from '../../constants/theme';
 
 import TrackingSection from '../../components/TrackingSection';
+import ProofSection from '../../components/ProofSection';
 
 const STATUS_STEPS = ['posted', 'accepted', 'in_progress', 'delivered'];
 
@@ -252,6 +253,8 @@ export default function ErrandDetailScreen() {
       >
         {activeTab === 'tracking' ? (
           <TrackingSection errand={errand} currentUser={user} />
+        ) : activeTab === 'proof' ? (
+          <ProofSection errand={errand} currentUser={user} onErrandUpdated={setErrand} />
         ) : activeTab === 'overview' ? (
           <>
             {/* Errand Header Card */}

@@ -330,6 +330,56 @@ const updateErrandStatus = async (req, res, next) => {
   }
 };
 
+// @desc    Upload proof of purchase / delivery photo
+// @route   POST /api/errands/:id/proof
+// @access  Private
+const uploadProofImage = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please upload an image file',
+      });
+    }
+
+    const errand = await Errand.findById(req.params.id);
+    if (!errand) {
+      return res.status(404).json({
+        success: false,
+        message: 'Errand not found',
+      });
+    }
+
+    const isRequester = errand.requesterId.toString() === req.user._id.toString();
+    const isRunner = errand.runnerId && errand.runnerId.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isRequester && !isRunner && !isAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to upload proof for this errand',
+      });
+    }
+
+    // Relative URL path to served file
+    const imageUrl = `/uploads/${req.file.filename}`;
+    errand.proofImages.push(imageUrl);
+    await errand.save();
+
+    await errand.populate('requesterId', 'name phone hostelOrCollegeId karmaScore isVerified avatarUrl');
+    await errand.populate('runnerId', 'name phone hostelOrCollegeId karmaScore isVerified avatarUrl');
+
+    res.status(200).json({
+      success: true,
+      message: 'Proof photo uploaded successfully',
+      imageUrl,
+      errand,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createErrand,
   getNearbyErrands,
@@ -337,4 +387,5 @@ module.exports = {
   getErrandById,
   acceptErrand,
   updateErrandStatus,
+  uploadProofImage,
 };
