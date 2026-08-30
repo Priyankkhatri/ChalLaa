@@ -7,9 +7,20 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
-  ScrollView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import {
+  User,
+  Bike,
+  Clock,
+  Navigation,
+  CheckCircle2,
+  XCircle,
+  Calendar,
+  ArrowRight,
+  Plus,
+  ClipboardList,
+} from 'lucide-react-native';
 import { router } from 'expo-router';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -22,11 +33,11 @@ const ROLE_FILTERS = [
 ];
 
 const STATUS_CONFIG = {
-  posted: { bg: '#EFF6FF', text: '#2563EB', label: 'Posted', icon: 'time-outline' },
-  accepted: { bg: '#FEF3C7', text: '#D97706', label: 'Accepted', icon: 'bicycle-outline' },
-  in_progress: { bg: '#EEF2FF', text: '#4F46E5', label: 'In Progress', icon: 'navigate-outline' },
-  delivered: { bg: '#ECFDF5', text: '#059669', label: 'Delivered', icon: 'checkmark-circle-outline' },
-  cancelled: { bg: '#FEE2E2', text: '#DC2626', label: 'Cancelled', icon: 'close-circle-outline' },
+  posted: { bg: '#EFF6FF', text: '#2563EB', label: 'Posted', icon: Clock },
+  accepted: { bg: '#FEF3C7', text: '#D97706', label: 'Accepted', icon: Bike },
+  in_progress: { bg: '#EEF2FF', text: '#4F46E5', label: 'In Progress', icon: Navigation },
+  delivered: { bg: '#ECFDF5', text: '#059669', label: 'Delivered', icon: CheckCircle2 },
+  cancelled: { bg: '#FEE2E2', text: '#DC2626', label: 'Cancelled', icon: XCircle },
 };
 
 export default function MyErrandsScreen() {
@@ -67,26 +78,25 @@ export default function MyErrandsScreen() {
 
   const renderErrandItem = ({ item }) => {
     const isRequester = item.requesterId?._id === user?._id || item.requesterId === user?._id;
-    const isRunner = item.runnerId?._id === user?._id || item.runnerId === user?._id;
-
     const statusConf = STATUS_CONFIG[item.status] || STATUS_CONFIG.posted;
+    const StatusIcon = statusConf.icon;
     const otherPerson = isRequester ? item.runnerId : item.requesterId;
     const otherRoleLabel = isRequester ? 'Runner' : 'Requester';
 
     return (
       <TouchableOpacity
         style={styles.card}
-        activeOpacity={0.8}
+        activeOpacity={0.85}
         onPress={() => router.push(`/errand/${item._id}`)}
       >
         <View style={styles.cardHeader}>
-          {/* My Role Badge */}
+          {/* Role Badge */}
           <View style={[styles.roleBadge, isRequester ? styles.roleRequester : styles.roleRunner]}>
-            <Ionicons
-              name={isRequester ? 'person' : 'bicycle'}
-              size={12}
-              color={isRequester ? Colors.primary : Colors.secondaryDark}
-            />
+            {isRequester ? (
+              <User size={12} color={Colors.primary} />
+            ) : (
+              <Bike size={12} color={Colors.secondaryDark} />
+            )}
             <Text
               style={[
                 styles.roleBadgeText,
@@ -99,7 +109,7 @@ export default function MyErrandsScreen() {
 
           {/* Status Badge */}
           <View style={[styles.statusBadge, { backgroundColor: statusConf.bg }]}>
-            <Ionicons name={statusConf.icon} size={12} color={statusConf.text} />
+            <StatusIcon size={12} color={statusConf.text} />
             <Text style={[styles.statusBadgeText, { color: statusConf.text }]}>
               {statusConf.label}
             </Text>
@@ -126,7 +136,7 @@ export default function MyErrandsScreen() {
 
         <View style={styles.cardFooter}>
           <View style={styles.dateRow}>
-            <Ionicons name="calendar-outline" size={12} color={Colors.textMuted} />
+            <Calendar size={12} color={Colors.textMuted} />
             <Text style={styles.dateText}>
               {new Date(item.createdAt).toLocaleDateString()}
             </Text>
@@ -134,7 +144,7 @@ export default function MyErrandsScreen() {
 
           <View style={styles.viewDetailsRow}>
             <Text style={styles.viewDetailsText}>Open Task</Text>
-            <Ionicons name="arrow-forward" size={14} color={Colors.primary} />
+            <ArrowRight size={13} color={Colors.primary} strokeWidth={2.5} />
           </View>
         </View>
       </TouchableOpacity>
@@ -143,7 +153,7 @@ export default function MyErrandsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Segmented Role Filter Tabs */}
+      {/* Segmented Control */}
       <View style={styles.segmentedControl}>
         {ROLE_FILTERS.map((f) => {
           const isSelected = selectedRole === f.id;
@@ -173,6 +183,7 @@ export default function MyErrandsScreen() {
           keyExtractor={(item) => item._id}
           renderItem={renderErrandItem}
           contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -184,7 +195,7 @@ export default function MyErrandsScreen() {
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <View style={styles.emptyIconBox}>
-                <Ionicons name="clipboard-outline" size={40} color={Colors.primary} />
+                <ClipboardList size={38} color={Colors.primary} />
               </View>
               <Text style={styles.emptyTitle}>No Errands in this View</Text>
               <Text style={styles.emptySubtitle}>
@@ -196,11 +207,18 @@ export default function MyErrandsScreen() {
               </Text>
 
               <TouchableOpacity
-                style={styles.emptyPostBtn}
+                style={styles.emptyPostBtnWrapper}
                 onPress={() => router.push('/errand/post')}
               >
-                <Ionicons name="add-circle" size={18} color={Colors.white} />
-                <Text style={styles.emptyPostBtnText}>Post a Request</Text>
+                <LinearGradient
+                  colors={['#4F46E5', '#6366F1']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.emptyPostBtn}
+                >
+                  <Plus size={16} color={Colors.white} />
+                  <Text style={styles.emptyPostBtnText}>Post a Request</Text>
+                </LinearGradient>
               </TouchableOpacity>
             </View>
           }
@@ -222,7 +240,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     padding: 4,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
     ...Shadows.subtle,
   },
   segmentBtn: {
@@ -254,7 +272,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xl,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
     ...Shadows.card,
   },
   cardHeader: {
@@ -394,9 +412,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
   },
   emptyIconBox: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
     backgroundColor: Colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
@@ -415,11 +433,14 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     marginBottom: Spacing.lg,
   },
+  emptyPostBtnWrapper: {
+    borderRadius: BorderRadius.md,
+    overflow: 'hidden',
+  },
   emptyPostBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-    backgroundColor: Colors.primary,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm + 2,
     borderRadius: BorderRadius.md,

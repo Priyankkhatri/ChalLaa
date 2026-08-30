@@ -12,7 +12,15 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import {
+  User,
+  Mail,
+  Lock,
+  Phone,
+  Building2,
+  CheckCircle2,
+  AlertCircle,
+} from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
@@ -67,28 +75,29 @@ export default function RegisterScreen() {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
         <LinearGradient
-          colors={['#4F46E5', '#7C3AED']}
+          colors={['#4F46E5', '#6366F1', '#8B5CF6']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={styles.heroHeader}
+          style={styles.heroBanner}
         >
-          <Text style={styles.appName}>Create Account ✨</Text>
-          <Text style={styles.subtext}>Join your campus & hostel peer network</Text>
+          <Text style={styles.heroTitle}>Create Account ✨</Text>
+          <Text style={styles.heroSubtitle}>Join your campus hostel peer network</Text>
         </LinearGradient>
 
         {errorMessage ? (
           <View style={styles.errorContainer}>
-            <Ionicons name="alert-circle" size={18} color={Colors.danger} />
+            <AlertCircle size={18} color={Colors.danger} />
             <Text style={styles.errorText}>{errorMessage}</Text>
           </View>
         ) : null}
 
         <View style={styles.formCard}>
           <Text style={styles.label}>Full Name *</Text>
-          <View style={styles.inputWrapper}>
-            <Ionicons name="person-outline" size={18} color={Colors.textMuted} style={styles.inputIcon} />
+          <View style={styles.inputBox}>
+            <User size={18} color={Colors.textMuted} style={styles.fieldIcon} />
             <TextInput
               style={styles.input}
               placeholder="e.g. Priyank Khatri"
@@ -102,8 +111,8 @@ export default function RegisterScreen() {
           </View>
 
           <Text style={styles.label}>Hostel / College Email *</Text>
-          <View style={styles.inputWrapper}>
-            <Ionicons name="mail-outline" size={18} color={Colors.textMuted} style={styles.inputIcon} />
+          <View style={styles.inputBox}>
+            <Mail size={18} color={Colors.textMuted} style={styles.fieldIcon} />
             <TextInput
               style={styles.input}
               placeholder="e.g. priyank@campus.edu"
@@ -119,8 +128,8 @@ export default function RegisterScreen() {
           </View>
 
           <Text style={styles.label}>Password (min 6 characters) *</Text>
-          <View style={styles.inputWrapper}>
-            <Ionicons name="lock-closed-outline" size={18} color={Colors.textMuted} style={styles.inputIcon} />
+          <View style={styles.inputBox}>
+            <Lock size={18} color={Colors.textMuted} style={styles.fieldIcon} />
             <TextInput
               style={styles.input}
               placeholder="••••••••"
@@ -136,8 +145,8 @@ export default function RegisterScreen() {
           </View>
 
           <Text style={styles.label}>Phone Number (Optional)</Text>
-          <View style={styles.inputWrapper}>
-            <Ionicons name="call-outline" size={18} color={Colors.textMuted} style={styles.inputIcon} />
+          <View style={styles.inputBox}>
+            <Phone size={18} color={Colors.textMuted} style={styles.fieldIcon} />
             <TextInput
               style={styles.input}
               placeholder="e.g. +91 9876543210"
@@ -149,8 +158,8 @@ export default function RegisterScreen() {
           </View>
 
           <Text style={styles.label}>Hostel Block & Room ID (Optional)</Text>
-          <View style={styles.inputWrapper}>
-            <Ionicons name="business-outline" size={18} color={Colors.textMuted} style={styles.inputIcon} />
+          <View style={styles.inputBox}>
+            <Building2 size={18} color={Colors.textMuted} style={styles.fieldIcon} />
             <TextInput
               style={styles.input}
               placeholder="e.g. Hostel 4, Room 302"
@@ -177,7 +186,7 @@ export default function RegisterScreen() {
               ) : (
                 <View style={styles.buttonInner}>
                   <Text style={styles.buttonText}>Register Student Account</Text>
-                  <Ionicons name="checkmark-circle" size={18} color={Colors.white} />
+                  <CheckCircle2 size={18} color={Colors.white} />
                 </View>
               )}
             </LinearGradient>
@@ -206,44 +215,45 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.xxl,
     gap: Spacing.md,
   },
-  heroHeader: {
+  heroBanner: {
     borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
     alignItems: 'center',
     ...Shadows.glow,
   },
-  appName: {
+  heroTitle: {
     fontSize: Typography.xl,
     fontWeight: 'bold',
     color: Colors.white,
     marginBottom: 2,
   },
-  subtext: {
+  heroSubtitle: {
     fontSize: Typography.xs,
-    color: 'rgba(255,255,255,0.8)',
+    color: 'rgba(255,255,255,0.85)',
     textAlign: 'center',
   },
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-    backgroundColor: Colors.dangerBg,
+    backgroundColor: Colors.dangerLight,
     borderColor: Colors.danger,
     borderWidth: 1,
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
   },
   errorText: {
-    color: Colors.danger,
+    color: Colors.dangerDark,
     fontSize: Typography.xs,
     flex: 1,
+    fontWeight: '500',
   },
   formCard: {
     backgroundColor: Colors.card,
     borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
     ...Shadows.card,
   },
   label: {
@@ -253,7 +263,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     marginTop: Spacing.xs,
   },
-  inputWrapper: {
+  inputBox: {
     flexDirection: 'row',
     alignItems: 'center',
     height: 46,
@@ -264,7 +274,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     marginBottom: Spacing.xs,
   },
-  inputIcon: {
+  fieldIcon: {
     marginRight: Spacing.xs,
   },
   input: {

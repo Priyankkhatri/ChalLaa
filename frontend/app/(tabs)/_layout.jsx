@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Compass, ListChecks, User } from 'lucide-react-native';
 import { Colors } from '../../constants/theme';
 
 export default function TabLayout() {
@@ -34,12 +34,8 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Campus Feed',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? 'compass' : 'compass-outline'}
-              size={24}
-              color={color}
-            />
+          tabBarIcon: ({ color, size }) => (
+            <Compass size={22} color={color} strokeWidth={2.2} />
           ),
         }}
       />
@@ -47,12 +43,8 @@ export default function TabLayout() {
         name="my-errands"
         options={{
           title: 'My Errands',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? 'list' : 'list-outline'}
-              size={24}
-              color={color}
-            />
+          tabBarIcon: ({ color, size }) => (
+            <ListChecks size={22} color={color} strokeWidth={2.2} />
           ),
         }}
       />
@@ -60,12 +52,8 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? 'person' : 'person-outline'}
-              size={24}
-              color={color}
-            />
+          tabBarIcon: ({ color, size }) => (
+            <User size={22} color={color} strokeWidth={2.2} />
           ),
         }}
       />

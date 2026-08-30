@@ -1,50 +1,44 @@
 export const Colors = {
-  // Brand Primary (Electric Indigo / Royal Blue)
-  primary: '#4F46E5',
+  // Brand Gradients & Accents
+  primary: '#4F46E5', // Indigo
   primaryDark: '#3730A3',
   primaryLight: '#EEF2FF',
   primaryMuted: '#818CF8',
+  primaryGradient: ['#4F46E5', '#6366F1', '#8B5CF6'],
 
-  // Secondary (Energetic Emerald / Teal)
+  // Secondary Mint / Emerald
   secondary: '#10B981',
   secondaryDark: '#047857',
   secondaryLight: '#ECFDF5',
+  secondaryGradient: ['#10B981', '#059669'],
 
-  // Accent & Actions (Radiant Amber / Coral)
+  // Amber / Karma Gold
   accent: '#F59E0B',
   accentDark: '#B45309',
   accentLight: '#FEF3C7',
+  accentGradient: ['#F59E0B', '#D97706'],
 
-  coral: '#FF6B6B',
-  coralLight: '#FFE3E3',
-  purple: '#8B5CF6',
-  purpleLight: '#F3E8FF',
+  // Coral / Danger
+  danger: '#EF4444',
+  dangerDark: '#B91C1C',
+  dangerLight: '#FEE2E2',
 
-  // Neutrals & Surfaces
+  // Modern Neutral Surface
   background: '#F8FAFC',
   card: '#FFFFFF',
   cardAlt: '#F1F5F9',
+  cardBorder: '#E2E8F0',
+  darkCard: '#0F172A',
 
-  // Typography Colors
+  // Typography
   text: '#0F172A',
   textSecondary: '#64748B',
   textMuted: '#94A3B8',
   textLight: '#CBD5E1',
 
-  // Borders & Dividers
   border: '#E2E8F0',
   borderLight: '#F1F5F9',
   borderFocus: '#6366F1',
-
-  // Feedback & Status
-  success: '#10B981',
-  successBg: '#ECFDF5',
-  warning: '#F59E0B',
-  warningBg: '#FEF3C7',
-  danger: '#EF4444',
-  dangerBg: '#FEE2E2',
-  info: '#3B82F6',
-  infoBg: '#EFF6FF',
 
   white: '#FFFFFF',
   black: '#000000',
@@ -72,10 +66,10 @@ export const Typography = {
 };
 
 export const BorderRadius = {
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
+  xs: 6,
+  sm: 10,
+  md: 14,
+  lg: 18,
   xl: 24,
   full: 9999,
 };
@@ -83,23 +77,23 @@ export const BorderRadius = {
 export const Shadows = {
   subtle: {
     shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
     elevation: 2,
   },
   card: {
     shadowColor: '#4F46E5',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
   },
   glow: {
     shadowColor: '#4F46E5',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    elevation: 8,
   },
 };

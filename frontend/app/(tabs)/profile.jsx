@@ -15,7 +15,26 @@ import {
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Contacts from 'expo-contacts';
-import { Ionicons } from '@expo/vector-icons';
+import {
+  CheckCircle2,
+  Hourglass,
+  Star,
+  Sparkles,
+  ShieldCheck,
+  Users,
+  ShieldAlert,
+  User,
+  Phone,
+  Building2,
+  LogOut,
+  Plus,
+  PhoneCall,
+  Trash2,
+  X,
+  ChevronRight,
+  Edit3,
+  Contact,
+} from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
@@ -47,7 +66,6 @@ export default function ProfileScreen() {
     }
   }, [user]);
 
-  // Save profile changes
   const handleSaveProfile = async () => {
     if (!name.trim()) {
       Alert.alert('Validation Error', 'Name cannot be empty.');
@@ -70,7 +88,6 @@ export default function ProfileScreen() {
     }
   };
 
-  // Device contact import via expo-contacts per Unit 4 conventions
   const handleOpenDeviceContacts = async () => {
     setLoadingContacts(true);
     try {
@@ -111,7 +128,6 @@ export default function ProfileScreen() {
     }
   };
 
-  // Add trusted contact
   const handleAddTrustedContact = async (contactName, contactPhone) => {
     if (!contactName.trim() || !contactPhone.trim()) {
       Alert.alert('Validation Error', 'Please provide both name and phone number.');
@@ -142,7 +158,6 @@ export default function ProfileScreen() {
     }
   };
 
-  // Remove trusted contact
   const handleRemoveContact = async (contactId) => {
     Alert.alert('Remove Contact', 'Are you sure you want to remove this trusted contact?', [
       { text: 'Cancel', style: 'cancel' },
@@ -183,7 +198,7 @@ export default function ProfileScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       {/* Luxury Gradient Profile Header */}
       <LinearGradient
-        colors={['#4F46E5', '#6366F1', '#7C3AED']}
+        colors={['#4F46E5', '#6366F1', '#8B5CF6']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.heroCard}
@@ -202,18 +217,18 @@ export default function ProfileScreen() {
         {/* Badges Row */}
         <View style={styles.badgeRow}>
           <View style={styles.glassBadge}>
-            <Ionicons
-              name={user?.isVerified ? 'checkmark-circle' : 'hourglass-outline'}
-              size={14}
-              color={user?.isVerified ? '#4ADE80' : '#FCD34D'}
-            />
+            {user?.isVerified ? (
+              <CheckCircle2 size={13} color="#4ADE80" />
+            ) : (
+              <Hourglass size={13} color="#FCD34D" />
+            )}
             <Text style={styles.glassBadgeText}>
               {user?.isVerified ? 'Verified Student' : 'Pending ID'}
             </Text>
           </View>
 
           <View style={styles.glassBadge}>
-            <Ionicons name="star" size={14} color="#FCD34D" />
+            <Star size={13} color="#FCD34D" fill="#FCD34D" />
             <Text style={styles.glassBadgeText}>Karma: {user?.karmaScore ?? 100}</Text>
           </View>
         </View>
@@ -221,19 +236,19 @@ export default function ProfileScreen() {
         {/* Glassmorphism Quick Stats Grid */}
         <View style={styles.statsGrid}>
           <View style={styles.glassStatBox}>
-            <Ionicons name="sparkles" size={18} color="#FCD34D" />
+            <Sparkles size={18} color="#FCD34D" />
             <Text style={styles.glassStatNumber}>{user?.karmaScore ?? 100}</Text>
             <Text style={styles.glassStatLabel}>Karma ⭐</Text>
           </View>
 
           <View style={styles.glassStatBox}>
-            <Ionicons name="shield-checkmark" size={18} color="#4ADE80" />
+            <ShieldCheck size={18} color="#4ADE80" />
             <Text style={styles.glassStatNumber}>{user?.isVerified ? '100%' : '50%'}</Text>
             <Text style={styles.glassStatLabel}>Trust Score</Text>
           </View>
 
           <View style={styles.glassStatBox}>
-            <Ionicons name="people" size={18} color="#93C5FD" />
+            <Users size={18} color="#93C5FD" />
             <Text style={styles.glassStatNumber}>{user?.trustedContacts?.length || 0}</Text>
             <Text style={styles.glassStatLabel}>Circle</Text>
           </View>
@@ -248,13 +263,13 @@ export default function ProfileScreen() {
           style={styles.adminBannerWrapper}
         >
           <LinearGradient
-            colors={['#1E1B4B', '#312E81']}
+            colors={['#0F172A', '#1E1B4B', '#312E81']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.adminBanner}
           >
             <View style={styles.adminIconCircle}>
-              <Ionicons name="shield-half" size={24} color="#818CF8" />
+              <ShieldAlert size={22} color="#818CF8" />
             </View>
             <View style={styles.adminBannerText}>
               <Text style={styles.adminBannerTitle}>Campus Moderation Panel</Text>
@@ -262,7 +277,7 @@ export default function ProfileScreen() {
                 Manage disputes, student verifications & platform KPIs
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={Colors.white} />
+            <ChevronRight size={20} color={Colors.white} />
           </LinearGradient>
         </TouchableOpacity>
       ) : null}
@@ -271,14 +286,14 @@ export default function ProfileScreen() {
       <View style={styles.sectionCard}>
         <View style={styles.sectionHeader}>
           <View style={styles.sectionTitleRow}>
-            <Ionicons name="person-circle-outline" size={20} color={Colors.primary} />
+            <User size={18} color={Colors.primary} />
             <Text style={styles.sectionTitle}>Campus Identity</Text>
           </View>
           <TouchableOpacity
             style={styles.editToggleBtn}
             onPress={() => setIsEditing(!isEditing)}
           >
-            <Ionicons name={isEditing ? 'close' : 'create-outline'} size={14} color={Colors.primary} />
+            <Edit3 size={13} color={Colors.primary} />
             <Text style={styles.editLink}>{isEditing ? 'Cancel' : 'Edit'}</Text>
           </TouchableOpacity>
         </View>
@@ -349,11 +364,11 @@ export default function ProfileScreen() {
         )}
       </View>
 
-      {/* Trusted Contacts Section (Unit 4 expo-contacts) */}
+      {/* Trusted Contacts Section */}
       <View style={styles.sectionCard}>
         <View style={styles.sectionHeader}>
           <View style={styles.sectionTitleRow}>
-            <Ionicons name="heart-circle-outline" size={20} color={Colors.secondary} />
+            <Contact size={18} color={Colors.secondary} />
             <Text style={styles.sectionTitle}>Trusted Peer Circle</Text>
           </View>
           <View style={styles.trustedCountBadge}>
@@ -380,20 +395,20 @@ export default function ProfileScreen() {
                 style={styles.contactCallBtn}
                 onPress={() => Linking.openURL(`tel:${contact.phone}`)}
               >
-                <Ionicons name="call" size={16} color={Colors.primary} />
+                <PhoneCall size={15} color={Colors.primary} />
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.contactDeleteBtn}
                 onPress={() => handleRemoveContact(contact._id)}
               >
-                <Ionicons name="trash-outline" size={16} color={Colors.danger} />
+                <Trash2 size={15} color={Colors.danger} />
               </TouchableOpacity>
             </View>
           ))
         ) : (
           <View style={styles.emptyContactsBox}>
-            <Ionicons name="people-outline" size={32} color={Colors.textMuted} />
+            <Users size={32} color={Colors.textMuted} />
             <Text style={styles.emptyContactsTitle}>No Trusted Contacts Added</Text>
             <Text style={styles.emptyContactsSub}>
               Add your roommates or close peers for safe, reliable errand coordination.
@@ -412,7 +427,7 @@ export default function ProfileScreen() {
               <ActivityIndicator color={Colors.primary} size="small" />
             ) : (
               <>
-                <Ionicons name="phone-portrait-outline" size={16} color={Colors.primary} />
+                <Phone size={15} color={Colors.primary} />
                 <Text style={styles.actionBtnSecondaryText}>Import Contacts</Text>
               </>
             )}
@@ -422,7 +437,7 @@ export default function ProfileScreen() {
             style={styles.actionBtnPrimary}
             onPress={() => setManualContactModalVisible(true)}
           >
-            <Ionicons name="add-circle-outline" size={16} color={Colors.white} />
+            <Plus size={15} color={Colors.white} />
             <Text style={styles.actionBtnPrimaryText}>Add Peer</Text>
           </TouchableOpacity>
         </View>
@@ -430,7 +445,7 @@ export default function ProfileScreen() {
 
       {/* Logout Button */}
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Ionicons name="log-out-outline" size={20} color={Colors.danger} />
+        <LogOut size={18} color={Colors.danger} />
         <Text style={styles.logoutButtonText}>Log Out</Text>
       </TouchableOpacity>
 
@@ -444,7 +459,7 @@ export default function ProfileScreen() {
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Import Phone Contacts</Text>
             <TouchableOpacity onPress={() => setContactsModalVisible(false)}>
-              <Ionicons name="close" size={24} color={Colors.text} />
+              <X size={22} color={Colors.text} />
             </TouchableOpacity>
           </View>
 
@@ -470,7 +485,7 @@ export default function ProfileScreen() {
                   <Text style={styles.deviceContactName}>{item.name}</Text>
                   <Text style={styles.deviceContactPhone}>{item.phone}</Text>
                 </View>
-                <Ionicons name="add-circle" size={24} color={Colors.primary} />
+                <Plus size={20} color={Colors.primary} />
               </TouchableOpacity>
             )}
             ListEmptyComponent={
@@ -576,7 +591,7 @@ const styles = StyleSheet.create({
   },
   userEmail: {
     fontSize: Typography.xs,
-    color: 'rgba(255,255,255,0.8)',
+    color: 'rgba(255,255,255,0.85)',
     marginTop: 2,
   },
   badgeRow: {
@@ -667,7 +682,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
     ...Shadows.card,
   },
   sectionHeader: {
@@ -824,7 +839,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: Colors.dangerBg,
+    backgroundColor: Colors.dangerLight,
     justifyContent: 'center',
     alignItems: 'center',
   },

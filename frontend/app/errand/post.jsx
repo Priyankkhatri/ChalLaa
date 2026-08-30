@@ -12,19 +12,31 @@ import {
   Platform,
 } from 'react-native';
 import * as Location from 'expo-location';
-import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import {
+  ShoppingBag,
+  Utensils,
+  Pill,
+  Package,
+  FileText,
+  Sparkles,
+  Send,
+  LocateFixed,
+  AlertCircle,
+  Shirt,
+} from 'lucide-react-native';
 import { router } from 'expo-router';
 import api from '../../services/api';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
 const CATEGORIES = [
-  { id: 'grocery', label: 'Grocery', icon: 'cart' },
-  { id: 'food', label: 'Food & Mess', icon: 'fast-food' },
-  { id: 'medicine', label: 'Pharmacy', icon: 'medkit' },
-  { id: 'courier', label: 'Courier', icon: 'cube' },
-  { id: 'stationery', label: 'Stationery', icon: 'document-text' },
-  { id: 'laundry', label: 'Laundry', icon: 'shirt' },
-  { id: 'other', label: 'Other', icon: 'ellipsis-horizontal' },
+  { id: 'grocery', label: 'Grocery', icon: ShoppingBag },
+  { id: 'food', label: 'Food & Mess', icon: Utensils },
+  { id: 'medicine', label: 'Pharmacy', icon: Pill },
+  { id: 'courier', label: 'Courier', icon: Package },
+  { id: 'stationery', label: 'Stationery', icon: FileText },
+  { id: 'laundry', label: 'Laundry', icon: Shirt },
+  { id: 'other', label: 'Other', icon: Sparkles },
 ];
 
 const BUDGET_PRESETS = [50, 100, 150, 200, 300];
@@ -132,7 +144,7 @@ export default function PostErrandScreen() {
       });
 
       Alert.alert(
-        'Errand Posted! 🚀',
+        'Errand Broadcasted! 🚀',
         'Nearby hostel peers can now discover and fulfill your request.',
         [
           {
@@ -153,18 +165,27 @@ export default function PostErrandScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-        {/* Header Intro */}
-        <View style={styles.headerCard}>
-          <Text style={styles.headerTitle}>What do you need done? 🏃</Text>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header Hero Banner */}
+        <LinearGradient
+          colors={['#4F46E5', '#6366F1']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.headerCard}
+        >
+          <Text style={styles.headerTitle}>Need something done? 🏃</Text>
           <Text style={styles.headerSubtitle}>
-            Broadcast an errand to nearby campus peers heading your way.
+            Broadcast your request to active peers across campus
           </Text>
-        </View>
+        </LinearGradient>
 
         {errorMessage ? (
           <View style={styles.errorBox}>
-            <Ionicons name="alert-circle" size={16} color={Colors.danger} />
+            <AlertCircle size={16} color={Colors.danger} />
             <Text style={styles.errorText}>{errorMessage}</Text>
           </View>
         ) : null}
@@ -175,14 +196,14 @@ export default function PostErrandScreen() {
           <View style={styles.categoryGrid}>
             {CATEGORIES.map((cat) => {
               const isSelected = category === cat.id;
+              const Icon = cat.icon;
               return (
                 <TouchableOpacity
                   key={cat.id}
                   style={[styles.categoryTile, isSelected && styles.categoryTileActive]}
                   onPress={() => setCategory(cat.id)}
                 >
-                  <Ionicons
-                    name={cat.icon}
+                  <Icon
                     size={22}
                     color={isSelected ? Colors.primary : Colors.textSecondary}
                   />
@@ -197,7 +218,7 @@ export default function PostErrandScreen() {
 
         {/* 2. Task Details */}
         <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>2. Task Details</Text>
+          <Text style={styles.sectionTitle}>2. Errand Details</Text>
 
           <Text style={styles.inputLabel}>Title *</Text>
           <TextInput
@@ -214,7 +235,7 @@ export default function PostErrandScreen() {
           <Text style={styles.inputLabel}>Notes & Instructions (Optional)</Text>
           <TextInput
             style={[styles.input, styles.textArea]}
-            placeholder="e.g. Please pick up from Night Canteen and deliver to Hostel 4 Room 302."
+            placeholder="e.g. Pick up from Night Canteen and deliver to H4 Room 302."
             placeholderTextColor={Colors.textMuted}
             value={description}
             onChangeText={setDescription}
@@ -263,7 +284,7 @@ export default function PostErrandScreen() {
         {/* 4. Delivery Destination */}
         <View style={styles.sectionCard}>
           <View style={styles.locationHeaderRow}>
-            <Text style={styles.sectionTitle}>4. Delivery Location</Text>
+            <Text style={styles.sectionTitle}>4. Delivery Address</Text>
             <TouchableOpacity
               style={styles.refreshLocBtn}
               onPress={fetchCurrentLocation}
@@ -273,8 +294,8 @@ export default function PostErrandScreen() {
                 <ActivityIndicator size="small" color={Colors.primary} />
               ) : (
                 <>
-                  <Ionicons name="locate" size={14} color={Colors.primary} />
-                  <Text style={styles.refreshLocText}>GPS Auto-Detect</Text>
+                  <LocateFixed size={14} color={Colors.primary} />
+                  <Text style={styles.refreshLocText}>GPS Auto-Fill</Text>
                 </>
               )}
             </TouchableOpacity>
@@ -291,19 +312,26 @@ export default function PostErrandScreen() {
 
         {/* Submit Button */}
         <TouchableOpacity
-          style={[styles.submitButton, submitting && styles.btnDisabled]}
           onPress={handleSubmit}
           disabled={submitting}
           activeOpacity={0.85}
+          style={styles.submitBtnWrapper}
         >
-          {submitting ? (
-            <ActivityIndicator color={Colors.white} />
-          ) : (
-            <>
-              <Ionicons name="paper-plane" size={18} color={Colors.white} />
-              <Text style={styles.submitButtonText}>Broadcast Errand to Campus</Text>
-            </>
-          )}
+          <LinearGradient
+            colors={['#4F46E5', '#6366F1']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={[styles.submitButton, submitting && styles.btnDisabled]}
+          >
+            {submitting ? (
+              <ActivityIndicator color={Colors.white} />
+            ) : (
+              <>
+                <Send size={18} color={Colors.white} />
+                <Text style={styles.submitButtonText}>Broadcast Errand</Text>
+              </>
+            )}
+          </LinearGradient>
         </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -321,35 +349,32 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   headerCard: {
-    backgroundColor: Colors.primaryLight,
     borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
+    ...Shadows.glow,
   },
   headerTitle: {
     fontSize: Typography.lg,
     fontWeight: 'bold',
-    color: Colors.primaryDark,
+    color: Colors.white,
   },
   headerSubtitle: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: 'rgba(255,255,255,0.85)',
     marginTop: 2,
-    lineHeight: 16,
   },
   errorBox: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-    backgroundColor: Colors.dangerBg,
+    backgroundColor: Colors.dangerLight,
     borderColor: Colors.danger,
     borderWidth: 1,
     borderRadius: BorderRadius.md,
     padding: Spacing.sm + 2,
   },
   errorText: {
-    color: Colors.danger,
+    color: Colors.dangerDark,
     fontSize: Typography.xs,
     flex: 1,
   },
@@ -358,7 +383,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
     ...Shadows.card,
   },
   sectionTitle: {
@@ -487,15 +512,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: Colors.primary,
   },
+  submitBtnWrapper: {
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    ...Shadows.glow,
+  },
   submitButton: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: Spacing.sm,
-    backgroundColor: Colors.primary,
     height: 50,
-    borderRadius: BorderRadius.lg,
-    ...Shadows.glow,
   },
   submitButtonText: {
     color: Colors.white,

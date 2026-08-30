@@ -12,7 +12,23 @@ import {
 } from 'react-native';
 import * as Location from 'expo-location';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import {
+  MapPin,
+  Search,
+  Plus,
+  Star,
+  CheckCircle2,
+  Navigation,
+  ShoppingBag,
+  Utensils,
+  Pill,
+  Package,
+  FileText,
+  Sparkles,
+  X,
+  ArrowRight,
+  SlidersHorizontal,
+} from 'lucide-react-native';
 import { router } from 'expo-router';
 import api from '../../services/api';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
@@ -20,24 +36,21 @@ import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../consta
 const RADIUS_OPTIONS = [1, 2, 5];
 
 const CATEGORIES = [
-  { id: 'all', label: 'All', icon: 'apps' },
-  { id: 'grocery', label: 'Grocery', icon: 'cart' },
-  { id: 'food', label: 'Food & Snacks', icon: 'fast-food' },
-  { id: 'medicine', label: 'Pharmacy', icon: 'medkit' },
-  { id: 'courier', label: 'Courier', icon: 'cube' },
-  { id: 'stationery', label: 'Stationery', icon: 'document-text' },
-  { id: 'laundry', label: 'Laundry', icon: 'shirt' },
-  { id: 'other', label: 'Other', icon: 'ellipsis-horizontal' },
+  { id: 'all', label: 'All', icon: Sparkles },
+  { id: 'grocery', label: 'Grocery', icon: ShoppingBag },
+  { id: 'food', label: 'Food & Mess', icon: Utensils },
+  { id: 'medicine', label: 'Pharmacy', icon: Pill },
+  { id: 'courier', label: 'Courier', icon: Package },
+  { id: 'stationery', label: 'Stationery', icon: FileText },
 ];
 
-const CATEGORY_COLORS = {
-  grocery: { bg: '#E0F2FE', text: '#0284C7' },
-  food: { bg: '#FEF3C7', text: '#D97706' },
-  medicine: { bg: '#FEE2E2', text: '#DC2626' },
-  courier: { bg: '#F3E8FF', text: '#7C3AED' },
-  stationery: { bg: '#ECFDF5', text: '#059669' },
-  laundry: { bg: '#EFF6FF', text: '#2563EB' },
-  other: { bg: '#F1F5F9', text: '#475569' },
+const CATEGORY_STYLES = {
+  grocery: { bg: '#E0F2FE', text: '#0284C7', icon: ShoppingBag },
+  food: { bg: '#FEF3C7', text: '#D97706', icon: Utensils },
+  medicine: { bg: '#FEE2E2', text: '#DC2626', icon: Pill },
+  courier: { bg: '#F3E8FF', text: '#7C3AED', icon: Package },
+  stationery: { bg: '#ECFDF5', text: '#059669', icon: FileText },
+  other: { bg: '#F1F5F9', text: '#475569', icon: Sparkles },
 };
 
 export default function DiscoveryFeedScreen() {
@@ -126,45 +139,30 @@ export default function DiscoveryFeedScreen() {
   };
 
   const renderErrandCard = ({ item }) => {
-    const catStyle = CATEGORY_COLORS[item.category] || CATEGORY_COLORS.other;
+    const catStyle = CATEGORY_STYLES[item.category] || CATEGORY_STYLES.other;
+    const CategoryIcon = catStyle.icon;
 
     return (
       <TouchableOpacity
         style={styles.card}
-        activeOpacity={0.8}
+        activeOpacity={0.85}
         onPress={() => router.push(`/errand/${item._id}`)}
       >
-        {/* Card Header Row */}
+        {/* Card Header */}
         <View style={styles.cardHeader}>
-          <View style={[styles.categoryPill, { backgroundColor: catStyle.bg }]}>
-            <Ionicons
-              name={
-                item.category === 'grocery'
-                  ? 'cart'
-                  : item.category === 'food'
-                  ? 'fast-food'
-                  : item.category === 'medicine'
-                  ? 'medkit'
-                  : item.category === 'courier'
-                  ? 'cube'
-                  : item.category === 'stationery'
-                  ? 'document-text'
-                  : 'bicycle'
-              }
-              size={12}
-              color={catStyle.text}
-            />
-            <Text style={[styles.categoryPillText, { color: catStyle.text }]}>
+          <View style={[styles.categoryBadge, { backgroundColor: catStyle.bg }]}>
+            <CategoryIcon size={12} color={catStyle.text} />
+            <Text style={[styles.categoryBadgeText, { color: catStyle.text }]}>
               {item.category?.toUpperCase() || 'GENERAL'}
             </Text>
           </View>
 
-          <View style={styles.budgetBadge}>
-            <Text style={styles.budgetText}>₹{item.budget || 0}</Text>
+          <View style={styles.budgetPill}>
+            <Text style={styles.budgetValue}>₹{item.budget || 0}</Text>
           </View>
         </View>
 
-        {/* Title & Description */}
+        {/* Errand Title */}
         <Text style={styles.errandTitle} numberOfLines={2}>
           {item.title}
         </Text>
@@ -177,41 +175,45 @@ export default function DiscoveryFeedScreen() {
 
         {/* Location Row */}
         <View style={styles.locationRow}>
-          <Ionicons name="location" size={14} color={Colors.primary} />
+          <MapPin size={14} color={Colors.primary} />
           <Text style={styles.locationText} numberOfLines={1}>
             {item.address || 'Campus Hostels'}
           </Text>
         </View>
 
-        {/* Requester & Action Row */}
+        {/* Card Footer */}
         <View style={styles.cardFooter}>
-          <View style={styles.requesterInfo}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
+          <View style={styles.requesterProfile}>
+            <View style={styles.requesterAvatar}>
+              <Text style={styles.requesterInitial}>
                 {item.requesterId?.name ? item.requesterId.name.charAt(0).toUpperCase() : 'U'}
               </Text>
             </View>
             <View>
-              <View style={styles.requesterNameRow}>
+              <View style={styles.nameRow}>
                 <Text style={styles.requesterName} numberOfLines={1}>
                   {item.requesterId?.name || 'Student'}
                 </Text>
                 {item.requesterId?.isVerified ? (
-                  <Ionicons name="checkmark-circle" size={14} color={Colors.secondaryDark} />
+                  <CheckCircle2 size={13} color={Colors.secondary} />
                 ) : null}
               </View>
-              <Text style={styles.karmaScore}>⭐ {item.requesterId?.karmaScore ?? 100} Karma</Text>
+              <View style={styles.karmaRow}>
+                <Star size={11} color="#D97706" fill="#D97706" />
+                <Text style={styles.karmaText}>{item.requesterId?.karmaScore ?? 100} Karma</Text>
+              </View>
             </View>
           </View>
 
-          <View style={styles.helpBtnWrapper}>
+          <View style={styles.helpButtonWrapper}>
             <LinearGradient
               colors={['#4F46E5', '#6366F1']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
-              style={styles.helpBtn}
+              style={styles.helpButton}
             >
-              <Text style={styles.helpBtnText}>Help Peer 🏃</Text>
+              <Text style={styles.helpButtonText}>Help Peer</Text>
+              <ArrowRight size={13} color={Colors.white} strokeWidth={2.5} />
             </LinearGradient>
           </View>
         </View>
@@ -222,37 +224,37 @@ export default function DiscoveryFeedScreen() {
   return (
     <View style={styles.container}>
       {/* Top Campus Radar & Search Header */}
-      <View style={styles.headerSection}>
-        <View style={styles.locationPillRow}>
-          <View style={styles.liveRadarDot} />
-          <Ionicons name="navigate-circle" size={16} color={Colors.primary} />
-          <Text style={styles.locationPillText} numberOfLines={1}>
+      <View style={styles.headerBar}>
+        <View style={styles.radarPill}>
+          <View style={styles.livePulseDot} />
+          <Navigation size={14} color={Colors.primary} />
+          <Text style={styles.radarLocation} numberOfLines={1}>
             {locationName}
           </Text>
-          <Text style={styles.radiusPill}>{radiusKm} km radius</Text>
+          <Text style={styles.radiusBadge}>{radiusKm} km</Text>
         </View>
 
-        {/* Modern Search Bar */}
-        <View style={styles.searchBar}>
-          <Ionicons name="search" size={18} color={Colors.textMuted} />
+        {/* Search Box */}
+        <View style={styles.searchBox}>
+          <Search size={16} color={Colors.textMuted} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search groceries, medicines, snacks..."
+            placeholder="Search groceries, medicines, courier..."
             placeholderTextColor={Colors.textMuted}
             value={searchQuery}
             onChangeText={setSearchQuery}
-            returnKeyType="search"
           />
           {searchQuery ? (
             <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={18} color={Colors.textMuted} />
+              <X size={16} color={Colors.textMuted} />
             </TouchableOpacity>
           ) : null}
         </View>
 
-        {/* Radius Selector Chips */}
+        {/* Radius Filter Pills */}
         <View style={styles.radiusRow}>
-          <Text style={styles.filterTitle}>Radius:</Text>
+          <SlidersHorizontal size={13} color={Colors.textSecondary} />
+          <Text style={styles.radiusLabel}>Radius:</Text>
           {RADIUS_OPTIONS.map((r) => (
             <TouchableOpacity
               key={r}
@@ -266,7 +268,7 @@ export default function DiscoveryFeedScreen() {
           ))}
         </View>
 
-        {/* Category Horizontal Pills */}
+        {/* Categories Horizontal Scroller */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -274,17 +276,14 @@ export default function DiscoveryFeedScreen() {
         >
           {CATEGORIES.map((cat) => {
             const isSelected = selectedCategory === cat.id;
+            const Icon = cat.icon;
             return (
               <TouchableOpacity
                 key={cat.id}
                 style={[styles.categoryChip, isSelected && styles.categoryChipActive]}
                 onPress={() => setSelectedCategory(cat.id)}
               >
-                <Ionicons
-                  name={cat.icon}
-                  size={14}
-                  color={isSelected ? Colors.white : Colors.textSecondary}
-                />
+                <Icon size={14} color={isSelected ? Colors.white : Colors.textSecondary} />
                 <Text
                   style={[styles.categoryChipText, isSelected && styles.categoryChipTextActive]}
                 >
@@ -296,9 +295,9 @@ export default function DiscoveryFeedScreen() {
         </ScrollView>
       </View>
 
-      {/* Main Feed Content */}
+      {/* Errand List Feed */}
       {loading && !refreshing ? (
-        <View style={styles.centerLoading}>
+        <View style={styles.centerBox}>
           <ActivityIndicator size="large" color={Colors.primary} />
           <Text style={styles.loadingText}>Scanning campus errands...</Text>
         </View>
@@ -307,7 +306,8 @@ export default function DiscoveryFeedScreen() {
           data={errands}
           keyExtractor={(item) => item._id}
           renderItem={renderErrandCard}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={styles.feedContent}
+          showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -319,24 +319,24 @@ export default function DiscoveryFeedScreen() {
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <View style={styles.emptyIconCircle}>
-                <Ionicons name="sparkles" size={36} color={Colors.primary} />
+                <Sparkles size={36} color={Colors.primary} />
               </View>
               <Text style={styles.emptyTitle}>No Errands Found Nearby</Text>
               <Text style={styles.emptySubtitle}>
-                Be the first to post a campus request or expand your search radius!
+                Be the first to broadcast a request or expand your search radius!
               </Text>
               <TouchableOpacity
-                style={styles.emptyActionWrapper}
+                style={styles.emptyBtnWrapper}
                 onPress={() => router.push('/errand/post')}
               >
                 <LinearGradient
                   colors={['#4F46E5', '#6366F1']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
-                  style={styles.emptyActionButton}
+                  style={styles.emptyBtn}
                 >
-                  <Ionicons name="add-circle" size={18} color={Colors.white} />
-                  <Text style={styles.emptyActionText}>Post an Errand</Text>
+                  <Plus size={16} color={Colors.white} />
+                  <Text style={styles.emptyBtnText}>Post New Errand</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -344,7 +344,7 @@ export default function DiscoveryFeedScreen() {
         />
       )}
 
-      {/* Floating Action Button (FAB) */}
+      {/* Floating Action Button */}
       <TouchableOpacity
         style={styles.fabWrapper}
         activeOpacity={0.85}
@@ -356,7 +356,7 @@ export default function DiscoveryFeedScreen() {
           end={{ x: 1, y: 1 }}
           style={styles.fab}
         >
-          <Ionicons name="add" size={28} color={Colors.white} />
+          <Plus size={26} color={Colors.white} strokeWidth={2.5} />
         </LinearGradient>
       </TouchableOpacity>
     </View>
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  headerSection: {
+  headerBar: {
     backgroundColor: Colors.card,
     paddingTop: Spacing.xs,
     paddingBottom: Spacing.sm,
@@ -376,26 +376,26 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.border,
     ...Shadows.subtle,
   },
-  locationPillRow: {
+  radarPill: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.md,
     gap: 6,
-    marginBottom: Spacing.xs,
+    marginBottom: 6,
   },
-  liveRadarDot: {
+  livePulseDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
     backgroundColor: Colors.secondary,
   },
-  locationPillText: {
+  radarLocation: {
     fontSize: Typography.xs,
     fontWeight: 'bold',
     color: Colors.text,
     flex: 1,
   },
-  radiusPill: {
+  radiusBadge: {
     fontSize: Typography.xs - 2,
     fontWeight: 'bold',
     color: Colors.primary,
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: BorderRadius.full,
   },
-  searchBar: {
+  searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.background,
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
     gap: Spacing.xs,
-    marginVertical: 4,
+    marginBottom: 6,
   },
   searchInput: {
     flex: 1,
@@ -427,10 +427,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.md,
     gap: Spacing.xs,
-    marginTop: 4,
-    marginBottom: 4,
+    marginBottom: 6,
   },
-  filterTitle: {
+  radiusLabel: {
     fontSize: Typography.xs - 1,
     fontWeight: 'bold',
     color: Colors.textSecondary,
@@ -460,7 +459,6 @@ const styles = StyleSheet.create({
   categoriesScroll: {
     paddingHorizontal: Spacing.md,
     gap: Spacing.xs,
-    paddingTop: 4,
   },
   categoryChip: {
     flexDirection: 'row',
@@ -486,9 +484,9 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontWeight: 'bold',
   },
-  listContent: {
+  feedContent: {
     padding: Spacing.md,
-    paddingBottom: Spacing.xxl + 30,
+    paddingBottom: Spacing.xxl + 40,
     gap: Spacing.md,
   },
   card: {
@@ -496,7 +494,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xl,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
     ...Shadows.card,
   },
   cardHeader: {
@@ -505,7 +503,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.xs,
   },
-  categoryPill: {
+  categoryBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
@@ -513,11 +511,11 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: BorderRadius.full,
   },
-  categoryPillText: {
+  categoryBadgeText: {
     fontSize: Typography.xs - 2,
     fontWeight: 'bold',
   },
-  budgetBadge: {
+  budgetPill: {
     backgroundColor: '#DCFCE7',
     paddingHorizontal: Spacing.md,
     paddingVertical: 3,
@@ -525,7 +523,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#BBF7D0',
   },
-  budgetText: {
+  budgetValue: {
     fontSize: Typography.sm,
     fontWeight: 'bold',
     color: Colors.secondaryDark,
@@ -562,12 +560,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: Spacing.sm,
   },
-  requesterInfo: {
+  requesterProfile: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
   },
-  avatar: {
+  requesterAvatar: {
     width: 32,
     height: 32,
     borderRadius: 16,
@@ -575,37 +573,45 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  avatarText: {
+  requesterInitial: {
     fontSize: Typography.xs,
     fontWeight: 'bold',
     color: Colors.primary,
   },
-  requesterNameRow: {
+  nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
+    gap: 3,
   },
   requesterName: {
     fontSize: Typography.xs,
     fontWeight: 'bold',
     color: Colors.text,
   },
-  karmaScore: {
+  karmaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  karmaText: {
     fontSize: Typography.xs - 2,
     color: '#B45309',
     fontWeight: '600',
   },
-  helpBtnWrapper: {
+  helpButtonWrapper: {
     borderRadius: BorderRadius.full,
     overflow: 'hidden',
     ...Shadows.subtle,
   },
-  helpBtn: {
+  helpButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     paddingHorizontal: Spacing.md,
     paddingVertical: 7,
     borderRadius: BorderRadius.full,
   },
-  helpBtnText: {
+  helpButtonText: {
     fontSize: Typography.xs,
     fontWeight: 'bold',
     color: Colors.white,
@@ -625,7 +631,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  centerLoading: {
+  centerBox: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -663,11 +669,11 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     marginBottom: Spacing.lg,
   },
-  emptyActionWrapper: {
+  emptyBtnWrapper: {
     borderRadius: BorderRadius.md,
     overflow: 'hidden',
   },
-  emptyActionButton: {
+  emptyBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
@@ -675,7 +681,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm + 2,
     borderRadius: BorderRadius.md,
   },
-  emptyActionText: {
+  emptyBtnText: {
     color: Colors.white,
     fontSize: Typography.sm,
     fontWeight: 'bold',
