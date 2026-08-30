@@ -9,9 +9,9 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { ShieldAlert, X } from 'lucide-react-native';
 import api from '../services/api';
-import { Colors, Spacing, Typography, BorderRadius } from '../constants/theme';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
 
 const DISPUTE_REASONS = [
   { key: 'incorrect_items', label: 'Wrong / Missing Items' },
@@ -60,11 +60,11 @@ export default function DisputeModal({ visible, errand, onClose }) {
       <View style={styles.overlay}>
         <View style={styles.modalCard}>
           <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-            <Ionicons name="close" size={22} color={Colors.textSecondary} />
+            <X size={20} color={Colors.textSecondary} />
           </TouchableOpacity>
 
           <View style={styles.iconCircle}>
-            <Ionicons name="shield-alert-outline" size={32} color={Colors.danger} />
+            <ShieldAlert size={30} color={Colors.danger} />
           </View>
 
           <Text style={styles.title}>Report Errand Issue</Text>
@@ -139,6 +139,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xl,
     padding: Spacing.xl,
     position: 'relative',
+    ...Shadows.glow,
   },
   closeBtn: {
     position: 'absolute',

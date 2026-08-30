@@ -10,12 +10,13 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Camera, Image as ImageIcon, Maximize2, X } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import api from '../services/api';
 import { getSocketUrl } from '../services/socket';
 import CameraModal from './CameraModal';
 import ExpenseSection from './ExpenseSection';
-import { Colors, Spacing, Typography, BorderRadius } from '../constants/theme';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
 
 const getBackendBaseUrl = () => getSocketUrl();
 
@@ -28,18 +29,19 @@ export default function ProofSection({ errand, currentUser, onErrandUpdated }) {
   const isRequester = errand?.requesterId?._id === currentUser?._id || errand?.requesterId === currentUser?._id;
 
   const handleUploadPhoto = async (localPhotoUri) => {
+    setUploading(true);
+    setCameraVisible(false);
+
     try {
-      setUploading(true);
-
       const formData = new FormData();
-      const filename = localPhotoUri.split('/').pop() || 'proof.jpg';
+      const filename = localPhotoUri.split('/').pop() || `proof_${Date.now()}.jpg`;
       const match = /\.(\w+)$/.exec(filename);
-      const type = match ? `image/${match[1]}` : 'image/jpeg';
+      const fileType = match ? `image/${match[1]}` : `image/jpeg`;
 
-      formData.append('proof', {
+      formData.append('proofPhoto', {
         uri: localPhotoUri,
         name: filename,
-        type,
+        type: fileType,
       });
 
       const response = await api.post(`/errands/${errand._id}/proof`, formData, {
@@ -48,13 +50,14 @@ export default function ProofSection({ errand, currentUser, onErrandUpdated }) {
         },
       });
 
-      Alert.alert('Success', 'Proof photo uploaded successfully!');
       if (onErrandUpdated) {
         onErrandUpdated(response.data.errand);
       }
+
+      Alert.alert('Success', 'Proof photo uploaded and attached to this errand.');
     } catch (error) {
-      console.warn('[Upload proof error]', error);
-      Alert.alert('Upload Error', error.response?.data?.message || 'Failed to upload proof photo.');
+      console.warn('[Proof upload error]', error);
+      Alert.alert('Upload Failed', error.response?.data?.message || 'Could not upload proof photo.');
     } finally {
       setUploading(false);
     }
@@ -65,15 +68,13 @@ export default function ProofSection({ errand, currentUser, onErrandUpdated }) {
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        <View>
-          <Text style={styles.sectionTitle}>Proof of Purchase & Delivery</Text>
-          <Text style={styles.sectionSubtitle}>
-            Receipts, purchased items, or doorstep delivery verification photos
-          </Text>
-        </View>
+        <Text style={styles.sectionTitle}>Errand Proof & Receipt Ledger</Text>
+        <Text style={styles.sectionSubtitle}>
+          Camera proofs and itemized expenses for transparent campus settlements.
+        </Text>
       </View>
 
-      {/* Upload Action Button for Runner */}
+      {/* Runner Photo Upload Action Card */}
       {isRunner || isRequester ? (
         <View style={styles.actionCard}>
           <Text style={styles.actionPromptText}>
@@ -83,18 +84,25 @@ export default function ProofSection({ errand, currentUser, onErrandUpdated }) {
           </Text>
 
           <TouchableOpacity
-            style={[styles.cameraLaunchBtn, uploading && styles.btnDisabled]}
             onPress={() => setCameraVisible(true)}
             disabled={uploading}
+            style={styles.cameraLaunchBtnWrapper}
           >
-            {uploading ? (
-              <ActivityIndicator color={Colors.white} />
-            ) : (
-              <>
-                <Ionicons name="camera" size={20} color={Colors.white} />
-                <Text style={styles.cameraLaunchBtnText}>Capture Proof Photo</Text>
-              </>
-            )}
+            <LinearGradient
+              colors={Colors.gradientPrimary}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={[styles.cameraLaunchBtn, uploading && styles.btnDisabled]}
+            >
+              {uploading ? (
+                <ActivityIndicator color={Colors.white} />
+              ) : (
+                <>
+                  <Camera size={18} color={Colors.white} />
+                  <Text style={styles.cameraLaunchBtnText}>Capture Proof Photo</Text>
+                </>
+              )}
+            </LinearGradient>
           </TouchableOpacity>
         </View>
       ) : null}
@@ -115,7 +123,7 @@ export default function ProofSection({ errand, currentUser, onErrandUpdated }) {
               >
                 <Image source={{ uri: fullUrl }} style={styles.imageThumbnail} resizeMode="cover" />
                 <View style={styles.zoomIconBadge}>
-                  <Ionicons name="expand" size={14} color={Colors.white} />
+                  <Maximize2 size={13} color={Colors.white} />
                 </View>
               </TouchableOpacity>
             );
@@ -123,7 +131,7 @@ export default function ProofSection({ errand, currentUser, onErrandUpdated }) {
         </View>
       ) : (
         <View style={styles.emptyBox}>
-          <Ionicons name="images-outline" size={48} color={Colors.textMuted} />
+          <ImageIcon size={44} color={Colors.textMuted} />
           <Text style={styles.emptyTitle}>No Proof Photos Attached</Text>
           <Text style={styles.emptySubtitle}>
             {isRunner
@@ -140,7 +148,7 @@ export default function ProofSection({ errand, currentUser, onErrandUpdated }) {
       <Modal visible={!!selectedImage} transparent animationType="fade">
         <View style={styles.fullModalOverlay}>
           <TouchableOpacity style={styles.closeModalBtn} onPress={() => setSelectedImage(null)}>
-            <Ionicons name="close" size={28} color={Colors.white} />
+            <X size={26} color={Colors.white} />
           </TouchableOpacity>
 
           {selectedImage ? (
@@ -179,29 +187,33 @@ const styles = StyleSheet.create({
   },
   actionCard: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
+    ...Shadows.subtle,
   },
   actionPromptText: {
     fontSize: Typography.xs,
     color: Colors.textSecondary,
     marginBottom: Spacing.sm,
   },
+  cameraLaunchBtnWrapper: {
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    ...Shadows.glow,
+  },
   cameraLaunchBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.sm,
-    backgroundColor: Colors.primary,
     height: 46,
-    borderRadius: BorderRadius.md,
   },
   cameraLaunchBtnText: {
     color: Colors.white,
-    fontSize: Typography.sm,
     fontWeight: 'bold',
+    fontSize: Typography.sm,
   },
   btnDisabled: {
     opacity: 0.6,
@@ -214,11 +226,11 @@ const styles = StyleSheet.create({
   imageThumbnailWrapper: {
     width: '48%',
     height: 140,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     overflow: 'hidden',
+    backgroundColor: Colors.card,
     borderWidth: 1,
     borderColor: Colors.border,
-    backgroundColor: Colors.background,
     position: 'relative',
   },
   imageThumbnail: {
@@ -230,51 +242,48 @@ const styles = StyleSheet.create({
     bottom: 6,
     right: 6,
     backgroundColor: 'rgba(0,0,0,0.6)',
-    borderRadius: BorderRadius.sm,
-    padding: 4,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   emptyBox: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.xl,
     alignItems: 'center',
-    justifyContent: 'center',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
   },
   emptyTitle: {
-    fontSize: Typography.base,
+    fontSize: Typography.sm,
     fontWeight: 'bold',
     color: Colors.text,
-    marginTop: Spacing.sm,
+    marginTop: Spacing.xs,
   },
   emptySubtitle: {
     fontSize: Typography.xs,
     color: Colors.textSecondary,
     textAlign: 'center',
-    marginTop: 4,
-    lineHeight: 18,
+    marginTop: 2,
+    lineHeight: 16,
   },
   fullModalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.95)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  closeModalBtn: {
-    position: 'absolute',
-    top: Spacing.xl + 10,
-    right: Spacing.lg,
-    zIndex: 10,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(0,0,0,0.9)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   fullImage: {
-    width: '95%',
+    width: '90%',
     height: '80%',
+  },
+  closeModalBtn: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    zIndex: 10,
+    padding: Spacing.sm,
   },
 });

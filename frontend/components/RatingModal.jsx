@@ -9,9 +9,10 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Star, X } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import api from '../services/api';
-import { Colors, Spacing, Typography, BorderRadius } from '../constants/theme';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
 
 export default function RatingModal({ visible, errand, currentUser, onClose, onRatingSubmitted }) {
   const [score, setScore] = useState(5);
@@ -49,11 +50,11 @@ export default function RatingModal({ visible, errand, currentUser, onClose, onR
       <View style={styles.overlay}>
         <View style={styles.modalCard}>
           <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-            <Ionicons name="close" size={22} color={Colors.textSecondary} />
+            <X size={20} color={Colors.textSecondary} />
           </TouchableOpacity>
 
           <View style={styles.iconCircle}>
-            <Ionicons name="star" size={32} color="#F59E0B" />
+            <Star size={30} color="#F59E0B" fill="#F59E0B" />
           </View>
 
           <Text style={styles.title}>Rate {peerName}</Text>
@@ -65,10 +66,10 @@ export default function RatingModal({ visible, errand, currentUser, onClose, onR
           <View style={styles.starsRow}>
             {[1, 2, 3, 4, 5].map((star) => (
               <TouchableOpacity key={star} onPress={() => setScore(star)} style={styles.starTouch}>
-                <Ionicons
-                  name={star <= score ? 'star' : 'star-outline'}
-                  size={36}
+                <Star
+                  size={34}
                   color={star <= score ? '#F59E0B' : Colors.border}
+                  fill={star <= score ? '#F59E0B' : 'transparent'}
                 />
               </TouchableOpacity>
             ))}
@@ -96,15 +97,22 @@ export default function RatingModal({ visible, errand, currentUser, onClose, onR
           />
 
           <TouchableOpacity
-            style={[styles.submitBtn, submitting && styles.btnDisabled]}
             onPress={handleSubmit}
             disabled={submitting}
+            style={styles.submitBtnWrapper}
           >
-            {submitting ? (
-              <ActivityIndicator color={Colors.white} />
-            ) : (
-              <Text style={styles.submitBtnText}>Submit Karma Rating</Text>
-            )}
+            <LinearGradient
+              colors={Colors.gradientAccent}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={[styles.submitBtn, submitting && styles.btnDisabled]}
+            >
+              {submitting ? (
+                <ActivityIndicator color={Colors.white} />
+              ) : (
+                <Text style={styles.submitBtnText}>Submit Karma Rating</Text>
+              )}
+            </LinearGradient>
           </TouchableOpacity>
         </View>
       </View>
@@ -127,6 +135,7 @@ const styles = StyleSheet.create({
     padding: Spacing.xl,
     alignItems: 'center',
     position: 'relative',
+    ...Shadows.glow,
   },
   closeBtn: {
     position: 'absolute',
@@ -183,11 +192,14 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     marginBottom: Spacing.lg,
   },
+  submitBtnWrapper: {
+    width: '100%',
+    borderRadius: BorderRadius.md,
+    overflow: 'hidden',
+  },
   submitBtn: {
     width: '100%',
     height: 48,
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
   },

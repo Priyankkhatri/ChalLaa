@@ -11,10 +11,10 @@ import {
   ActivityIndicator,
   ScrollView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Send, MessageSquare, Clock, Sparkles, ShieldCheck } from 'lucide-react-native';
 import api from '../services/api';
 import { getSocket } from '../services/socket';
-import { Colors, Spacing, Typography, BorderRadius } from '../constants/theme';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
 
 const QUICK_PROMPTS = [
   'I am heading out now 🏃',
@@ -33,7 +33,6 @@ export default function ChatSection({ errand, currentUser }) {
   const flatListRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
-  // Fetch past message history via REST API
   const fetchMessages = useCallback(async () => {
     try {
       const response = await api.get(`/errands/${errand._id}/messages`);
@@ -49,125 +48,130 @@ export default function ChatSection({ errand, currentUser }) {
     fetchMessages();
 
     const socket = getSocket();
+    const roomName = `errand_${errand._id}`;
 
-    // Listen for incoming live chat messages
-    const handleReceiveMessage = (newMsg) => {
-      if (newMsg && newMsg.errandId === errand._id) {
-        setMessages((prev) => {
-          // Avoid duplicates
-          if (prev.some((m) => m._id === newMsg._id)) {
-            return prev;
-          }
-          return [...prev, newMsg];
-        });
+    socket.emit('join_errand_room', {
+      errandId: errand._id,
+      user: { _id: currentUser?._id, name: currentUser?.name },
+    });
+
+    const handleReceiveMessage = (newMessage) => {
+      setMessages((prev) => {
+        const exists = prev.some((m) => m._id === newMessage._id);
+        if (exists) return prev;
+        return [...prev, newMessage];
+      });
+      setPeerTyping(null);
+    };
+
+    const handlePeerTyping = (data) => {
+      if (data.userId !== currentUser?._id) {
+        setPeerTyping(data.userName || 'Peer');
       }
     };
 
-    // Listen for peer typing indicator
-    const handleUserTyping = (data) => {
-      if (data?.isTyping) {
-        setPeerTyping(data.userName || 'Peer');
-      } else {
+    const handlePeerStopTyping = (data) => {
+      if (data.userId !== currentUser?._id) {
         setPeerTyping(null);
       }
     };
 
     socket.on('receive_message', handleReceiveMessage);
-    socket.on('user_typing', handleUserTyping);
+    socket.on('peer_typing', handlePeerTyping);
+    socket.on('peer_stop_typing', handlePeerStopTyping);
 
     return () => {
+      socket.emit('leave_errand_room', { errandId: errand._id });
       socket.off('receive_message', handleReceiveMessage);
-      socket.off('user_typing', handleUserTyping);
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
+      socket.off('peer_typing', handlePeerTyping);
+      socket.off('peer_stop_typing', handlePeerStopTyping);
     };
-  }, [errand._id, fetchMessages]);
+  }, [errand._id, currentUser, fetchMessages]);
 
-  // Send message over Socket.io
-  const handleSendMessage = (textToSend) => {
-    const content = (textToSend || inputText).trim();
-    if (!content) return;
-
-    const socket = getSocket();
-    socket.emit('send_message', {
-      errandId: errand._id,
-      senderId: currentUser?._id,
-      text: content,
-    });
-
-    // Stop typing indicator immediately
-    socket.emit('typing_stop', { errandId: errand._id });
-    setInputText('');
-  };
-
-  // Handle typing indicator with debounce
   const handleTextChange = (text) => {
     setInputText(text);
 
     const socket = getSocket();
-    socket.emit('typing_start', {
+    if (text.length > 0) {
+      socket.emit('typing_start', {
+        errandId: errand._id,
+        user: { _id: currentUser?._id, name: currentUser?.name },
+      });
+
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = setTimeout(() => {
+        socket.emit('typing_stop', {
+          errandId: errand._id,
+          user: { _id: currentUser?._id, name: currentUser?.name },
+        });
+      }, 2000);
+    } else {
+      socket.emit('typing_stop', {
+        errandId: errand._id,
+        user: { _id: currentUser?._id, name: currentUser?.name },
+      });
+    }
+  };
+
+  const handleSendMessage = async (customText) => {
+    const textToSend = customText || inputText;
+    if (!textToSend.trim()) return;
+
+    if (!customText) setInputText('');
+
+    const socket = getSocket();
+    socket.emit('typing_stop', {
       errandId: errand._id,
-      userName: currentUser?.name || 'User',
+      user: { _id: currentUser?._id, name: currentUser?.name },
     });
 
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
+    try {
+      const response = await api.post(`/errands/${errand._id}/messages`, {
+        text: textToSend.trim(),
+      });
 
-    typingTimeoutRef.current = setTimeout(() => {
-      socket.emit('typing_stop', { errandId: errand._id });
-    }, 2000);
+      const sentMsg = response.data.data;
+      setMessages((prev) => {
+        const exists = prev.some((m) => m._id === sentMsg._id);
+        if (exists) return prev;
+        return [...prev, sentMsg];
+      });
+
+      socket.emit('send_message', {
+        errandId: errand._id,
+        message: sentMsg,
+      });
+    } catch (error) {
+      console.warn('[Send message error]', error);
+    }
   };
 
   const renderMessageItem = ({ item }) => {
     const isMe =
-      item.senderId?._id === currentUser?._id ||
-      item.senderId === currentUser?._id;
-
-    const senderName = item.senderId?.name || (isMe ? 'You' : 'Peer');
-    const timeFormatted = new Date(item.createdAt).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+      item.senderId?._id === currentUser?._id || item.senderId === currentUser?._id;
 
     return (
-      <View
-        style={[
-          styles.messageRow,
-          isMe ? styles.messageRowMe : styles.messageRowOther,
-        ]}
-      >
+      <View style={[styles.messageRow, isMe ? styles.messageRowMe : styles.messageRowOther]}>
         {!isMe ? (
           <View style={styles.senderAvatar}>
             <Text style={styles.senderAvatarText}>
-              {senderName.charAt(0).toUpperCase()}
+              {item.senderId?.name ? item.senderId.name.charAt(0).toUpperCase() : 'P'}
             </Text>
           </View>
         ) : null}
 
-        <View
-          style={[
-            styles.messageBubble,
-            isMe ? styles.messageBubbleMe : styles.messageBubbleOther,
-          ]}
-        >
-          {!isMe ? <Text style={styles.senderNameLabel}>{senderName}</Text> : null}
-          <Text
-            style={[
-              styles.messageText,
-              isMe ? styles.messageTextMe : styles.messageTextOther,
-            ]}
-          >
+        <View style={[styles.bubble, isMe ? styles.bubbleMe : styles.bubbleOther]}>
+          {!isMe && item.senderId?.name ? (
+            <Text style={styles.senderName}>{item.senderId.name}</Text>
+          ) : null}
+          <Text style={[styles.messageText, isMe ? styles.messageTextMe : styles.messageTextOther]}>
             {item.text}
           </Text>
-          <Text
-            style={[
-              styles.messageTime,
-              isMe ? styles.messageTimeMe : styles.messageTimeOther,
-            ]}
-          >
-            {timeFormatted}
+          <Text style={[styles.timeText, isMe ? styles.timeTextMe : styles.timeTextOther]}>
+            {new Date(item.createdAt || Date.now()).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
           </Text>
         </View>
       </View>
@@ -180,19 +184,15 @@ export default function ChatSection({ errand, currentUser }) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
-      {/* Header Info Banner */}
       <View style={styles.chatHeader}>
-        <Ionicons name="chatbubbles" size={18} color={Colors.primary} />
-        <Text style={styles.chatHeaderTitle}>
-          Coordination Chat • {errand.title}
-        </Text>
+        <ShieldCheck size={16} color={Colors.primary} />
+        <Text style={styles.chatHeaderTitle}>End-to-End Campus Errand Channel</Text>
       </View>
 
-      {/* Messages List */}
       {loading ? (
         <View style={styles.centerLoading}>
-          <ActivityIndicator color={Colors.primary} size="large" />
-          <Text style={styles.loadingText}>Loading messages...</Text>
+          <ActivityIndicator color={Colors.primary} />
+          <Text style={styles.loadingText}>Connecting to errand chat...</Text>
         </View>
       ) : (
         <FlatList
@@ -205,7 +205,7 @@ export default function ChatSection({ errand, currentUser }) {
           onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Ionicons name="chatbubble-ellipses-outline" size={44} color={Colors.textMuted} />
+              <MessageSquare size={40} color={Colors.textMuted} />
               <Text style={styles.emptyTitle}>No messages yet</Text>
               <Text style={styles.emptySubtitle}>
                 Coordinate pickup, substitutions, or delivery details in real time.
@@ -218,7 +218,6 @@ export default function ChatSection({ errand, currentUser }) {
       {/* Peer Typing Indicator */}
       {peerTyping ? (
         <View style={styles.typingBanner}>
-          <Ionicons name="ellipsis-horizontal" size={16} color={Colors.primary} />
           <Text style={styles.typingText}>{peerTyping} is typing...</Text>
         </View>
       ) : null}
@@ -255,7 +254,7 @@ export default function ChatSection({ errand, currentUser }) {
           onPress={() => handleSendMessage()}
           disabled={!inputText.trim()}
         >
-          <Ionicons name="send" size={18} color={Colors.white} />
+          <Send size={16} color={Colors.white} />
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -308,27 +307,29 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   senderAvatarText: {
-    fontSize: Typography.xs,
+    fontSize: Typography.xs - 2,
     fontWeight: 'bold',
     color: Colors.primary,
   },
-  messageBubble: {
+  bubble: {
     maxWidth: '78%',
     borderRadius: BorderRadius.lg,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
   },
-  messageBubbleMe: {
+  bubbleMe: {
     backgroundColor: Colors.primary,
-    borderBottomRightRadius: 2,
+    borderBottomRightRadius: BorderRadius.xs,
+    ...Shadows.subtle,
   },
-  messageBubbleOther: {
+  bubbleOther: {
     backgroundColor: Colors.card,
-    borderBottomLeftRadius: 2,
+    borderBottomLeftRadius: BorderRadius.xs,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
+    ...Shadows.subtle,
   },
-  senderNameLabel: {
+  senderName: {
     fontSize: Typography.xs - 2,
     fontWeight: 'bold',
     color: Colors.primary,
@@ -344,15 +345,15 @@ const styles = StyleSheet.create({
   messageTextOther: {
     color: Colors.text,
   },
-  messageTime: {
-    fontSize: Typography.xs - 3,
-    marginTop: 4,
+  timeText: {
+    fontSize: Typography.xs - 4,
+    marginTop: 3,
     alignSelf: 'flex-end',
   },
-  messageTimeMe: {
-    color: 'rgba(255,255,255,0.7)',
+  timeTextMe: {
+    color: 'rgba(255,255,255,0.75)',
   },
-  messageTimeOther: {
+  timeTextOther: {
     color: Colors.textMuted,
   },
   typingBanner: {
@@ -361,6 +362,7 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: Spacing.md,
     paddingVertical: 4,
+    backgroundColor: Colors.primaryLight,
   },
   typingText: {
     fontSize: Typography.xs - 1,
@@ -368,45 +370,47 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   quickPromptsWrapper: {
-    paddingVertical: 6,
     backgroundColor: Colors.card,
     borderTopWidth: 1,
-    borderTopColor: Colors.borderLight,
+    borderTopColor: Colors.border,
+    paddingVertical: 6,
   },
   quickPromptsScroll: {
     paddingHorizontal: Spacing.md,
     gap: Spacing.xs,
   },
   quickPromptChip: {
-    backgroundColor: Colors.primaryLight,
-    paddingHorizontal: Spacing.sm + 2,
-    paddingVertical: 4,
+    backgroundColor: Colors.background,
+    paddingHorizontal: Spacing.sm + 4,
+    paddingVertical: 5,
     borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   quickPromptText: {
     fontSize: Typography.xs - 1,
-    color: Colors.primaryDark,
+    color: Colors.text,
     fontWeight: '500',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: Spacing.sm,
     backgroundColor: Colors.card,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    gap: Spacing.sm,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
-    gap: Spacing.sm,
   },
   textInput: {
     flex: 1,
-    minHeight: 40,
-    maxHeight: 90,
     backgroundColor: Colors.background,
-    borderRadius: BorderRadius.full,
+    borderRadius: BorderRadius.lg,
     paddingHorizontal: Spacing.md,
-    paddingVertical: 8,
+    paddingVertical: Spacing.sm,
     fontSize: Typography.sm,
     color: Colors.text,
+    maxHeight: 80,
     borderWidth: 1,
     borderColor: Colors.border,
   },
@@ -419,7 +423,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sendBtnDisabled: {
-    backgroundColor: Colors.border,
+    opacity: 0.5,
   },
   centerLoading: {
     flex: 1,
@@ -427,25 +431,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    marginTop: Spacing.xs,
-    fontSize: Typography.xs,
+    marginTop: Spacing.sm,
     color: Colors.textSecondary,
+    fontSize: Typography.xs,
   },
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: Spacing.xxl,
-    gap: Spacing.xs,
+    paddingHorizontal: Spacing.xl,
   },
   emptyTitle: {
     fontSize: Typography.base,
     fontWeight: 'bold',
     color: Colors.text,
+    marginTop: Spacing.xs,
   },
   emptySubtitle: {
     fontSize: Typography.xs,
     color: Colors.textSecondary,
     textAlign: 'center',
-    paddingHorizontal: Spacing.xl,
+    marginTop: 4,
+    lineHeight: 16,
   },
 });

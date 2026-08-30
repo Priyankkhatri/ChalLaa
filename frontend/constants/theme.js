@@ -1,29 +1,38 @@
 export const Colors = {
-  // Brand Gradients & Accents
-  primary: '#4F46E5', // Indigo
-  primaryDark: '#3730A3',
+  // Brand Primary: Electric Indigo & Violet
+  primary: '#6366F1',
+  primaryDark: '#4F46E5',
+  primaryDeep: '#3730A3',
   primaryLight: '#EEF2FF',
-  primaryMuted: '#818CF8',
-  primaryGradient: ['#4F46E5', '#6366F1', '#8B5CF6'],
+  primaryMuted: '#A5B4FC',
 
-  // Secondary Mint / Emerald
+  // Secondary: Neon Emerald & Mint
   secondary: '#10B981',
-  secondaryDark: '#047857',
+  secondaryDark: '#059669',
   secondaryLight: '#ECFDF5',
-  secondaryGradient: ['#10B981', '#059669'],
 
-  // Amber / Karma Gold
+  // Accent & Actions: Sunburst Amber & Electric Coral
   accent: '#F59E0B',
-  accentDark: '#B45309',
+  accentDark: '#D97706',
   accentLight: '#FEF3C7',
-  accentGradient: ['#F59E0B', '#D97706'],
 
-  // Coral / Danger
-  danger: '#EF4444',
-  dangerDark: '#B91C1C',
-  dangerLight: '#FEE2E2',
+  coral: '#F43F5E',
+  coralLight: '#FFE4E6',
 
-  // Modern Neutral Surface
+  cyan: '#06B6D4',
+  cyanLight: '#ECFEFF',
+
+  purple: '#8B5CF6',
+  purpleLight: '#F5F3FF',
+
+  // Gradients (Multi-stop arrays for LinearGradient)
+  gradientPrimary: ['#6366F1', '#8B5CF6', '#A855F7'],
+  gradientHero: ['#4338CA', '#6366F1', '#8B5CF6'],
+  gradientSuccess: ['#10B981', '#059669'],
+  gradientAccent: ['#F59E0B', '#EF4444'],
+  gradientDark: ['#0F172A', '#1E1B4B', '#312E81'],
+
+  // Neutrals & Surfaces
   background: '#F8FAFC',
   card: '#FFFFFF',
   cardAlt: '#F1F5F9',
@@ -32,13 +41,23 @@ export const Colors = {
 
   // Typography
   text: '#0F172A',
-  textSecondary: '#64748B',
+  textSecondary: '#475569',
   textMuted: '#94A3B8',
   textLight: '#CBD5E1',
 
   border: '#E2E8F0',
   borderLight: '#F1F5F9',
   borderFocus: '#6366F1',
+
+  // Status
+  success: '#10B981',
+  successBg: '#ECFDF5',
+  warning: '#F59E0B',
+  warningBg: '#FEF3C7',
+  danger: '#EF4444',
+  dangerBg: '#FEE2E2',
+  dangerLight: '#FEE2E2',
+  dangerDark: '#B91C1C',
 
   white: '#FFFFFF',
   black: '#000000',
@@ -79,18 +98,18 @@ export const Shadows = {
     shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
-    shadowRadius: 4,
+    shadowRadius: 6,
     elevation: 2,
   },
   card: {
-    shadowColor: '#4F46E5',
+    shadowColor: '#6366F1',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 16,
     elevation: 4,
   },
   glow: {
-    shadowColor: '#4F46E5',
+    shadowColor: '#6366F1',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.35,
     shadowRadius: 20,

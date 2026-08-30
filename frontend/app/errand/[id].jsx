@@ -11,12 +11,32 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import {
+  Info,
+  MessageSquare,
+  Navigation,
+  Camera,
+  MapPin,
+  Check,
+  CheckCheck,
+  Clock,
+  User,
+  Bike,
+  CheckCircle2,
+  Phone,
+  Hourglass,
+  Star,
+  ShieldAlert,
+  AlertCircle,
+  ArrowLeft,
+  XCircle,
+} from 'lucide-react-native';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { getSocket } from '../../services/socket';
 import { sendLocalNotification } from '../../services/notifications';
-import { Colors, Spacing, Typography, BorderRadius } from '../../constants/theme';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
 import TrackingSection from '../../components/TrackingSection';
 import ProofSection from '../../components/ProofSection';
@@ -49,8 +69,8 @@ export default function ErrandDetailScreen() {
       const response = await api.get(`/errands/${id}`);
       setErrand(response.data.errand);
     } catch (err) {
-      const msg = err.response?.data?.message || err.message || 'Failed to load errand details';
-      setError(msg);
+      console.warn('[Fetch errand detail error]', err);
+      setError(err.response?.data?.message || 'Failed to load errand details.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -59,50 +79,61 @@ export default function ErrandDetailScreen() {
 
   useEffect(() => {
     fetchErrandDetail();
+  }, [fetchErrandDetail]);
 
-    // Socket.io room subscription
+  useEffect(() => {
+    if (!errand?._id) return;
+
     const socket = getSocket();
-    socket.emit('join_errand_room', { errandId: id, userId: user?._id });
+    const roomName = `errand_${errand._id}`;
 
-    const handleSyncStatus = () => {
-      fetchErrandDetail();
+    socket.emit('join_errand_room', {
+      errandId: errand._id,
+      user: { _id: user?._id, name: user?.name },
+    });
+
+    const handleStatusUpdated = (data) => {
+      if (data.errandId === errand._id) {
+        setErrand((prev) => (prev ? { ...prev, status: data.status } : prev));
+        sendLocalNotification(
+          'Errand Status Updated',
+          `This errand is now ${data.status.replace('_', ' ').toUpperCase()}`,
+          { errandId: errand._id, status: data.status }
+        );
+      }
     };
 
-    socket.on('sync_status_requested', handleSyncStatus);
+    socket.on('errand_status_updated', handleStatusUpdated);
 
     return () => {
-      socket.emit('leave_errand_room', { errandId: id });
-      socket.off('sync_status_requested', handleSyncStatus);
+      socket.emit('leave_errand_room', { errandId: errand._id });
+      socket.off('errand_status_updated', handleStatusUpdated);
     };
-  }, [id, fetchErrandDetail, user]);
+  }, [errand?._id, user]);
 
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchErrandDetail();
   };
 
-  // Accept Errand Action (Runner)
   const handleAcceptErrand = async () => {
     Alert.alert(
       'Accept Errand',
-      'Are you heading out and ready to complete this errand for your peer?',
+      `Are you ready to fulfill this errand for ₹${errand.budget || 0}?`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Accept Task',
+          text: 'Accept Errand 🏃',
           onPress: async () => {
             setActionLoading(true);
             try {
-              const res = await api.patch(`/errands/${id}/accept`);
+              const res = await api.patch(`/errands/${errand._id}/status`, {
+                status: 'accepted',
+              });
               setErrand(res.data.errand);
-              await sendLocalNotification(
-                '🏃 Errand Accepted!',
-                `You are now the runner for "${res.data.errand.title}". You can coordinate via in-app chat.`
-              );
-              getSocket().emit('request_status_sync', { errandId: id });
-              Alert.alert('Success', 'You have accepted this errand!');
+              Alert.alert('Errand Accepted!', 'You are now the active runner for this task.');
             } catch (err) {
-              Alert.alert('Error', err.response?.data?.message || 'Failed to accept errand');
+              Alert.alert('Error', err.response?.data?.message || 'Failed to accept errand.');
             } finally {
               setActionLoading(false);
             }
@@ -112,17 +143,16 @@ export default function ErrandDetailScreen() {
     );
   };
 
-  // Update Errand Status (in_progress, delivered, cancelled)
   const handleUpdateStatus = async (newStatus) => {
     const statusLabels = {
-      in_progress: 'Start Errand & Stream Location',
-      delivered: 'Mark Errand as Delivered',
-      cancelled: 'Cancel Errand',
+      in_progress: 'In Progress (Start GPS Tracking)',
+      delivered: 'Delivered',
+      cancelled: 'Cancelled',
     };
 
     Alert.alert(
-      statusLabels[newStatus] || 'Update Status',
-      `Are you sure you want to change status to "${newStatus.replace('_', ' ')}"?`,
+      'Update Errand Status',
+      `Move this errand to "${statusLabels[newStatus] || newStatus}"?`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -130,23 +160,16 @@ export default function ErrandDetailScreen() {
           onPress: async () => {
             setActionLoading(true);
             try {
-              const res = await api.patch(`/errands/${id}/status`, { status: newStatus });
+              const res = await api.patch(`/errands/${errand._id}/status`, {
+                status: newStatus,
+              });
               setErrand(res.data.errand);
 
-              const notifBodies = {
-                in_progress: `Runner is now heading out for "${res.data.errand.title}".`,
-                delivered: `Errand "${res.data.errand.title}" has been marked as delivered!`,
-                cancelled: `Errand "${res.data.errand.title}" was cancelled.`,
-              };
-
-              await sendLocalNotification(
-                `Errand Status: ${newStatus.replace('_', ' ').toUpperCase()}`,
-                notifBodies[newStatus] || 'Errand status has updated.'
-              );
-
-              getSocket().emit('request_status_sync', { errandId: id });
+              if (newStatus === 'delivered') {
+                setRatingModalVisible(true);
+              }
             } catch (err) {
-              Alert.alert('Error', err.response?.data?.message || 'Failed to update status');
+              Alert.alert('Error', err.response?.data?.message || 'Failed to update status.');
             } finally {
               setActionLoading(false);
             }
@@ -168,7 +191,7 @@ export default function ErrandDetailScreen() {
   if (error || !errand) {
     return (
       <View style={styles.centerError}>
-        <Ionicons name="alert-circle-outline" size={56} color={Colors.danger} />
+        <AlertCircle size={52} color={Colors.danger} />
         <Text style={styles.errorTitle}>Errand Not Found</Text>
         <Text style={styles.errorSubtitle}>{error || 'Could not find the requested errand.'}</Text>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -190,11 +213,7 @@ export default function ErrandDetailScreen() {
           style={[styles.tabNavItem, activeTab === 'overview' && styles.tabNavItemActive]}
           onPress={() => setActiveTab('overview')}
         >
-          <Ionicons
-            name="information-circle-outline"
-            size={16}
-            color={activeTab === 'overview' ? Colors.primary : Colors.textSecondary}
-          />
+          <Info size={16} color={activeTab === 'overview' ? Colors.primary : Colors.textSecondary} />
           <Text
             style={[styles.tabNavText, activeTab === 'overview' && styles.tabNavTextActive]}
           >
@@ -206,11 +225,7 @@ export default function ErrandDetailScreen() {
           style={[styles.tabNavItem, activeTab === 'chat' && styles.tabNavItemActive]}
           onPress={() => setActiveTab('chat')}
         >
-          <Ionicons
-            name="chatbubbles-outline"
-            size={16}
-            color={activeTab === 'chat' ? Colors.primary : Colors.textSecondary}
-          />
+          <MessageSquare size={16} color={activeTab === 'chat' ? Colors.primary : Colors.textSecondary} />
           <Text style={[styles.tabNavText, activeTab === 'chat' && styles.tabNavTextActive]}>
             Chat
           </Text>
@@ -220,11 +235,7 @@ export default function ErrandDetailScreen() {
           style={[styles.tabNavItem, activeTab === 'tracking' && styles.tabNavItemActive]}
           onPress={() => setActiveTab('tracking')}
         >
-          <Ionicons
-            name="navigate-outline"
-            size={16}
-            color={activeTab === 'tracking' ? Colors.primary : Colors.textSecondary}
-          />
+          <Navigation size={16} color={activeTab === 'tracking' ? Colors.primary : Colors.textSecondary} />
           <Text
             style={[styles.tabNavText, activeTab === 'tracking' && styles.tabNavTextActive]}
           >
@@ -236,11 +247,7 @@ export default function ErrandDetailScreen() {
           style={[styles.tabNavItem, activeTab === 'proof' && styles.tabNavItemActive]}
           onPress={() => setActiveTab('proof')}
         >
-          <Ionicons
-            name="camera-outline"
-            size={16}
-            color={activeTab === 'proof' ? Colors.primary : Colors.textSecondary}
-          />
+          <Camera size={16} color={activeTab === 'proof' ? Colors.primary : Colors.textSecondary} />
           <Text style={[styles.tabNavText, activeTab === 'proof' && styles.tabNavTextActive]}>
             Proof & Bill
           </Text>
@@ -249,6 +256,7 @@ export default function ErrandDetailScreen() {
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -285,7 +293,7 @@ export default function ErrandDetailScreen() {
               ) : null}
 
               <View style={styles.addressRow}>
-                <Ionicons name="location" size={16} color={Colors.primary} />
+                <MapPin size={16} color={Colors.primary} />
                 <Text style={styles.addressText}>{errand.address || 'Campus Hostels'}</Text>
               </View>
             </View>
@@ -296,7 +304,7 @@ export default function ErrandDetailScreen() {
 
               {errand.status === 'cancelled' ? (
                 <View style={styles.cancelledBanner}>
-                  <Ionicons name="close-circle" size={20} color={Colors.danger} />
+                  <XCircle size={20} color={Colors.danger} />
                   <Text style={styles.cancelledText}>This errand has been CANCELLED.</Text>
                 </View>
               ) : (
@@ -322,7 +330,7 @@ export default function ErrandDetailScreen() {
                           ]}
                         >
                           {isCompleted ? (
-                            <Ionicons name="checkmark" size={14} color={Colors.white} />
+                            <Check size={14} color={Colors.white} strokeWidth={3} />
                           ) : (
                             <Text style={styles.stepNumber}>{idx + 1}</Text>
                           )}
@@ -347,7 +355,7 @@ export default function ErrandDetailScreen() {
                 <Text style={styles.historyTitle}>Activity Log</Text>
                 {errand.statusHistory?.map((hist, index) => (
                   <View key={index} style={styles.historyRow}>
-                    <Ionicons name="time-outline" size={14} color={Colors.textSecondary} />
+                    <Clock size={13} color={Colors.textSecondary} />
                     <Text style={styles.historyText}>
                       <Text style={styles.historyStatus}>{hist.status.toUpperCase()}:</Text>{' '}
                       {new Date(hist.timestamp).toLocaleTimeString([], {
@@ -376,7 +384,7 @@ export default function ErrandDetailScreen() {
                     <View style={styles.nameRow}>
                       <Text style={styles.personName}>{errand.requesterId?.name || 'Peer'}</Text>
                       {errand.requesterId?.isVerified ? (
-                        <Ionicons name="checkmark-circle" size={14} color={Colors.secondaryDark} />
+                        <CheckCircle2 size={13} color={Colors.secondaryDark} />
                       ) : null}
                     </View>
                     <Text style={styles.personSubtext}>
@@ -390,7 +398,7 @@ export default function ErrandDetailScreen() {
                       style={styles.callBtn}
                       onPress={() => Linking.openURL(`tel:${errand.requesterId.phone}`)}
                     >
-                      <Ionicons name="call" size={16} color={Colors.primary} />
+                      <Phone size={16} color={Colors.primary} />
                     </TouchableOpacity>
                   ) : null}
                 </View>
@@ -410,7 +418,7 @@ export default function ErrandDetailScreen() {
                       <View style={styles.nameRow}>
                         <Text style={styles.personName}>{errand.runnerId?.name || 'Runner'}</Text>
                         {errand.runnerId?.isVerified ? (
-                          <Ionicons name="checkmark-circle" size={14} color={Colors.secondaryDark} />
+                          <CheckCircle2 size={13} color={Colors.secondaryDark} />
                         ) : null}
                       </View>
                       <Text style={styles.personSubtext}>
@@ -424,13 +432,13 @@ export default function ErrandDetailScreen() {
                         style={styles.callBtn}
                         onPress={() => Linking.openURL(`tel:${errand.runnerId.phone}`)}
                       >
-                        <Ionicons name="call" size={16} color={Colors.primary} />
+                        <Phone size={16} color={Colors.primary} />
                       </TouchableOpacity>
                     ) : null}
                   </View>
                 ) : (
                   <View style={styles.unassignedBox}>
-                    <Ionicons name="hourglass-outline" size={20} color={Colors.accent} />
+                    <Hourglass size={18} color={Colors.accent} />
                     <Text style={styles.unassignedText}>
                       Waiting for a peer to accept this errand.
                     </Text>
@@ -444,58 +452,75 @@ export default function ErrandDetailScreen() {
               {/* Case 1: Errand is posted and user is not requester -> User can accept */}
               {errand.status === 'posted' && !isRequester ? (
                 <TouchableOpacity
-                  style={[styles.primaryActionBtn, actionLoading && styles.btnDisabled]}
                   onPress={handleAcceptErrand}
                   disabled={actionLoading}
+                  style={styles.primaryActionWrapper}
                 >
-                  {actionLoading ? (
-                    <ActivityIndicator color={Colors.white} />
-                  ) : (
-                    <>
-                      <Ionicons name="bicycle" size={20} color={Colors.white} />
-                      <Text style={styles.primaryActionBtnText}>Accept Errand (Become Runner)</Text>
-                    </>
-                  )}
+                  <LinearGradient
+                    colors={Colors.gradientPrimary}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={[styles.primaryActionBtn, actionLoading && styles.btnDisabled]}
+                  >
+                    {actionLoading ? (
+                      <ActivityIndicator color={Colors.white} />
+                    ) : (
+                      <>
+                        <Bike size={20} color={Colors.white} />
+                        <Text style={styles.primaryActionBtnText}>Accept Errand (Become Runner)</Text>
+                      </>
+                    )}
+                  </LinearGradient>
                 </TouchableOpacity>
               ) : null}
 
               {/* Case 2: Errand is accepted and user is runner -> Runner starts task */}
               {errand.status === 'accepted' && isRunner ? (
                 <TouchableOpacity
-                  style={[styles.primaryActionBtn, actionLoading && styles.btnDisabled]}
                   onPress={() => handleUpdateStatus('in_progress')}
                   disabled={actionLoading}
+                  style={styles.primaryActionWrapper}
                 >
-                  {actionLoading ? (
-                    <ActivityIndicator color={Colors.white} />
-                  ) : (
-                    <>
-                      <Ionicons name="navigate" size={20} color={Colors.white} />
-                      <Text style={styles.primaryActionBtnText}>Start Errand & Share Live Location</Text>
-                    </>
-                  )}
+                  <LinearGradient
+                    colors={Colors.gradientPrimary}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={[styles.primaryActionBtn, actionLoading && styles.btnDisabled]}
+                  >
+                    {actionLoading ? (
+                      <ActivityIndicator color={Colors.white} />
+                    ) : (
+                      <>
+                        <Navigation size={20} color={Colors.white} />
+                        <Text style={styles.primaryActionBtnText}>Start Errand & Share Live Location</Text>
+                      </>
+                    )}
+                  </LinearGradient>
                 </TouchableOpacity>
               ) : null}
 
               {/* Case 3: Errand is in_progress and user is runner -> Runner completes task */}
               {errand.status === 'in_progress' && isRunner ? (
                 <TouchableOpacity
-                  style={[
-                    styles.primaryActionBtn,
-                    { backgroundColor: Colors.secondary },
-                    actionLoading && styles.btnDisabled,
-                  ]}
                   onPress={() => handleUpdateStatus('delivered')}
                   disabled={actionLoading}
+                  style={styles.primaryActionWrapper}
                 >
-                  {actionLoading ? (
-                    <ActivityIndicator color={Colors.white} />
-                  ) : (
-                    <>
-                      <Ionicons name="checkmark-done" size={20} color={Colors.white} />
-                      <Text style={styles.primaryActionBtnText}>Mark as Delivered</Text>
-                    </>
-                  )}
+                  <LinearGradient
+                    colors={Colors.gradientSuccess}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={[styles.primaryActionBtn, actionLoading && styles.btnDisabled]}
+                  >
+                    {actionLoading ? (
+                      <ActivityIndicator color={Colors.white} />
+                    ) : (
+                      <>
+                        <CheckCheck size={20} color={Colors.white} strokeWidth={2.5} />
+                        <Text style={styles.primaryActionBtnText}>Mark as Delivered</Text>
+                      </>
+                    )}
+                  </LinearGradient>
                 </TouchableOpacity>
               ) : null}
 
@@ -503,18 +528,25 @@ export default function ErrandDetailScreen() {
               {errand.status === 'delivered' ? (
                 <>
                   <View style={styles.deliveredSuccessBox}>
-                    <Ionicons name="checkmark-circle" size={28} color={Colors.secondaryDark} />
+                    <CheckCircle2 size={26} color={Colors.secondaryDark} />
                     <Text style={styles.deliveredSuccessText}>
                       Errand Completed Successfully!
                     </Text>
                   </View>
 
                   <TouchableOpacity
-                    style={[styles.primaryActionBtn, { backgroundColor: '#D97706' }]}
                     onPress={() => setRatingModalVisible(true)}
+                    style={styles.primaryActionWrapper}
                   >
-                    <Ionicons name="star" size={18} color={Colors.white} />
-                    <Text style={styles.primaryActionBtnText}>Rate Peer & Award Karma</Text>
+                    <LinearGradient
+                      colors={Colors.gradientAccent}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      style={styles.primaryActionBtn}
+                    >
+                      <Star size={18} color={Colors.white} fill={Colors.white} />
+                      <Text style={styles.primaryActionBtnText}>Rate Peer & Award Karma</Text>
+                    </LinearGradient>
                   </TouchableOpacity>
                 </>
               ) : null}
@@ -525,7 +557,7 @@ export default function ErrandDetailScreen() {
                   style={styles.disputeLinkBtn}
                   onPress={() => setDisputeModalVisible(true)}
                 >
-                  <Ionicons name="shield-alert-outline" size={14} color={Colors.textMuted} />
+                  <ShieldAlert size={14} color={Colors.textMuted} />
                   <Text style={styles.disputeLinkText}>Report an issue with this errand</Text>
                 </TouchableOpacity>
               ) : null}
@@ -573,7 +605,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.card,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
-    paddingVertical: 2,
+    paddingHorizontal: Spacing.sm,
+    ...Shadows.subtle,
   },
   tabNavItem: {
     flex: 1,
@@ -581,7 +614,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
-    paddingVertical: Spacing.sm,
+    paddingVertical: Spacing.md,
     borderBottomWidth: 2,
     borderBottomColor: 'transparent',
   },
@@ -599,15 +632,16 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: Spacing.md,
-    paddingBottom: Spacing.xxl,
+    paddingBottom: Spacing.xxl + 20,
+    gap: Spacing.md,
   },
   card: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    marginBottom: Spacing.md,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
+    ...Shadows.card,
   },
   headerTopRow: {
     flexDirection: 'row',
@@ -617,27 +651,27 @@ const styles = StyleSheet.create({
   },
   categoryBadge: {
     backgroundColor: Colors.primaryLight,
-    paddingHorizontal: Spacing.sm,
+    paddingHorizontal: Spacing.sm + 4,
     paddingVertical: 3,
     borderRadius: BorderRadius.full,
   },
   categoryBadgeText: {
+    color: Colors.primary,
     fontSize: Typography.xs - 2,
     fontWeight: 'bold',
-    color: Colors.primary,
   },
   budgetBadge: {
-    backgroundColor: '#DCFCE7',
-    borderColor: Colors.secondary,
-    borderWidth: 1,
-    paddingHorizontal: Spacing.sm,
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: Spacing.md,
     paddingVertical: 3,
     borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
   },
   budgetText: {
-    fontSize: Typography.sm,
-    fontWeight: 'bold',
     color: Colors.secondaryDark,
+    fontSize: Typography.xs,
+    fontWeight: 'bold',
   },
   title: {
     fontSize: Typography.lg,
@@ -649,14 +683,14 @@ const styles = StyleSheet.create({
     fontSize: Typography.sm,
     color: Colors.textSecondary,
     marginTop: 4,
-    lineHeight: 20,
+    lineHeight: 18,
   },
   addressRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginTop: Spacing.sm,
-    paddingTop: Spacing.xs,
+    marginTop: Spacing.md,
+    paddingTop: Spacing.sm,
     borderTopWidth: 1,
     borderTopColor: Colors.borderLight,
   },
@@ -669,13 +703,13 @@ const styles = StyleSheet.create({
     fontSize: Typography.base,
     fontWeight: 'bold',
     color: Colors.text,
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
   },
   stepperContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: Spacing.sm,
+    marginBottom: Spacing.lg,
     paddingHorizontal: Spacing.xs,
   },
   stepItem: {
@@ -683,91 +717,93 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   stepCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: Colors.borderLight,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.background,
     borderWidth: 2,
     borderColor: Colors.border,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 4,
-  },
-  stepCircleCompleted: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
   },
   stepCircleCurrent: {
     borderColor: Colors.primary,
     backgroundColor: Colors.primaryLight,
   },
+  stepCircleCompleted: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
   stepNumber: {
     fontSize: Typography.xs,
+    color: Colors.textMuted,
     fontWeight: 'bold',
-    color: Colors.textSecondary,
   },
   stepLabel: {
     fontSize: Typography.xs - 2,
     color: Colors.textMuted,
     textAlign: 'center',
   },
-  stepLabelCompleted: {
-    color: Colors.text,
-    fontWeight: '600',
-  },
   stepLabelCurrent: {
     color: Colors.primary,
     fontWeight: 'bold',
   },
-  cancelledBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    backgroundColor: Colors.dangerBg,
-    padding: Spacing.md,
-    borderRadius: BorderRadius.md,
-  },
-  cancelledText: {
-    color: Colors.danger,
-    fontSize: Typography.sm,
-    fontWeight: 'bold',
+  stepLabelCompleted: {
+    color: Colors.text,
+    fontWeight: '600',
   },
   historyBox: {
     backgroundColor: Colors.background,
     borderRadius: BorderRadius.md,
-    padding: Spacing.sm,
-    marginTop: Spacing.sm,
+    padding: Spacing.md,
+    marginTop: Spacing.xs,
   },
   historyTitle: {
     fontSize: Typography.xs,
     fontWeight: 'bold',
     color: Colors.textSecondary,
-    marginBottom: 4,
+    marginBottom: Spacing.xs,
+    textTransform: 'uppercase',
   },
   historyRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginVertical: 2,
-  },
-  historyStatus: {
-    fontWeight: 'bold',
-    color: Colors.text,
+    gap: 6,
+    paddingVertical: 2,
   },
   historyText: {
     fontSize: Typography.xs - 1,
     color: Colors.textSecondary,
   },
+  historyStatus: {
+    fontWeight: 'bold',
+    color: Colors.text,
+  },
+  cancelledBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    backgroundColor: Colors.dangerLight,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.md,
+  },
+  cancelledText: {
+    color: Colors.dangerDark,
+    fontSize: Typography.xs,
+    fontWeight: 'bold',
+  },
   peopleSection: {
     gap: Spacing.sm,
-    marginBottom: Spacing.md,
   },
   personCard: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
+    ...Shadows.subtle,
   },
   personRoleLabel: {
     fontSize: Typography.xs - 1,
@@ -808,13 +844,15 @@ const styles = StyleSheet.create({
     color: Colors.text,
   },
   personSubtext: {
-    fontSize: Typography.xs,
+    fontSize: Typography.xs - 1,
     color: Colors.textSecondary,
+    marginTop: 1,
   },
   personKarma: {
-    fontSize: Typography.xs - 1,
+    fontSize: Typography.xs - 2,
     color: '#B45309',
     fontWeight: '600',
+    marginTop: 2,
   },
   callBtn: {
     width: 36,
@@ -827,60 +865,49 @@ const styles = StyleSheet.create({
   unassignedBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.sm,
-    backgroundColor: Colors.warningBg,
-    padding: Spacing.sm,
-    borderRadius: BorderRadius.md,
+    gap: Spacing.xs,
+    paddingVertical: Spacing.sm,
   },
   unassignedText: {
     fontSize: Typography.xs,
-    color: '#B45309',
+    color: Colors.textSecondary,
+    fontStyle: 'italic',
   },
   actionSection: {
-    marginTop: Spacing.xs,
     gap: Spacing.sm,
+    marginTop: Spacing.xs,
+  },
+  primaryActionWrapper: {
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    ...Shadows.glow,
   },
   primaryActionBtn: {
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
-    gap: Spacing.sm,
-    backgroundColor: Colors.primary,
-    height: 48,
-    borderRadius: BorderRadius.md,
+    justifyContent: 'center',
+    gap: Spacing.xs,
+    height: 50,
   },
   primaryActionBtnText: {
     color: Colors.white,
-    fontSize: Typography.sm,
+    fontSize: Typography.sm + 1,
     fontWeight: 'bold',
-  },
-  btnDisabled: {
-    opacity: 0.6,
   },
   deliveredSuccessBox: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: Spacing.sm,
-    backgroundColor: Colors.successBg,
-    borderColor: Colors.secondary,
-    borderWidth: 1,
-    borderRadius: BorderRadius.md,
+    gap: Spacing.xs,
+    backgroundColor: '#ECFDF5',
     padding: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
   },
   deliveredSuccessText: {
     color: Colors.secondaryDark,
     fontSize: Typography.sm,
-    fontWeight: 'bold',
-  },
-  cancelBtn: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: Spacing.sm,
-  },
-  cancelBtnText: {
-    color: Colors.danger,
-    fontSize: Typography.xs,
     fontWeight: 'bold',
   },
   disputeLinkBtn: {
@@ -888,19 +915,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
-    paddingVertical: Spacing.sm,
-    marginTop: Spacing.xs,
+    paddingVertical: Spacing.xs,
   },
   disputeLinkText: {
     fontSize: Typography.xs,
     color: Colors.textMuted,
     textDecorationLine: 'underline',
   },
+  cancelBtn: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.sm,
+  },
+  cancelBtnText: {
+    color: Colors.danger,
+    fontSize: Typography.xs,
+    fontWeight: '600',
+  },
   centerLoading: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.background,
   },
   loadingText: {
     marginTop: Spacing.sm,
@@ -911,30 +946,32 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.background,
     padding: Spacing.xl,
   },
   errorTitle: {
     fontSize: Typography.lg,
     fontWeight: 'bold',
     color: Colors.text,
-    marginTop: Spacing.md,
+    marginTop: Spacing.sm,
   },
   errorSubtitle: {
     fontSize: Typography.sm,
     color: Colors.textSecondary,
     textAlign: 'center',
     marginTop: 4,
+    marginBottom: Spacing.lg,
   },
   backButton: {
-    marginTop: Spacing.lg,
     backgroundColor: Colors.primary,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.sm + 2,
     borderRadius: BorderRadius.md,
   },
   backButtonText: {
     color: Colors.white,
     fontWeight: 'bold',
+  },
+  btnDisabled: {
+    opacity: 0.6,
   },
 });

@@ -28,20 +28,24 @@ import {
   X,
   ArrowRight,
   SlidersHorizontal,
+  Flame,
+  Shirt,
 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
 const RADIUS_OPTIONS = [1, 2, 5];
 
 const CATEGORIES = [
-  { id: 'all', label: 'All', icon: Sparkles },
-  { id: 'grocery', label: 'Grocery', icon: ShoppingBag },
-  { id: 'food', label: 'Food & Mess', icon: Utensils },
-  { id: 'medicine', label: 'Pharmacy', icon: Pill },
-  { id: 'courier', label: 'Courier', icon: Package },
-  { id: 'stationery', label: 'Stationery', icon: FileText },
+  { id: 'all', label: 'All', icon: Sparkles, color: '#6366F1', bg: '#EEF2FF' },
+  { id: 'food', label: 'Food & Mess', icon: Utensils, color: '#F59E0B', bg: '#FEF3C7' },
+  { id: 'grocery', label: 'Grocery', icon: ShoppingBag, color: '#0284C7', bg: '#E0F2FE' },
+  { id: 'medicine', label: 'Pharmacy', icon: Pill, color: '#EF4444', bg: '#FEE2E2' },
+  { id: 'courier', label: 'Courier', icon: Package, color: '#8B5CF6', bg: '#F3E8FF' },
+  { id: 'stationery', label: 'Stationery', icon: FileText, color: '#10B981', bg: '#ECFDF5' },
+  { id: 'laundry', label: 'Laundry', icon: Shirt, color: '#3B82F6', bg: '#EFF6FF' },
 ];
 
 const CATEGORY_STYLES = {
@@ -50,10 +54,12 @@ const CATEGORY_STYLES = {
   medicine: { bg: '#FEE2E2', text: '#DC2626', icon: Pill },
   courier: { bg: '#F3E8FF', text: '#7C3AED', icon: Package },
   stationery: { bg: '#ECFDF5', text: '#059669', icon: FileText },
+  laundry: { bg: '#EFF6FF', text: '#2563EB', icon: Shirt },
   other: { bg: '#F1F5F9', text: '#475569', icon: Sparkles },
 };
 
 export default function DiscoveryFeedScreen() {
+  const { user } = useAuth();
   const [errands, setErrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -66,7 +72,7 @@ export default function DiscoveryFeedScreen() {
 
   // User's location coordinates
   const [userCoords, setUserCoords] = useState(null);
-  const [locationName, setLocationName] = useState('Locating campus...');
+  const [locationName, setLocationName] = useState('Detecting campus...');
 
   const initializeFeed = useCallback(async () => {
     try {
@@ -148,17 +154,18 @@ export default function DiscoveryFeedScreen() {
         activeOpacity={0.85}
         onPress={() => router.push(`/errand/${item._id}`)}
       >
-        {/* Card Header */}
-        <View style={styles.cardHeader}>
+        {/* Card Top Row */}
+        <View style={styles.cardTopRow}>
           <View style={[styles.categoryBadge, { backgroundColor: catStyle.bg }]}>
-            <CategoryIcon size={12} color={catStyle.text} />
+            <CategoryIcon size={13} color={catStyle.text} />
             <Text style={[styles.categoryBadgeText, { color: catStyle.text }]}>
               {item.category?.toUpperCase() || 'GENERAL'}
             </Text>
           </View>
 
-          <View style={styles.budgetPill}>
-            <Text style={styles.budgetValue}>₹{item.budget || 0}</Text>
+          <View style={styles.priceContainer}>
+            <Text style={styles.priceLabel}>Offer</Text>
+            <Text style={styles.priceAmount}>₹{item.budget || 0}</Text>
           </View>
         </View>
 
@@ -174,7 +181,7 @@ export default function DiscoveryFeedScreen() {
         ) : null}
 
         {/* Location Row */}
-        <View style={styles.locationRow}>
+        <View style={styles.locationContainer}>
           <MapPin size={14} color={Colors.primary} />
           <Text style={styles.locationText} numberOfLines={1}>
             {item.address || 'Campus Hostels'}
@@ -205,14 +212,14 @@ export default function DiscoveryFeedScreen() {
             </View>
           </View>
 
-          <View style={styles.helpButtonWrapper}>
+          <View style={styles.acceptButtonWrapper}>
             <LinearGradient
-              colors={['#4F46E5', '#6366F1']}
+              colors={Colors.gradientPrimary}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
-              style={styles.helpButton}
+              style={styles.acceptButton}
             >
-              <Text style={styles.helpButtonText}>Help Peer</Text>
+              <Text style={styles.acceptButtonText}>Help Peer</Text>
               <ArrowRight size={13} color={Colors.white} strokeWidth={2.5} />
             </LinearGradient>
           </View>
@@ -223,23 +230,38 @@ export default function DiscoveryFeedScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Top Campus Radar & Search Header */}
-      <View style={styles.headerBar}>
-        <View style={styles.radarPill}>
-          <View style={styles.livePulseDot} />
-          <Navigation size={14} color={Colors.primary} />
-          <Text style={styles.radarLocation} numberOfLines={1}>
-            {locationName}
-          </Text>
-          <Text style={styles.radiusBadge}>{radiusKm} km</Text>
+      {/* Top Greeting & Beacon Header */}
+      <LinearGradient
+        colors={Colors.gradientHero}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.headerHero}
+      >
+        <View style={styles.headerTop}>
+          <View>
+            <Text style={styles.greetingText}>
+              Hey, {user?.name ? user.name.split(' ')[0] : 'Campus Runner'} 👋
+            </Text>
+            <View style={styles.beaconRow}>
+              <View style={styles.beaconDot} />
+              <Text style={styles.beaconText}>Active Campus Network</Text>
+            </View>
+          </View>
+
+          <View style={styles.locationChip}>
+            <Navigation size={12} color={Colors.white} />
+            <Text style={styles.locationChipText} numberOfLines={1}>
+              {locationName}
+            </Text>
+          </View>
         </View>
 
-        {/* Search Box */}
-        <View style={styles.searchBox}>
+        {/* Search Bar */}
+        <View style={styles.searchBar}>
           <Search size={16} color={Colors.textMuted} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search groceries, medicines, courier..."
+            placeholder="Search Maggi, medicine, prints, tea..."
             placeholderTextColor={Colors.textMuted}
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -250,18 +272,21 @@ export default function DiscoveryFeedScreen() {
             </TouchableOpacity>
           ) : null}
         </View>
+      </LinearGradient>
 
-        {/* Radius Filter Pills */}
+      {/* Filter Bar */}
+      <View style={styles.filterSection}>
+        {/* Radius Row */}
         <View style={styles.radiusRow}>
           <SlidersHorizontal size={13} color={Colors.textSecondary} />
-          <Text style={styles.radiusLabel}>Radius:</Text>
+          <Text style={styles.radiusLabel}>Distance:</Text>
           {RADIUS_OPTIONS.map((r) => (
             <TouchableOpacity
               key={r}
-              style={[styles.radiusChip, radiusKm === r && styles.radiusChipActive]}
+              style={[styles.radiusPill, radiusKm === r && styles.radiusPillActive]}
               onPress={() => setRadiusKm(r)}
             >
-              <Text style={[styles.radiusChipText, radiusKm === r && styles.radiusChipTextActive]}>
+              <Text style={[styles.radiusPillText, radiusKm === r && styles.radiusPillTextActive]}>
                 {r} km
               </Text>
             </TouchableOpacity>
@@ -272,7 +297,7 @@ export default function DiscoveryFeedScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoriesScroll}
+          contentContainerStyle={styles.categoryScroller}
         >
           {CATEGORIES.map((cat) => {
             const isSelected = selectedCategory === cat.id;
@@ -280,12 +305,25 @@ export default function DiscoveryFeedScreen() {
             return (
               <TouchableOpacity
                 key={cat.id}
-                style={[styles.categoryChip, isSelected && styles.categoryChipActive]}
+                style={[
+                  styles.categoryCard,
+                  isSelected && styles.categoryCardActive,
+                ]}
                 onPress={() => setSelectedCategory(cat.id)}
               >
-                <Icon size={14} color={isSelected ? Colors.white : Colors.textSecondary} />
+                <View
+                  style={[
+                    styles.categoryIconCircle,
+                    { backgroundColor: isSelected ? Colors.white : cat.bg },
+                  ]}
+                >
+                  <Icon size={16} color={isSelected ? Colors.primary : cat.color} />
+                </View>
                 <Text
-                  style={[styles.categoryChipText, isSelected && styles.categoryChipTextActive]}
+                  style={[
+                    styles.categoryCardLabel,
+                    isSelected && styles.categoryCardLabelActive,
+                  ]}
                 >
                   {cat.label}
                 </Text>
@@ -297,16 +335,16 @@ export default function DiscoveryFeedScreen() {
 
       {/* Errand List Feed */}
       {loading && !refreshing ? (
-        <View style={styles.centerBox}>
+        <View style={styles.centerLoading}>
           <ActivityIndicator size="large" color={Colors.primary} />
-          <Text style={styles.loadingText}>Scanning campus errands...</Text>
+          <Text style={styles.loadingText}>Scanning campus errands nearby...</Text>
         </View>
       ) : (
         <FlatList
           data={errands}
           keyExtractor={(item) => item._id}
           renderItem={renderErrandCard}
-          contentContainerStyle={styles.feedContent}
+          contentContainerStyle={styles.feedList}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
@@ -319,24 +357,24 @@ export default function DiscoveryFeedScreen() {
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <View style={styles.emptyIconCircle}>
-                <Sparkles size={36} color={Colors.primary} />
+                <Flame size={36} color={Colors.primary} />
               </View>
-              <Text style={styles.emptyTitle}>No Errands Found Nearby</Text>
+              <Text style={styles.emptyTitle}>No Errands Around You</Text>
               <Text style={styles.emptySubtitle}>
-                Be the first to broadcast a request or expand your search radius!
+                Be the first to post an errand or expand your distance radius!
               </Text>
               <TouchableOpacity
                 style={styles.emptyBtnWrapper}
                 onPress={() => router.push('/errand/post')}
               >
                 <LinearGradient
-                  colors={['#4F46E5', '#6366F1']}
+                  colors={Colors.gradientPrimary}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={styles.emptyBtn}
                 >
                   <Plus size={16} color={Colors.white} />
-                  <Text style={styles.emptyBtnText}>Post New Errand</Text>
+                  <Text style={styles.emptyBtnText}>Post Errand Request</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -351,7 +389,7 @@ export default function DiscoveryFeedScreen() {
         onPress={() => router.push('/errand/post')}
       >
         <LinearGradient
-          colors={['#4F46E5', '#7C3AED']}
+          colors={Colors.gradientPrimary}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.fab}
@@ -368,66 +406,85 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  headerBar: {
-    backgroundColor: Colors.card,
-    paddingTop: Spacing.xs,
-    paddingBottom: Spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    ...Shadows.subtle,
+  headerHero: {
+    paddingHorizontal: Spacing.md,
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.md,
+    borderBottomLeftRadius: BorderRadius.xl,
+    borderBottomRightRadius: BorderRadius.xl,
+    ...Shadows.glow,
   },
-  radarPill: {
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+  greetingText: {
+    fontSize: Typography.lg,
+    fontWeight: 'bold',
+    color: Colors.white,
+  },
+  beaconRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: Spacing.md,
-    gap: 6,
-    marginBottom: 6,
+    gap: 5,
+    marginTop: 2,
   },
-  livePulseDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.secondary,
+  beaconDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: '#4ADE80',
   },
-  radarLocation: {
-    fontSize: Typography.xs,
-    fontWeight: 'bold',
-    color: Colors.text,
-    flex: 1,
+  beaconText: {
+    fontSize: Typography.xs - 2,
+    color: 'rgba(255,255,255,0.85)',
+    fontWeight: '500',
   },
-  radiusBadge: {
+  locationChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: Spacing.sm + 2,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.full,
+    maxWidth: 140,
+  },
+  locationChipText: {
     fontSize: Typography.xs - 2,
     fontWeight: 'bold',
-    color: Colors.primary,
-    backgroundColor: Colors.primaryLight,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 2,
-    borderRadius: BorderRadius.full,
+    color: Colors.white,
   },
-  searchBox: {
+  searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.background,
-    borderRadius: BorderRadius.md,
-    marginHorizontal: Spacing.md,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
     paddingHorizontal: Spacing.md,
-    height: 42,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    height: 44,
     gap: Spacing.xs,
-    marginBottom: 6,
+    ...Shadows.subtle,
   },
   searchInput: {
     flex: 1,
     fontSize: Typography.sm,
     color: Colors.text,
   },
+  filterSection: {
+    backgroundColor: Colors.card,
+    paddingVertical: Spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+    ...Shadows.subtle,
+  },
   radiusRow: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.md,
     gap: Spacing.xs,
-    marginBottom: 6,
+    marginBottom: Spacing.xs,
   },
   radiusLabel: {
     fontSize: Typography.xs - 1,
@@ -435,56 +492,63 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textTransform: 'uppercase',
   },
-  radiusChip: {
-    paddingHorizontal: Spacing.sm + 2,
+  radiusPill: {
+    paddingHorizontal: Spacing.sm + 4,
     paddingVertical: 3,
     borderRadius: BorderRadius.full,
     backgroundColor: Colors.background,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  radiusChipActive: {
+  radiusPillActive: {
     backgroundColor: Colors.primary,
     borderColor: Colors.primary,
   },
-  radiusChipText: {
+  radiusPillText: {
     fontSize: Typography.xs - 2,
     fontWeight: '600',
     color: Colors.textSecondary,
   },
-  radiusChipTextActive: {
+  radiusPillTextActive: {
     color: Colors.white,
     fontWeight: 'bold',
   },
-  categoriesScroll: {
+  categoryScroller: {
     paddingHorizontal: Spacing.md,
     gap: Spacing.xs,
   },
-  categoryChip: {
+  categoryCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: Spacing.md,
+    gap: 6,
+    paddingHorizontal: Spacing.sm + 4,
     paddingVertical: 6,
     borderRadius: BorderRadius.full,
     backgroundColor: Colors.background,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  categoryChipActive: {
+  categoryCardActive: {
     backgroundColor: Colors.primary,
     borderColor: Colors.primary,
   },
-  categoryChipText: {
+  categoryIconCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  categoryCardLabel: {
     fontSize: Typography.xs,
     fontWeight: '600',
     color: Colors.textSecondary,
   },
-  categoryChipTextActive: {
+  categoryCardLabelActive: {
     color: Colors.white,
     fontWeight: 'bold',
   },
-  feedContent: {
+  feedList: {
     padding: Spacing.md,
     paddingBottom: Spacing.xxl + 40,
     gap: Spacing.md,
@@ -497,7 +561,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.cardBorder,
     ...Shadows.card,
   },
-  cardHeader: {
+  cardTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -506,7 +570,7 @@ const styles = StyleSheet.create({
   categoryBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
     paddingHorizontal: Spacing.sm + 2,
     paddingVertical: 3,
     borderRadius: BorderRadius.full,
@@ -515,16 +579,25 @@ const styles = StyleSheet.create({
     fontSize: Typography.xs - 2,
     fontWeight: 'bold',
   },
-  budgetPill: {
-    backgroundColor: '#DCFCE7',
-    paddingHorizontal: Spacing.md,
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 4,
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: Spacing.sm + 4,
     paddingVertical: 3,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: '#BBF7D0',
+    borderColor: '#A7F3D0',
   },
-  budgetValue: {
-    fontSize: Typography.sm,
+  priceLabel: {
+    fontSize: Typography.xs - 3,
+    fontWeight: 'bold',
+    color: Colors.secondaryDark,
+    textTransform: 'uppercase',
+  },
+  priceAmount: {
+    fontSize: Typography.sm + 1,
     fontWeight: 'bold',
     color: Colors.secondaryDark,
   },
@@ -540,7 +613,7 @@ const styles = StyleSheet.create({
     marginTop: 3,
     lineHeight: 16,
   },
-  locationRow: {
+  locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
@@ -598,12 +671,12 @@ const styles = StyleSheet.create({
     color: '#B45309',
     fontWeight: '600',
   },
-  helpButtonWrapper: {
+  acceptButtonWrapper: {
     borderRadius: BorderRadius.full,
     overflow: 'hidden',
     ...Shadows.subtle,
   },
-  helpButton: {
+  acceptButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
@@ -611,7 +684,7 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
     borderRadius: BorderRadius.full,
   },
-  helpButtonText: {
+  acceptButtonText: {
     fontSize: Typography.xs,
     fontWeight: 'bold',
     color: Colors.white,
@@ -631,7 +704,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  centerBox: {
+  centerLoading: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',

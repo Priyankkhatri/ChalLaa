@@ -8,9 +8,10 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Receipt, CheckCircle2, Clock, Wallet, CheckCheck } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import api from '../services/api';
-import { Colors, Spacing, Typography, BorderRadius } from '../constants/theme';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
 
 export default function ExpenseSection({ errand, currentUser }) {
   const [expenses, setExpenses] = useState([]);
@@ -156,18 +157,25 @@ export default function ExpenseSection({ errand, currentUser }) {
           />
 
           <TouchableOpacity
-            style={[styles.logSubmitBtn, submitting && styles.btnDisabled]}
             onPress={handleLogExpense}
             disabled={submitting}
+            style={styles.logSubmitBtnWrapper}
           >
-            {submitting ? (
-              <ActivityIndicator color={Colors.white} />
-            ) : (
-              <>
-                <Ionicons name="receipt-outline" size={18} color={Colors.white} />
-                <Text style={styles.logSubmitBtnText}>Record Expense</Text>
-              </>
-            )}
+            <LinearGradient
+              colors={Colors.gradientPrimary}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={[styles.logSubmitBtn, submitting && styles.btnDisabled]}
+            >
+              {submitting ? (
+                <ActivityIndicator color={Colors.white} />
+              ) : (
+                <>
+                  <Receipt size={16} color={Colors.white} />
+                  <Text style={styles.logSubmitBtnText}>Record Expense</Text>
+                </>
+              )}
+            </LinearGradient>
           </TouchableOpacity>
         </View>
       ) : null}
@@ -197,11 +205,11 @@ export default function ExpenseSection({ errand, currentUser }) {
                       isSettled ? styles.statusSettled : styles.statusPending,
                     ]}
                   >
-                    <Ionicons
-                      name={isSettled ? 'checkmark-circle' : 'time-outline'}
-                      size={12}
-                      color={isSettled ? Colors.secondaryDark : '#B45309'}
-                    />
+                    {isSettled ? (
+                      <CheckCircle2 size={12} color={Colors.secondaryDark} />
+                    ) : (
+                      <Clock size={12} color="#B45309" />
+                    )}
                     <Text
                       style={[
                         styles.statusPillText,
@@ -238,7 +246,7 @@ export default function ExpenseSection({ errand, currentUser }) {
                         <ActivityIndicator size="small" color={Colors.white} />
                       ) : (
                         <>
-                          <Ionicons name="checkmark-done" size={14} color={Colors.white} />
+                          <CheckCheck size={14} color={Colors.white} />
                           <Text style={styles.settleBtnText}>Mark Reimbursed</Text>
                         </>
                       )}
@@ -250,7 +258,7 @@ export default function ExpenseSection({ errand, currentUser }) {
           })
         ) : (
           <View style={styles.emptyTransactions}>
-            <Ionicons name="wallet-outline" size={32} color={Colors.textMuted} />
+            <Wallet size={32} color={Colors.textMuted} />
             <Text style={styles.emptyTransactionsText}>No expenses logged for this errand yet.</Text>
           </View>
         )}
@@ -265,10 +273,11 @@ const styles = StyleSheet.create({
   },
   summaryCard: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
+    ...Shadows.subtle,
   },
   summaryTopRow: {
     flexDirection: 'row',
@@ -283,12 +292,12 @@ const styles = StyleSheet.create({
   },
   budgetPill: {
     backgroundColor: Colors.primaryLight,
-    paddingHorizontal: Spacing.sm,
+    paddingHorizontal: Spacing.sm + 2,
     paddingVertical: 3,
     borderRadius: BorderRadius.full,
   },
   budgetText: {
-    fontSize: Typography.xs,
+    fontSize: Typography.xs - 2,
     fontWeight: 'bold',
     color: Colors.primaryDark,
   },
@@ -320,10 +329,11 @@ const styles = StyleSheet.create({
   },
   logCard: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
+    ...Shadows.subtle,
   },
   formTitle: {
     fontSize: Typography.sm,
@@ -370,14 +380,16 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     marginBottom: Spacing.sm,
   },
+  logSubmitBtnWrapper: {
+    borderRadius: BorderRadius.md,
+    overflow: 'hidden',
+  },
   logSubmitBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.sm,
-    backgroundColor: Colors.primary,
     height: 44,
-    borderRadius: BorderRadius.md,
   },
   logSubmitBtnText: {
     color: Colors.white,
@@ -395,11 +407,12 @@ const styles = StyleSheet.create({
   },
   transactionCard: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.md,
     marginBottom: Spacing.sm,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
+    ...Shadows.subtle,
   },
   transTopRow: {
     flexDirection: 'row',
@@ -477,12 +490,12 @@ const styles = StyleSheet.create({
   },
   emptyTransactions: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
   },
   emptyTransactionsText: {
     fontSize: Typography.xs,

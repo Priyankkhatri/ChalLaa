@@ -9,9 +9,9 @@ import {
   Platform,
 } from 'react-native';
 import * as Location from 'expo-location';
-import { Ionicons } from '@expo/vector-icons';
+import { Navigation, Radio, Gauge, Flag, Clock, Compass } from 'lucide-react-native';
 import { getSocket } from '../services/socket';
-import { Colors, Spacing, Typography, BorderRadius } from '../constants/theme';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
 
 // Haversine distance calculator in kilometers
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -49,7 +49,6 @@ export default function TrackingSection({ errand, currentUser }) {
 
   const locationSubscriptionRef = useRef(null);
 
-  // 1. RUNNER EFFECT: Watch position & emit over Socket.io
   useEffect(() => {
     const socket = getSocket();
 
@@ -66,8 +65,8 @@ export default function TrackingSection({ errand, currentUser }) {
         locationSubscriptionRef.current = await Location.watchPositionAsync(
           {
             accuracy: Location.Accuracy.High,
-            distanceInterval: 5, // Every 5 meters
-            timeInterval: 4000, // Or every 4 seconds
+            distanceInterval: 5,
+            timeInterval: 4000,
           },
           (loc) => {
             const currentLat = loc.coords.latitude;
@@ -78,7 +77,6 @@ export default function TrackingSection({ errand, currentUser }) {
             setSpeedKmh(currentSpeed);
             setLastStreamTime(new Date());
 
-            // Emit live location update to errand room
             socket.emit('location_update', {
               errandId: errand._id,
               runnerId: currentUser?._id,
@@ -108,7 +106,6 @@ export default function TrackingSection({ errand, currentUser }) {
     };
   }, [isRunner, errand?._id, errand?.status, currentUser?._id]);
 
-  // 2. REQUESTER EFFECT: Listen for live runner broadcast
   useEffect(() => {
     const socket = getSocket();
 
@@ -126,7 +123,6 @@ export default function TrackingSection({ errand, currentUser }) {
     };
   }, [errand?._id]);
 
-  // Determine active coordinates to display
   const activeRunnerLocation = isRunner ? runnerCoords : receivedRunnerCoords;
   const activeDistance =
     activeRunnerLocation && destinationCoords
@@ -143,11 +139,7 @@ export default function TrackingSection({ errand, currentUser }) {
       {/* Status Header Banner */}
       <View style={styles.banner}>
         <View style={styles.bannerIconBox}>
-          <Ionicons
-            name={errand.status === 'in_progress' ? 'navigate' : 'time-outline'}
-            size={22}
-            color={Colors.primary}
-          />
+          <Navigation size={22} color={Colors.primary} />
         </View>
         <View style={styles.bannerTextBox}>
           <Text style={styles.bannerTitle}>
@@ -173,7 +165,7 @@ export default function TrackingSection({ errand, currentUser }) {
       <View style={styles.trackingCard}>
         <View style={styles.visualMapPlaceholder}>
           <View style={styles.radarPulse}>
-            <Ionicons name="radio-outline" size={48} color={Colors.primary} />
+            <Radio size={48} color={Colors.primary} />
           </View>
 
           <Text style={styles.mapStatusText}>
@@ -188,7 +180,7 @@ export default function TrackingSection({ errand, currentUser }) {
 
           {activeDistance !== null ? (
             <View style={styles.etaPill}>
-              <Ionicons name="speedometer-outline" size={16} color={Colors.secondaryDark} />
+              <Gauge size={15} color={Colors.secondaryDark} />
               <Text style={styles.etaPillText}>~{activeDistance} km from destination</Text>
             </View>
           ) : null}
@@ -233,7 +225,7 @@ export default function TrackingSection({ errand, currentUser }) {
       {/* Destination Info Box */}
       <View style={styles.destinationCard}>
         <View style={styles.destHeader}>
-          <Ionicons name="flag" size={18} color={Colors.danger} />
+          <Flag size={18} color={Colors.danger} />
           <Text style={styles.destTitle}>Delivery Destination</Text>
         </View>
         <Text style={styles.destAddress}>{errand.address || 'Campus Hostels'}</Text>
@@ -256,11 +248,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
     gap: Spacing.md,
+    ...Shadows.subtle,
   },
   bannerIconBox: {
     width: 44,
@@ -286,15 +279,16 @@ const styles = StyleSheet.create({
   },
   trackingCard: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
+    ...Shadows.card,
   },
   visualMapPlaceholder: {
     height: 180,
     backgroundColor: Colors.background,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     borderWidth: 1,
     borderColor: Colors.border,
     justifyContent: 'center',
@@ -315,7 +309,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     backgroundColor: '#DCFCE7',
-    borderColor: Colors.secondary,
+    borderColor: '#86EFAC',
     borderWidth: 1,
     paddingHorizontal: Spacing.md,
     paddingVertical: 4,
@@ -337,7 +331,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: '45%',
     backgroundColor: Colors.background,
-    borderRadius: BorderRadius.sm,
+    borderRadius: BorderRadius.md,
     padding: Spacing.sm,
     borderWidth: 1,
     borderColor: Colors.borderLight,
@@ -356,10 +350,11 @@ const styles = StyleSheet.create({
   },
   destinationCard: {
     backgroundColor: Colors.card,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.cardBorder,
+    ...Shadows.subtle,
   },
   destHeader: {
     flexDirection: 'row',
