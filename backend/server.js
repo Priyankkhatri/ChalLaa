@@ -13,6 +13,7 @@ const authRoutes = require('./src/routes/auth.routes');
 const userRoutes = require('./src/routes/user.routes');
 const errandRoutes = require('./src/routes/errand.routes');
 const expenseRoutes = require('./src/routes/expense.routes');
+const karmaRoutes = require('./src/routes/karma.routes');
 
 // Sockets
 const registerChatSocket = require('./src/sockets/chat.socket');
@@ -51,6 +52,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/errands', errandRoutes);
 app.use('/api/expenses', expenseRoutes);
+app.use('/api/karma', karmaRoutes);
 
 // Socket.io connection and room event routing
 io.on('connection', (socket) => {

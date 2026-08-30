@@ -21,6 +21,8 @@ import { Colors, Spacing, Typography, BorderRadius } from '../../constants/theme
 import TrackingSection from '../../components/TrackingSection';
 import ProofSection from '../../components/ProofSection';
 import ChatSection from '../../components/ChatSection';
+import RatingModal from '../../components/RatingModal';
+import DisputeModal from '../../components/DisputeModal';
 
 const STATUS_STEPS = ['posted', 'accepted', 'in_progress', 'delivered'];
 
@@ -36,6 +38,10 @@ export default function ErrandDetailScreen() {
 
   // Active sub-view tab
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'tracking' | 'proof' | 'chat'
+
+  // Rating & Dispute modals
+  const [ratingModalVisible, setRatingModalVisible] = useState(false);
+  const [disputeModalVisible, setDisputeModalVisible] = useState(false);
 
   const fetchErrandDetail = useCallback(async () => {
     try {
@@ -493,14 +499,35 @@ export default function ErrandDetailScreen() {
                 </TouchableOpacity>
               ) : null}
 
-              {/* Case 4: Errand is delivered and user is requester -> Settlement & rating */}
+              {/* Case 4: Errand is delivered -> Rate peer and award karma */}
               {errand.status === 'delivered' ? (
-                <View style={styles.deliveredSuccessBox}>
-                  <Ionicons name="checkmark-circle" size={28} color={Colors.secondaryDark} />
-                  <Text style={styles.deliveredSuccessText}>
-                    Errand Completed Successfully!
-                  </Text>
-                </View>
+                <>
+                  <View style={styles.deliveredSuccessBox}>
+                    <Ionicons name="checkmark-circle" size={28} color={Colors.secondaryDark} />
+                    <Text style={styles.deliveredSuccessText}>
+                      Errand Completed Successfully!
+                    </Text>
+                  </View>
+
+                  <TouchableOpacity
+                    style={[styles.primaryActionBtn, { backgroundColor: '#D97706' }]}
+                    onPress={() => setRatingModalVisible(true)}
+                  >
+                    <Ionicons name="star" size={18} color={Colors.white} />
+                    <Text style={styles.primaryActionBtnText}>Rate Peer & Award Karma</Text>
+                  </TouchableOpacity>
+                </>
+              ) : null}
+
+              {/* Dispute / Issue reporting link */}
+              {(isRequester || isRunner) && errand.status !== 'posted' ? (
+                <TouchableOpacity
+                  style={styles.disputeLinkBtn}
+                  onPress={() => setDisputeModalVisible(true)}
+                >
+                  <Ionicons name="shield-alert-outline" size={14} color={Colors.textMuted} />
+                  <Text style={styles.disputeLinkText}>Report an issue with this errand</Text>
+                </TouchableOpacity>
               ) : null}
 
               {/* Cancel button if applicable before completion */}
@@ -517,6 +544,21 @@ export default function ErrandDetailScreen() {
           </>
         ) : null}
       </ScrollView>
+
+      {/* Modals */}
+      <RatingModal
+        visible={ratingModalVisible}
+        errand={errand}
+        currentUser={user}
+        onClose={() => setRatingModalVisible(false)}
+        onRatingSubmitted={fetchErrandDetail}
+      />
+
+      <DisputeModal
+        visible={disputeModalVisible}
+        errand={errand}
+        onClose={() => setDisputeModalVisible(false)}
+      />
     </View>
   );
 }
@@ -840,6 +882,19 @@ const styles = StyleSheet.create({
     color: Colors.danger,
     fontSize: Typography.xs,
     fontWeight: 'bold',
+  },
+  disputeLinkBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    paddingVertical: Spacing.sm,
+    marginTop: Spacing.xs,
+  },
+  disputeLinkText: {
+    fontSize: Typography.xs,
+    color: Colors.textMuted,
+    textDecorationLine: 'underline',
   },
   centerLoading: {
     flex: 1,
