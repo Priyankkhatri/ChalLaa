@@ -11,6 +11,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius } from '../../constants/theme';
 
@@ -21,8 +22,11 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
 
-  const handleLogin = async () => {
-    if (!email.trim() || !password) {
+  const handleLogin = async (customEmail, customPassword) => {
+    const loginEmail = customEmail || email;
+    const loginPass = customPassword || password;
+
+    if (!loginEmail.trim() || !loginPass) {
       setErrorMessage('Please enter both email and password.');
       return;
     }
@@ -31,7 +35,7 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      await login(email.trim(), password);
+      await login(loginEmail.trim(), loginPass);
     } catch (error) {
       const msg =
         error.response?.data?.message ||
@@ -41,6 +45,12 @@ export default function LoginScreen() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fillDemoAccount = (demoEmail, demoPass) => {
+    setEmail(demoEmail);
+    setPassword(demoPass);
+    handleLogin(demoEmail, demoPass);
   };
 
   return (
@@ -53,13 +63,17 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
+          <View style={styles.logoBadge}>
+            <Ionicons name="bicycle" size={32} color={Colors.white} />
+          </View>
           <Text style={styles.appName}>ChalLaa 🏃</Text>
           <Text style={styles.tagline}>Peer-to-Peer Errand Coordination</Text>
-          <Text style={styles.subtext}>Log in with your hostel or college account</Text>
+          <Text style={styles.subtext}>Hyperlocal Hostel & Campus Community</Text>
         </View>
 
         {errorMessage ? (
           <View style={styles.errorContainer}>
+            <Ionicons name="alert-circle" size={18} color={Colors.danger} />
             <Text style={styles.errorText}>{errorMessage}</Text>
           </View>
         ) : null}
@@ -68,7 +82,7 @@ export default function LoginScreen() {
           <Text style={styles.label}>College / Hostel Email</Text>
           <TextInput
             style={styles.input}
-            placeholder="e.g. student@hostel.edu"
+            placeholder="e.g. aryan@campus.edu"
             placeholderTextColor={Colors.textMuted}
             value={email}
             onChangeText={(val) => {
@@ -83,7 +97,7 @@ export default function LoginScreen() {
           <Text style={styles.label}>Password</Text>
           <TextInput
             style={styles.input}
-            placeholder="Enter your password"
+            placeholder="••••••••"
             placeholderTextColor={Colors.textMuted}
             value={password}
             onChangeText={(val) => {
@@ -96,22 +110,55 @@ export default function LoginScreen() {
 
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleLogin}
+            onPress={() => handleLogin()}
             disabled={loading}
             activeOpacity={0.8}
           >
             {loading ? (
               <ActivityIndicator color={Colors.white} />
             ) : (
-              <Text style={styles.buttonText}>Log In</Text>
+              <Text style={styles.buttonText}>Log In to Campus Feed</Text>
             )}
           </TouchableOpacity>
         </View>
 
+        {/* 1-Tap Quick Demo Login Section */}
+        <View style={styles.demoSection}>
+          <Text style={styles.demoTitle}>Quick 1-Tap Demo Logins:</Text>
+          <View style={styles.demoButtonsRow}>
+            <TouchableOpacity
+              style={styles.demoChip}
+              onPress={() => fillDemoAccount('aryan@campus.edu', 'Password@123')}
+              disabled={loading}
+            >
+              <Ionicons name="shield-checkmark" size={14} color={Colors.primary} />
+              <Text style={styles.demoChipText}>Admin (Aryan)</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.demoChip}
+              onPress={() => fillDemoAccount('priya@campus.edu', 'Password@123')}
+              disabled={loading}
+            >
+              <Ionicons name="person" size={14} color={Colors.secondaryDark} />
+              <Text style={styles.demoChipText}>Student (Priya)</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.demoChip}
+              onPress={() => fillDemoAccount('rahul@campus.edu', 'Password@123')}
+              disabled={loading}
+            >
+              <Ionicons name="bicycle" size={14} color="#D97706" />
+              <Text style={styles.demoChipText}>Runner (Rahul)</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account yet? </Text>
+          <Text style={styles.footerText}>New to ChalLaa? </Text>
           <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
-            <Text style={styles.linkText}>Register here</Text>
+            <Text style={styles.linkText}>Create an Account</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -131,26 +178,43 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.lg,
+  },
+  logoBadge: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   appName: {
     fontSize: Typography.title + 6,
     fontWeight: 'bold',
     color: Colors.primary,
-    marginBottom: Spacing.xs,
+    marginBottom: 2,
   },
   tagline: {
     fontSize: Typography.base,
     fontWeight: '600',
     color: Colors.text,
-    marginBottom: Spacing.xs,
+    marginBottom: 2,
   },
   subtext: {
-    fontSize: Typography.sm,
+    fontSize: Typography.xs,
     color: Colors.textSecondary,
     textAlign: 'center',
   },
   errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
     backgroundColor: Colors.dangerBg,
     borderColor: Colors.danger,
     borderWidth: 1,
@@ -160,8 +224,8 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: Colors.danger,
-    fontSize: Typography.sm,
-    textAlign: 'center',
+    fontSize: Typography.xs,
+    flex: 1,
   },
   form: {
     backgroundColor: Colors.card,
@@ -176,7 +240,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   label: {
-    fontSize: Typography.sm,
+    fontSize: Typography.xs,
     fontWeight: '600',
     color: Colors.text,
     marginBottom: Spacing.xs,
@@ -188,7 +252,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
-    fontSize: Typography.base,
+    fontSize: Typography.sm,
     color: Colors.text,
     backgroundColor: Colors.white,
   },
@@ -205,14 +269,52 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: Colors.white,
-    fontSize: Typography.base,
+    fontSize: Typography.sm,
     fontWeight: 'bold',
+  },
+  demoSection: {
+    marginTop: Spacing.lg,
+    backgroundColor: Colors.card,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  demoTitle: {
+    fontSize: Typography.xs,
+    fontWeight: 'bold',
+    color: Colors.textSecondary,
+    marginBottom: Spacing.sm,
+    textAlign: 'center',
+  },
+  demoButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: Spacing.xs,
+  },
+  demoChip: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    backgroundColor: Colors.background,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: 4,
+    borderRadius: BorderRadius.sm,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+  },
+  demoChipText: {
+    fontSize: Typography.xs - 2,
+    fontWeight: 'bold',
+    color: Colors.text,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: Spacing.xl,
+    marginTop: Spacing.lg,
   },
   footerText: {
     fontSize: Typography.sm,
