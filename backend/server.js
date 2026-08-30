@@ -12,6 +12,7 @@ const { errorHandler, notFoundHandler } = require('./src/middleware/error.middle
 const authRoutes = require('./src/routes/auth.routes');
 const userRoutes = require('./src/routes/user.routes');
 const errandRoutes = require('./src/routes/errand.routes');
+const expenseRoutes = require('./src/routes/expense.routes');
 
 // Sockets
 const registerChatSocket = require('./src/sockets/chat.socket');
@@ -49,6 +50,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/errands', errandRoutes);
+app.use('/api/expenses', expenseRoutes);
 
 // Socket.io connection and room event routing
 io.on('connection', (socket) => {

@@ -15,6 +15,7 @@ import api from '../services/api';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import CameraModal from './CameraModal';
+import ExpenseSection from './ExpenseSection';
 import { Colors, Spacing, Typography, BorderRadius } from '../constants/theme';
 
 const getBackendBaseUrl = () => {
@@ -138,6 +139,9 @@ export default function ProofSection({ errand, currentUser, onErrandUpdated }) {
           </Text>
         </View>
       )}
+
+      {/* Expense Logging & Settlement Component */}
+      <ExpenseSection errand={errand} currentUser={currentUser} />
 
       {/* Fullscreen Photo Viewer Modal */}
       <Modal visible={!!selectedImage} transparent animationType="fade">
