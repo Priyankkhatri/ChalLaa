@@ -1,10 +1,10 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
 // Resolve appropriate API Base URL for Android Emulator, iOS Simulator, and Web
-const getBaseUrl = (): string => {
+const getBaseUrl = () => {
   const extraApiUrl = Constants.expoConfig?.extra?.apiUrl;
   if (extraApiUrl) {
     return extraApiUrl;
@@ -25,7 +25,7 @@ const api = axios.create({
 
 // Request Interceptor: Automatically attach Bearer token from SecureStore
 api.interceptors.request.use(
-  async (config: InternalAxiosRequestConfig) => {
+  async (config) => {
     try {
       const accessToken = await SecureStore.getItemAsync('accessToken');
       if (accessToken && config.headers) {
@@ -36,14 +36,14 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error: AxiosError) => Promise.reject(error)
+  (error) => Promise.reject(error)
 );
 
 // Response Interceptor: Silent Token Refresh on 401 Unauthorized
 api.interceptors.response.use(
   (response) => response,
-  async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+  async (error) => {
+    const originalRequest = error.config;
 
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true;

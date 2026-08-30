@@ -9,22 +9,29 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius } from '../../constants/theme';
 
-export default function LoginScreen() {
-  const { login } = useAuth();
+export default function RegisterScreen() {
+  const { register } = useAuth();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [hostelOrCollegeId, setHostelOrCollegeId] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
-  const handleLogin = async () => {
-    if (!email.trim() || !password) {
-      setErrorMessage('Please enter both email and password.');
+  const handleRegister = async () => {
+    if (!name.trim() || !email.trim() || !password) {
+      setErrorMessage('Name, email, and password are required.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setErrorMessage('Password must be at least 6 characters long.');
       return;
     }
 
@@ -32,13 +39,18 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      await login(email.trim(), password);
-      // AuthContext state updates and _layout handles redirect
-    } catch (error: any) {
+      await register({
+        name: name.trim(),
+        email: email.trim(),
+        password,
+        phone: phone.trim(),
+        hostelOrCollegeId: hostelOrCollegeId.trim(),
+      });
+    } catch (error) {
       const msg =
         error.response?.data?.message ||
         error.message ||
-        'Login failed. Please check your credentials.';
+        'Registration failed. Please try again.';
       setErrorMessage(msg);
     } finally {
       setLoading(false);
@@ -55,9 +67,8 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
-          <Text style={styles.appName}>ChalLaa 🏃</Text>
-          <Text style={styles.tagline}>Peer-to-Peer Errand Coordination</Text>
-          <Text style={styles.subtext}>Log in with your hostel or college account</Text>
+          <Text style={styles.appName}>Create Account ✨</Text>
+          <Text style={styles.subtext}>Join your campus & hostel errand coordination network</Text>
         </View>
 
         {errorMessage ? (
@@ -67,10 +78,22 @@ export default function LoginScreen() {
         ) : null}
 
         <View style={styles.form}>
-          <Text style={styles.label}>College / Hostel Email</Text>
+          <Text style={styles.label}>Full Name *</Text>
           <TextInput
             style={styles.input}
-            placeholder="e.g. student@hostel.edu"
+            placeholder="e.g. Priyank Khatri"
+            placeholderTextColor={Colors.textMuted}
+            value={name}
+            onChangeText={(val) => {
+              setName(val);
+              if (errorMessage) setErrorMessage(null);
+            }}
+          />
+
+          <Text style={styles.label}>Hostel / College Email *</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="e.g. priyank@campus.edu"
             placeholderTextColor={Colors.textMuted}
             value={email}
             onChangeText={(val) => {
@@ -82,10 +105,10 @@ export default function LoginScreen() {
             autoCorrect={false}
           />
 
-          <Text style={styles.label}>Password</Text>
+          <Text style={styles.label}>Password (min 6 chars) *</Text>
           <TextInput
             style={styles.input}
-            placeholder="Enter your password"
+            placeholder="Create a strong password"
             placeholderTextColor={Colors.textMuted}
             value={password}
             onChangeText={(val) => {
@@ -96,24 +119,43 @@ export default function LoginScreen() {
             autoCapitalize="none"
           />
 
+          <Text style={styles.label}>Phone Number</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="e.g. +91 9876543210"
+            placeholderTextColor={Colors.textMuted}
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+          />
+
+          <Text style={styles.label}>Hostel / Room No / Student ID</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="e.g. Block B, Room 204"
+            placeholderTextColor={Colors.textMuted}
+            value={hostelOrCollegeId}
+            onChangeText={setHostelOrCollegeId}
+          />
+
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleLogin}
+            onPress={handleRegister}
             disabled={loading}
             activeOpacity={0.8}
           >
             {loading ? (
               <ActivityIndicator color={Colors.white} />
             ) : (
-              <Text style={styles.buttonText}>Log In</Text>
+              <Text style={styles.buttonText}>Sign Up</Text>
             )}
           </TouchableOpacity>
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account yet? </Text>
-          <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
-            <Text style={styles.linkText}>Register here</Text>
+          <Text style={styles.footerText}>Already have an account? </Text>
+          <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
+            <Text style={styles.linkText}>Log in</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -130,27 +172,23 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     padding: Spacing.lg,
+    paddingVertical: Spacing.xl,
   },
   header: {
     alignItems: 'center',
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.lg,
   },
   appName: {
-    fontSize: Typography.title + 6,
+    fontSize: Typography.xxl,
     fontWeight: 'bold',
     color: Colors.primary,
-    marginBottom: Spacing.xs,
-  },
-  tagline: {
-    fontSize: Typography.base,
-    fontWeight: '600',
-    color: Colors.text,
     marginBottom: Spacing.xs,
   },
   subtext: {
     fontSize: Typography.sm,
     color: Colors.textSecondary,
     textAlign: 'center',
+    paddingHorizontal: Spacing.md,
   },
   errorContainer: {
     backgroundColor: Colors.dangerBg,
@@ -214,7 +252,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: Spacing.xl,
+    marginTop: Spacing.lg,
   },
   footerText: {
     fontSize: Typography.sm,

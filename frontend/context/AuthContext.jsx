@@ -1,45 +1,13 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import api from '../services/api';
 
-export interface User {
-  _id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  hostelOrCollegeId?: string;
-  isVerified: boolean;
-  role: 'user' | 'admin';
-  trustedContacts?: Array<{ _id?: string; name: string; phone: string }>;
-  karmaScore: number;
-  avatarUrl?: string;
-  createdAt?: string;
-}
+const AuthContext = createContext();
 
-interface AuthContextType {
-  user: User | null;
-  accessToken: string | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (data: {
-    name: string;
-    email: string;
-    password: string;
-    phone?: string;
-    hostelOrCollegeId?: string;
-  }) => Promise<void>;
-  logout: () => Promise<void>;
-  updateUser: (updatedData: Partial<User>) => Promise<void>;
-  refreshProfile: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [accessToken, setAccessToken] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Check SecureStore for existing session on app startup
   useEffect(() => {
@@ -62,7 +30,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     checkAuth();
   }, []);
 
-  const login = async (email: string, password: string): Promise<void> => {
+  const login = async (email, password) => {
     const response = await api.post('/auth/login', { email, password });
     const { accessToken: token, refreshToken, user: userData } = response.data;
 
@@ -74,13 +42,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(userData);
   };
 
-  const register = async (data: {
-    name: string;
-    email: string;
-    password: string;
-    phone?: string;
-    hostelOrCollegeId?: string;
-  }): Promise<void> => {
+  const register = async (data) => {
     const response = await api.post('/auth/register', data);
     const { accessToken: token, refreshToken, user: userData } = response.data;
 
@@ -92,7 +54,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(userData);
   };
 
-  const logout = async (): Promise<void> => {
+  const logout = async () => {
     try {
       await SecureStore.deleteItemAsync('accessToken');
       await SecureStore.deleteItemAsync('refreshToken');
@@ -105,14 +67,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const updateUser = async (updatedData: Partial<User>): Promise<void> => {
+  const updateUser = async (updatedData) => {
     const response = await api.put('/users/me', updatedData);
     const updatedUser = response.data.user;
     await SecureStore.setItemAsync('user', JSON.stringify(updatedUser));
     setUser(updatedUser);
   };
 
-  const refreshProfile = async (): Promise<void> => {
+  const refreshProfile = async () => {
     try {
       const response = await api.get('/users/me');
       const latestUser = response.data.user;
@@ -142,7 +104,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 };
 
-export const useAuth = (): AuthContextType => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');

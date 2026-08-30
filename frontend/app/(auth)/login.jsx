@@ -14,24 +14,16 @@ import { router } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius } from '../../constants/theme';
 
-export default function RegisterScreen() {
-  const { register } = useAuth();
-  const [name, setName] = useState('');
+export default function LoginScreen() {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState('');
-  const [hostelOrCollegeId, setHostelOrCollegeId] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
-  const handleRegister = async () => {
-    if (!name.trim() || !email.trim() || !password) {
-      setErrorMessage('Name, email, and password are required.');
-      return;
-    }
-
-    if (password.length < 6) {
-      setErrorMessage('Password must be at least 6 characters long.');
+  const handleLogin = async () => {
+    if (!email.trim() || !password) {
+      setErrorMessage('Please enter both email and password.');
       return;
     }
 
@@ -39,19 +31,12 @@ export default function RegisterScreen() {
     setLoading(true);
 
     try {
-      await register({
-        name: name.trim(),
-        email: email.trim(),
-        password,
-        phone: phone.trim(),
-        hostelOrCollegeId: hostelOrCollegeId.trim(),
-      });
-      // AuthContext updates isAuthenticated and _layout redirects
-    } catch (error: any) {
+      await login(email.trim(), password);
+    } catch (error) {
       const msg =
         error.response?.data?.message ||
         error.message ||
-        'Registration failed. Please try again.';
+        'Login failed. Please check your credentials.';
       setErrorMessage(msg);
     } finally {
       setLoading(false);
@@ -68,8 +53,9 @@ export default function RegisterScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
-          <Text style={styles.appName}>Create Account ✨</Text>
-          <Text style={styles.subtext}>Join your campus & hostel errand coordination network</Text>
+          <Text style={styles.appName}>ChalLaa 🏃</Text>
+          <Text style={styles.tagline}>Peer-to-Peer Errand Coordination</Text>
+          <Text style={styles.subtext}>Log in with your hostel or college account</Text>
         </View>
 
         {errorMessage ? (
@@ -79,22 +65,10 @@ export default function RegisterScreen() {
         ) : null}
 
         <View style={styles.form}>
-          <Text style={styles.label}>Full Name *</Text>
+          <Text style={styles.label}>College / Hostel Email</Text>
           <TextInput
             style={styles.input}
-            placeholder="e.g. Priyank Khatri"
-            placeholderTextColor={Colors.textMuted}
-            value={name}
-            onChangeText={(val) => {
-              setName(val);
-              if (errorMessage) setErrorMessage(null);
-            }}
-          />
-
-          <Text style={styles.label}>Hostel / College Email *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g. priyank@campus.edu"
+            placeholder="e.g. student@hostel.edu"
             placeholderTextColor={Colors.textMuted}
             value={email}
             onChangeText={(val) => {
@@ -106,10 +80,10 @@ export default function RegisterScreen() {
             autoCorrect={false}
           />
 
-          <Text style={styles.label}>Password (min 6 chars) *</Text>
+          <Text style={styles.label}>Password</Text>
           <TextInput
             style={styles.input}
-            placeholder="Create a strong password"
+            placeholder="Enter your password"
             placeholderTextColor={Colors.textMuted}
             value={password}
             onChangeText={(val) => {
@@ -120,43 +94,24 @@ export default function RegisterScreen() {
             autoCapitalize="none"
           />
 
-          <Text style={styles.label}>Phone Number</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g. +91 9876543210"
-            placeholderTextColor={Colors.textMuted}
-            value={phone}
-            onChangeText={setPhone}
-            keyboardType="phone-pad"
-          />
-
-          <Text style={styles.label}>Hostel / Room No / Student ID</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g. Block B, Room 204"
-            placeholderTextColor={Colors.textMuted}
-            value={hostelOrCollegeId}
-            onChangeText={setHostelOrCollegeId}
-          />
-
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleRegister}
+            onPress={handleLogin}
             disabled={loading}
             activeOpacity={0.8}
           >
             {loading ? (
               <ActivityIndicator color={Colors.white} />
             ) : (
-              <Text style={styles.buttonText}>Sign Up</Text>
+              <Text style={styles.buttonText}>Log In</Text>
             )}
           </TouchableOpacity>
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Already have an account? </Text>
-          <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
-            <Text style={styles.linkText}>Log in</Text>
+          <Text style={styles.footerText}>Don't have an account yet? </Text>
+          <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
+            <Text style={styles.linkText}>Register here</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -173,23 +128,27 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     padding: Spacing.lg,
-    paddingVertical: Spacing.xl,
   },
   header: {
     alignItems: 'center',
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.xl,
   },
   appName: {
-    fontSize: Typography.xxl,
+    fontSize: Typography.title + 6,
     fontWeight: 'bold',
     color: Colors.primary,
+    marginBottom: Spacing.xs,
+  },
+  tagline: {
+    fontSize: Typography.base,
+    fontWeight: '600',
+    color: Colors.text,
     marginBottom: Spacing.xs,
   },
   subtext: {
     fontSize: Typography.sm,
     color: Colors.textSecondary,
     textAlign: 'center',
-    paddingHorizontal: Spacing.md,
   },
   errorContainer: {
     backgroundColor: Colors.dangerBg,
@@ -253,7 +212,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: Spacing.lg,
+    marginTop: Spacing.xl,
   },
   footerText: {
     fontSize: Typography.sm,
