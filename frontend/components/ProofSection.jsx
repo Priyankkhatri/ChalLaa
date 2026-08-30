@@ -12,19 +12,12 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../services/api';
-import Constants from 'expo-constants';
-import { Platform } from 'react-native';
+import { getSocketUrl } from '../services/socket';
 import CameraModal from './CameraModal';
 import ExpenseSection from './ExpenseSection';
 import { Colors, Spacing, Typography, BorderRadius } from '../constants/theme';
 
-const getBackendBaseUrl = () => {
-  const extraApiUrl = Constants.expoConfig?.extra?.apiUrl;
-  if (extraApiUrl) {
-    return extraApiUrl.replace('/api', '');
-  }
-  return Platform.OS === 'android' ? 'http://10.0.2.2:5000' : 'http://localhost:5000';
-};
+const getBackendBaseUrl = () => getSocketUrl();
 
 export default function ProofSection({ errand, currentUser, onErrandUpdated }) {
   const [cameraVisible, setCameraVisible] = useState(false);

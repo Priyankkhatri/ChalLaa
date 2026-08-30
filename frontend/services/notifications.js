@@ -1,13 +1,18 @@
 import * as Notifications from 'expo-notifications';
+import { Platform } from 'react-native';
 
-// Configure foreground notification presentation handler per Unit 4 conventions
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+// Safe foreground presentation handler registration with try/catch guard for Expo Go SDK 54
+try {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+} catch (e) {
+  // Graceful fallback in environments with restricted push listener bindings
+}
 
 export const sendLocalNotification = async (title, body, data = {}) => {
   try {
@@ -31,6 +36,7 @@ export const sendLocalNotification = async (title, body, data = {}) => {
       });
     }
   } catch (error) {
-    console.warn('[Local Notification Error]', error);
+    // Non-blocking fallback in Expo Go
+    console.log(`[Notification Fallback] ${title}: ${body}`);
   }
 };

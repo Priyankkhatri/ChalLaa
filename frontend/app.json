@@ -52,8 +52,8 @@
       "reactCompiler": true
     },
     "extra": {
-      "apiUrl": "http://10.0.2.2:5000/api",
-      "socketUrl": "http://10.0.2.2:5000"
+      "apiUrl": "",
+      "socketUrl": ""
     }
   }
 }
