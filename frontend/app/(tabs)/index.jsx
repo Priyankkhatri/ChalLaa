@@ -9,9 +9,11 @@ import {
   ActivityIndicator,
   RefreshControl,
   ScrollView,
+  Platform,
 } from 'react-native';
 import * as Location from 'expo-location';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import {
   MapPin,
   Search,
@@ -30,32 +32,34 @@ import {
   SlidersHorizontal,
   Flame,
   Shirt,
+  Compass,
 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
+import { LiquidGlassCard, LiquidGlassBadge } from '../../components/ui/LiquidGlass';
 
 const RADIUS_OPTIONS = [1, 2, 5];
 
 const CATEGORIES = [
-  { id: 'all', label: 'All', icon: Sparkles, color: '#6366F1', bg: '#EEF2FF' },
-  { id: 'food', label: 'Food & Mess', icon: Utensils, color: '#F59E0B', bg: '#FEF3C7' },
-  { id: 'grocery', label: 'Grocery', icon: ShoppingBag, color: '#0284C7', bg: '#E0F2FE' },
-  { id: 'medicine', label: 'Pharmacy', icon: Pill, color: '#EF4444', bg: '#FEE2E2' },
-  { id: 'courier', label: 'Courier', icon: Package, color: '#8B5CF6', bg: '#F3E8FF' },
-  { id: 'stationery', label: 'Stationery', icon: FileText, color: '#10B981', bg: '#ECFDF5' },
-  { id: 'laundry', label: 'Laundry', icon: Shirt, color: '#3B82F6', bg: '#EFF6FF' },
+  { id: 'all', label: 'All', icon: Sparkles },
+  { id: 'food', label: 'Food & Mess', icon: Utensils },
+  { id: 'grocery', label: 'Grocery', icon: ShoppingBag },
+  { id: 'medicine', label: 'Pharmacy', icon: Pill },
+  { id: 'courier', label: 'Courier', icon: Package },
+  { id: 'stationery', label: 'Stationery', icon: FileText },
+  { id: 'laundry', label: 'Laundry', icon: Shirt },
 ];
 
-const CATEGORY_STYLES = {
-  grocery: { bg: '#E0F2FE', text: '#0284C7', icon: ShoppingBag },
-  food: { bg: '#FEF3C7', text: '#D97706', icon: Utensils },
-  medicine: { bg: '#FEE2E2', text: '#DC2626', icon: Pill },
-  courier: { bg: '#F3E8FF', text: '#7C3AED', icon: Package },
-  stationery: { bg: '#ECFDF5', text: '#059669', icon: FileText },
-  laundry: { bg: '#EFF6FF', text: '#2563EB', icon: Shirt },
-  other: { bg: '#F1F5F9', text: '#475569', icon: Sparkles },
+const CATEGORY_ICONS = {
+  grocery: ShoppingBag,
+  food: Utensils,
+  medicine: Pill,
+  courier: Package,
+  stationery: FileText,
+  laundry: Shirt,
+  other: Sparkles,
 };
 
 export default function DiscoveryFeedScreen() {
@@ -155,152 +159,167 @@ export default function DiscoveryFeedScreen() {
   };
 
   const renderErrandCard = ({ item }) => {
-    const catStyle = CATEGORY_STYLES[item.category] || CATEGORY_STYLES.other;
-    const CategoryIcon = catStyle.icon;
+    const CategoryIcon = CATEGORY_ICONS[item.category] || CATEGORY_ICONS.other;
 
     return (
       <TouchableOpacity
-        style={styles.card}
-        activeOpacity={0.85}
+        activeOpacity={0.88}
         onPress={() => router.push(`/errand/${item._id}`)}
+        style={styles.cardOuter}
       >
-        {/* Card Top Row */}
-        <View style={styles.cardTopRow}>
-          <View style={[styles.categoryBadge, { backgroundColor: catStyle.bg }]}>
-            <CategoryIcon size={13} color={catStyle.text} />
-            <Text style={[styles.categoryBadgeText, { color: catStyle.text }]}>
-              {item.category?.toUpperCase() || 'GENERAL'}
+        <LiquidGlassCard variant="default" style={styles.cardContainer}>
+          {/* Card Top Header */}
+          <View style={styles.cardTopRow}>
+            <View style={styles.categoryBadge}>
+              <CategoryIcon size={12} color={Colors.powderBlue} />
+              <Text style={styles.categoryBadgeText}>
+                {item.category?.toUpperCase() || 'GENERAL'}
+              </Text>
+            </View>
+
+            {/* Price Chip in Dry Sage / Liquid Glow */}
+            <View style={styles.priceContainer}>
+              <Text style={styles.priceLabel}>Offer</Text>
+              <Text style={styles.priceAmount}>₹{item.budget || 0}</Text>
+            </View>
+          </View>
+
+          {/* Errand Title */}
+          <Text style={styles.errandTitle} numberOfLines={2}>
+            {item.title}
+          </Text>
+
+          {item.description ? (
+            <Text style={styles.errandDescription} numberOfLines={2}>
+              {item.description}
+            </Text>
+          ) : null}
+
+          {/* Location Details */}
+          <View style={styles.locationContainer}>
+            <MapPin size={13} color={Colors.powderBlue} />
+            <Text style={styles.locationText} numberOfLines={1}>
+              {item.address || 'Campus Hostels'}
             </Text>
           </View>
 
-          <View style={styles.priceContainer}>
-            <Text style={styles.priceLabel}>Offer</Text>
-            <Text style={styles.priceAmount}>₹{item.budget || 0}</Text>
-          </View>
-        </View>
-
-        {/* Errand Title */}
-        <Text style={styles.errandTitle} numberOfLines={2}>
-          {item.title}
-        </Text>
-
-        {item.description ? (
-          <Text style={styles.errandDescription} numberOfLines={2}>
-            {item.description}
-          </Text>
-        ) : null}
-
-        {/* Location Row */}
-        <View style={styles.locationContainer}>
-          <MapPin size={14} color={Colors.primary} />
-          <Text style={styles.locationText} numberOfLines={1}>
-            {item.address || 'Campus Hostels'}
-          </Text>
-        </View>
-
-        {/* Card Footer */}
-        <View style={styles.cardFooter}>
-          <View style={styles.requesterProfile}>
-            <View style={styles.requesterAvatar}>
-              <Text style={styles.requesterInitial}>
-                {item.requesterId?.name ? item.requesterId.name.charAt(0).toUpperCase() : 'U'}
-              </Text>
-            </View>
-            <View>
-              <View style={styles.nameRow}>
-                <Text style={styles.requesterName} numberOfLines={1}>
-                  {item.requesterId?.name || 'Student'}
+          {/* Card Footer */}
+          <View style={styles.cardFooter}>
+            <View style={styles.requesterProfile}>
+              <View style={styles.requesterAvatar}>
+                <Text style={styles.requesterInitial}>
+                  {item.requesterId?.name ? item.requesterId.name.charAt(0).toUpperCase() : 'U'}
                 </Text>
-                {item.requesterId?.isVerified ? (
-                  <CheckCircle2 size={13} color={Colors.secondary} />
-                ) : null}
               </View>
-              <View style={styles.karmaRow}>
-                <Star size={11} color="#D97706" fill="#D97706" />
-                <Text style={styles.karmaText}>{item.requesterId?.karmaScore ?? 100} Karma</Text>
+              <View>
+                <View style={styles.nameRow}>
+                  <Text style={styles.requesterName} numberOfLines={1}>
+                    {item.requesterId?.name || 'Student'}
+                  </Text>
+                  {item.requesterId?.isVerified ? (
+                    <CheckCircle2 size={13} color={Colors.drySage} />
+                  ) : null}
+                </View>
+                <View style={styles.karmaRow}>
+                  <Star size={11} color={Colors.drySage} fill={Colors.drySage} />
+                  <Text style={styles.karmaText}>{item.requesterId?.karmaScore ?? 100} Karma</Text>
+                </View>
               </View>
             </View>
-          </View>
 
-          <View style={styles.acceptButtonWrapper}>
-            <LinearGradient
-              colors={Colors.gradientPrimary}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.acceptButton}
-            >
-              <Text style={styles.acceptButtonText}>Help Peer</Text>
-              <ArrowRight size={13} color={Colors.white} strokeWidth={2.5} />
-            </LinearGradient>
+            {/* Glowing Help Button */}
+            <View style={styles.helpButtonWrapper}>
+              <LinearGradient
+                colors={Colors.gradientPrimary}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.helpButton}
+              >
+                <Text style={styles.helpButtonText}>Help Peer</Text>
+                <ArrowRight size={13} color={Colors.inkBlack} strokeWidth={2.8} />
+              </LinearGradient>
+            </View>
           </View>
-        </View>
+        </LiquidGlassCard>
       </TouchableOpacity>
     );
   };
 
   return (
     <View style={styles.container}>
-      {/* Top Greeting & Beacon Header */}
-      <LinearGradient
-        colors={Colors.gradientHero}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.headerHero}
-      >
-        <View style={styles.headerTop}>
-          <View>
-            <Text style={styles.greetingText}>
-              Hey, {user?.name ? user.name.split(' ')[0] : 'Campus Runner'} 👋
-            </Text>
-            <View style={styles.beaconRow}>
-              <View style={styles.beaconDot} />
-              <Text style={styles.beaconText}>Active Campus Network</Text>
+      {/* Liquid Glass Header Hero */}
+      <View style={styles.heroGlassWrapper}>
+        <BlurView intensity={Platform.OS === 'ios' ? 45 : 60} tint="dark" style={styles.heroBlur}>
+          <LinearGradient
+            colors={['rgba(52, 73, 102, 0.55)', 'rgba(13, 24, 33, 0.85)']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.heroGradient}
+          >
+            {/* Top Specular Line */}
+            <View style={styles.heroSpecular} />
+
+            <View style={styles.headerTop}>
+              <View>
+                <Text style={styles.greetingText}>
+                  Hey, {user?.name ? user.name.split(' ')[0] : 'Campus Runner'} 👋
+                </Text>
+                <View style={styles.beaconRow}>
+                  <View style={styles.beaconDot} />
+                  <Text style={styles.beaconText}>Active Campus Network</Text>
+                </View>
+              </View>
+
+              {/* Campus Location Glass Chip */}
+              <View style={styles.locationChip}>
+                <Navigation size={11} color={Colors.powderBlue} />
+                <Text style={styles.locationChipText} numberOfLines={1}>
+                  {locationName}
+                </Text>
+              </View>
             </View>
-          </View>
 
-          <View style={styles.locationChip}>
-            <Navigation size={12} color={Colors.white} />
-            <Text style={styles.locationChipText} numberOfLines={1}>
-              {locationName}
-            </Text>
-          </View>
-        </View>
+            {/* Liquid Search Bar */}
+            <View style={styles.searchBar}>
+              <Search size={16} color={Colors.powderBlue} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search Maggi, medicine, prints, tea..."
+                placeholderTextColor={Colors.textMuted}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+              {searchQuery ? (
+                <TouchableOpacity onPress={() => setSearchQuery('')}>
+                  <X size={16} color={Colors.porcelain} />
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          </LinearGradient>
+        </BlurView>
+      </View>
 
-        {/* Search Bar */}
-        <View style={styles.searchBar}>
-          <Search size={16} color={Colors.textMuted} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search Maggi, medicine, prints, tea..."
-            placeholderTextColor={Colors.textMuted}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-          {searchQuery ? (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <X size={16} color={Colors.textMuted} />
-            </TouchableOpacity>
-          ) : null}
-        </View>
-      </LinearGradient>
-
-      {/* Filter Bar */}
+      {/* Filter Bar (Liquid Capsule Pills) */}
       <View style={styles.filterSection}>
         {/* Radius Row */}
         <View style={styles.radiusRow}>
-          <SlidersHorizontal size={13} color={Colors.textSecondary} />
-          <Text style={styles.radiusLabel}>Distance:</Text>
-          {RADIUS_OPTIONS.map((r) => (
-            <TouchableOpacity
-              key={r}
-              style={[styles.radiusPill, radiusKm === r && styles.radiusPillActive]}
-              onPress={() => setRadiusKm(r)}
-            >
-              <Text style={[styles.radiusPillText, radiusKm === r && styles.radiusPillTextActive]}>
-                {r} km
-              </Text>
-            </TouchableOpacity>
-          ))}
+          <SlidersHorizontal size={13} color={Colors.powderBlue} />
+          <Text style={styles.radiusLabel}>Radius:</Text>
+          {RADIUS_OPTIONS.map((r) => {
+            const active = radiusKm === r;
+            return (
+              <TouchableOpacity
+                key={r}
+                style={[styles.radiusPill, active && styles.radiusPillActive]}
+                onPress={() => setRadiusKm(r)}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.radiusPillText, active && styles.radiusPillTextActive]}>
+                  {r} km
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         {/* Categories Horizontal Scroller */}
@@ -315,20 +334,15 @@ export default function DiscoveryFeedScreen() {
             return (
               <TouchableOpacity
                 key={cat.id}
-                style={[
-                  styles.categoryCard,
-                  isSelected && styles.categoryCardActive,
-                ]}
+                style={[styles.categoryCard, isSelected && styles.categoryCardActive]}
                 onPress={() => setSelectedCategory(cat.id)}
+                activeOpacity={0.8}
               >
-                <View
-                  style={[
-                    styles.categoryIconCircle,
-                    { backgroundColor: isSelected ? Colors.white : cat.bg },
-                  ]}
-                >
-                  <Icon size={16} color={isSelected ? Colors.primary : cat.color} />
-                </View>
+                <Icon
+                  size={14}
+                  color={isSelected ? Colors.inkBlack : Colors.powderBlue}
+                  strokeWidth={2.4}
+                />
                 <Text
                   style={[
                     styles.categoryCardLabel,
@@ -343,10 +357,10 @@ export default function DiscoveryFeedScreen() {
         </ScrollView>
       </View>
 
-      {/* Errand List Feed */}
+      {/* Errand Feed List */}
       {loading && !refreshing ? (
         <View style={styles.centerLoading}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+          <ActivityIndicator size="large" color={Colors.powderBlue} />
           <Text style={styles.loadingText}>Scanning campus errands nearby...</Text>
         </View>
       ) : (
@@ -360,14 +374,14 @@ export default function DiscoveryFeedScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={[Colors.primary]}
-              tintColor={Colors.primary}
+              colors={[Colors.powderBlue]}
+              tintColor={Colors.powderBlue}
             />
           }
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <View style={styles.emptyIconCircle}>
-                <Flame size={36} color={Colors.primary} />
+                <Compass size={38} color={Colors.powderBlue} />
               </View>
               <Text style={styles.emptyTitle}>No Errands Around You</Text>
               <Text style={styles.emptySubtitle}>
@@ -376,14 +390,15 @@ export default function DiscoveryFeedScreen() {
               <TouchableOpacity
                 style={styles.emptyBtnWrapper}
                 onPress={() => router.push('/errand/post')}
+                activeOpacity={0.85}
               >
                 <LinearGradient
                   colors={Colors.gradientPrimary}
                   start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
+                  end={{ x: 1, y: 1 }}
                   style={styles.emptyBtn}
                 >
-                  <Plus size={16} color={Colors.white} />
+                  <Plus size={16} color={Colors.inkBlack} strokeWidth={2.8} />
                   <Text style={styles.emptyBtnText}>Post Errand Request</Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -392,7 +407,7 @@ export default function DiscoveryFeedScreen() {
         />
       )}
 
-      {/* Floating Action Button */}
+      {/* Floating Action Button (Specular Liquid Sphere) */}
       <TouchableOpacity
         style={styles.fabWrapper}
         activeOpacity={0.85}
@@ -404,7 +419,7 @@ export default function DiscoveryFeedScreen() {
           end={{ x: 1, y: 1 }}
           style={styles.fab}
         >
-          <Plus size={26} color={Colors.white} strokeWidth={2.5} />
+          <Plus size={28} color={Colors.inkBlack} strokeWidth={2.8} />
         </LinearGradient>
       </TouchableOpacity>
     </View>
@@ -414,162 +429,174 @@ export default function DiscoveryFeedScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.inkBlack,
   },
-  headerHero: {
+  heroGlassWrapper: {
+    borderBottomLeftRadius: BorderRadius.xxl,
+    borderBottomRightRadius: BorderRadius.xxl,
+    overflow: 'hidden',
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.glassBorder,
+    ...Shadows.subtle,
+  },
+  heroBlur: {
+    width: '100%',
+  },
+  heroGradient: {
     paddingHorizontal: Spacing.md,
     paddingTop: Spacing.sm,
-    paddingBottom: Spacing.md,
-    borderBottomLeftRadius: BorderRadius.xl,
-    borderBottomRightRadius: BorderRadius.xl,
-    ...Shadows.glow,
+    paddingBottom: Spacing.md + 4,
+  },
+  heroSpecular: {
+    position: 'absolute',
+    top: 0,
+    left: 40,
+    right: 40,
+    height: 1,
+    backgroundColor: 'rgba(240, 244, 239, 0.25)',
   },
   headerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.sm + 2,
   },
   greetingText: {
     fontSize: Typography.lg,
-    fontWeight: 'bold',
-    color: Colors.white,
+    fontWeight: '800',
+    color: Colors.porcelain,
+    letterSpacing: -0.3,
   },
   beaconRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    marginTop: 2,
+    gap: 6,
+    marginTop: 3,
   },
   beaconDot: {
     width: 7,
     height: 7,
     borderRadius: 3.5,
-    backgroundColor: '#4ADE80',
+    backgroundColor: Colors.drySage,
   },
   beaconText: {
     fontSize: Typography.xs - 2,
-    color: 'rgba(255,255,255,0.85)',
-    fontWeight: '500',
+    color: Colors.powderBlue,
+    fontWeight: '600',
+    letterSpacing: 0.2,
   },
   locationChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: Spacing.sm + 2,
-    paddingVertical: 4,
+    gap: 5,
+    backgroundColor: 'rgba(52, 73, 102, 0.45)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    paddingHorizontal: Spacing.sm + 4,
+    paddingVertical: 5,
     borderRadius: BorderRadius.full,
-    maxWidth: 140,
+    maxWidth: 145,
   },
   locationChipText: {
     fontSize: Typography.xs - 2,
-    fontWeight: 'bold',
-    color: Colors.white,
+    fontWeight: '700',
+    color: Colors.porcelain,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.white,
-    borderRadius: BorderRadius.lg,
+    backgroundColor: 'rgba(13, 24, 33, 0.55)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.md,
     height: 44,
     gap: Spacing.xs,
-    ...Shadows.subtle,
   },
   searchInput: {
     flex: 1,
     fontSize: Typography.sm,
-    color: Colors.text,
+    color: Colors.porcelain,
   },
   filterSection: {
-    backgroundColor: Colors.card,
     paddingVertical: Spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    ...Shadows.subtle,
+    borderBottomColor: 'rgba(52, 73, 102, 0.35)',
   },
   radiusRow: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.md,
-    gap: Spacing.xs,
-    marginBottom: Spacing.xs,
+    gap: Spacing.xs + 2,
+    marginBottom: Spacing.xs + 2,
   },
   radiusLabel: {
     fontSize: Typography.xs - 1,
-    fontWeight: 'bold',
-    color: Colors.textSecondary,
+    fontWeight: '800',
+    color: Colors.powderBlue,
     textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   radiusPill: {
     paddingHorizontal: Spacing.sm + 4,
-    paddingVertical: 3,
+    paddingVertical: 4,
     borderRadius: BorderRadius.full,
-    backgroundColor: Colors.background,
+    backgroundColor: 'rgba(52, 73, 102, 0.25)',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
   },
   radiusPillActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
+    backgroundColor: Colors.powderBlue,
+    borderColor: Colors.powderBlue,
   },
   radiusPillText: {
     fontSize: Typography.xs - 2,
     fontWeight: '600',
-    color: Colors.textSecondary,
+    color: Colors.porcelain,
   },
   radiusPillTextActive: {
-    color: Colors.white,
-    fontWeight: 'bold',
+    color: Colors.inkBlack,
+    fontWeight: '800',
   },
   categoryScroller: {
     paddingHorizontal: Spacing.md,
     gap: Spacing.xs,
+    paddingTop: 2,
   },
   categoryCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: Spacing.sm + 4,
-    paddingVertical: 6,
+    paddingHorizontal: Spacing.sm + 6,
+    paddingVertical: 7,
     borderRadius: BorderRadius.full,
-    backgroundColor: Colors.background,
+    backgroundColor: 'rgba(52, 73, 102, 0.25)',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
   },
   categoryCardActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  categoryIconCircle: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: Colors.powderBlue,
+    borderColor: Colors.powderBlue,
   },
   categoryCardLabel: {
     fontSize: Typography.xs,
     fontWeight: '600',
-    color: Colors.textSecondary,
+    color: Colors.porcelain,
   },
   categoryCardLabelActive: {
-    color: Colors.white,
-    fontWeight: 'bold',
+    color: Colors.inkBlack,
+    fontWeight: '800',
   },
   feedList: {
     padding: Spacing.md,
-    paddingBottom: Spacing.xxl + 40,
+    paddingBottom: Spacing.xxl + 55,
     gap: Spacing.md,
   },
-  card: {
-    backgroundColor: Colors.card,
+  cardOuter: {
+    marginBottom: Spacing.xs,
+  },
+  cardContainer: {
     borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.card,
   },
   cardTopRow: {
     flexDirection: 'row',
@@ -584,133 +611,144 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm + 2,
     paddingVertical: 3,
     borderRadius: BorderRadius.full,
+    backgroundColor: 'rgba(180, 205, 237, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(180, 205, 237, 0.22)',
   },
   categoryBadgeText: {
     fontSize: Typography.xs - 2,
-    fontWeight: 'bold',
+    fontWeight: '800',
+    color: Colors.powderBlue,
+    letterSpacing: 0.4,
   },
   priceContainer: {
     flexDirection: 'row',
     alignItems: 'baseline',
     gap: 4,
-    backgroundColor: '#ECFDF5',
-    paddingHorizontal: Spacing.sm + 4,
+    backgroundColor: 'rgba(191, 204, 148, 0.15)',
+    paddingHorizontal: Spacing.sm + 6,
     paddingVertical: 3,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: '#A7F3D0',
+    borderColor: Colors.glassSageBorder,
   },
   priceLabel: {
     fontSize: Typography.xs - 3,
-    fontWeight: 'bold',
-    color: Colors.secondaryDark,
+    fontWeight: '800',
+    color: Colors.drySage,
     textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   priceAmount: {
     fontSize: Typography.sm + 1,
-    fontWeight: 'bold',
-    color: Colors.secondaryDark,
+    fontWeight: '800',
+    color: Colors.drySage,
   },
   errandTitle: {
     fontSize: Typography.base,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '700',
+    color: Colors.porcelain,
     marginTop: 4,
+    letterSpacing: -0.2,
   },
   errandDescription: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
-    marginTop: 3,
-    lineHeight: 16,
+    color: 'rgba(240, 244, 239, 0.7)',
+    marginTop: 4,
+    lineHeight: 17,
   },
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
     marginTop: Spacing.sm,
-    paddingTop: Spacing.xs,
+    paddingTop: Spacing.xs + 2,
     borderTopWidth: 1,
-    borderTopColor: Colors.borderLight,
+    borderTopColor: 'rgba(52, 73, 102, 0.35)',
   },
   locationText: {
     fontSize: Typography.xs - 1,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     flex: 1,
   },
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: Spacing.sm,
+    marginTop: Spacing.sm + 2,
   },
   requesterProfile: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.xs,
+    gap: Spacing.xs + 2,
   },
   requesterAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: Colors.primaryLight,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(52, 73, 102, 0.55)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
     justifyContent: 'center',
     alignItems: 'center',
   },
   requesterInitial: {
     fontSize: Typography.xs,
-    fontWeight: 'bold',
-    color: Colors.primary,
+    fontWeight: '800',
+    color: Colors.powderBlue,
   },
   nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
+    gap: 4,
   },
   requesterName: {
     fontSize: Typography.xs,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '700',
+    color: Colors.porcelain,
   },
   karmaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
+    marginTop: 1,
   },
   karmaText: {
     fontSize: Typography.xs - 2,
-    color: '#B45309',
-    fontWeight: '600',
+    color: Colors.drySage,
+    fontWeight: '700',
   },
-  acceptButtonWrapper: {
+  helpButtonWrapper: {
     borderRadius: BorderRadius.full,
     overflow: 'hidden',
-    ...Shadows.subtle,
+    ...Shadows.glow,
   },
-  acceptButton: {
+  helpButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
     paddingHorizontal: Spacing.md,
     paddingVertical: 7,
     borderRadius: BorderRadius.full,
   },
-  acceptButtonText: {
+  helpButtonText: {
     fontSize: Typography.xs,
-    fontWeight: 'bold',
-    color: Colors.white,
+    fontWeight: '800',
+    color: Colors.inkBlack,
+    letterSpacing: 0.2,
   },
   fabWrapper: {
     position: 'absolute',
-    bottom: Spacing.lg,
+    bottom: Spacing.xl + 20,
     right: Spacing.lg,
-    borderRadius: 28,
+    borderRadius: 30,
     overflow: 'hidden',
     ...Shadows.glow,
   },
   fab: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -721,8 +759,9 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: Spacing.sm,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     fontSize: Typography.sm,
+    fontWeight: '600',
   },
   emptyState: {
     alignItems: 'center',
@@ -731,42 +770,46 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
   },
   emptyIconCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: Colors.primaryLight,
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: 'rgba(52, 73, 102, 0.45)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.md,
+    ...Shadows.subtle,
   },
   emptyTitle: {
     fontSize: Typography.lg,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   emptySubtitle: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: 'rgba(240, 244, 239, 0.7)',
     textAlign: 'center',
     marginTop: 4,
     lineHeight: 18,
     marginBottom: Spacing.lg,
   },
   emptyBtnWrapper: {
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.full,
     overflow: 'hidden',
+    ...Shadows.glow,
   },
   emptyBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
     paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.sm + 2,
-    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.sm + 4,
+    borderRadius: BorderRadius.full,
   },
   emptyBtnText: {
-    color: Colors.white,
+    color: Colors.inkBlack,
     fontSize: Typography.sm,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
 });
