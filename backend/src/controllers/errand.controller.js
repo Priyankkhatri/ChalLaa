@@ -5,17 +5,26 @@ const Errand = require('../models/Errand');
 // @access  Private
 const createErrand = async (req, res, next) => {
   try {
-    const { title, description, category, budget, latitude, longitude, address } = req.body;
+    const { title, description, category, budget, latitude, longitude, address, location } = req.body;
 
-    if (!title || latitude === undefined || longitude === undefined) {
+    const lat = latitude !== undefined && latitude !== null
+      ? parseFloat(latitude)
+      : (location?.coordinates && location.coordinates[1] !== undefined
+          ? parseFloat(location.coordinates[1])
+          : undefined);
+
+    const lng = longitude !== undefined && longitude !== null
+      ? parseFloat(longitude)
+      : (location?.coordinates && location.coordinates[0] !== undefined
+          ? parseFloat(location.coordinates[0])
+          : undefined);
+
+    if (!title || lat === undefined || lng === undefined) {
       return res.status(400).json({
         success: false,
         message: 'Please provide errand title and valid GPS coordinates (latitude, longitude)',
       });
     }
-
-    const lat = parseFloat(latitude);
-    const lng = parseFloat(longitude);
 
     if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
       return res.status(400).json({
@@ -247,6 +256,12 @@ const acceptErrand = async (req, res, next) => {
 const updateErrandStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
+
+    // If status is 'accepted', delegate to acceptErrand
+    if (status === 'accepted') {
+      return acceptErrand(req, res, next);
+    }
+
     const allowedStatuses = ['in_progress', 'delivered', 'cancelled'];
 
     if (!status || !allowedStatuses.includes(status)) {
