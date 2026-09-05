@@ -38,9 +38,9 @@ function NavigationGuard() {
       <Stack
         screenOptions={{
           headerStyle: {
-            backgroundColor: 'rgba(13, 24, 33, 0.85)',
+            backgroundColor: 'rgba(255, 255, 255, 0.90)',
             borderBottomWidth: 1,
-            borderBottomColor: Colors.glassBorder,
+            borderBottomColor: 'rgba(226, 232, 240, 0.80)',
           },
           headerTintColor: Colors.porcelain,
           headerTitleStyle: {
@@ -62,7 +62,7 @@ function NavigationGuard() {
         <Stack.Screen name="errand/[id]" options={{ title: 'Errand Details' }} />
         <Stack.Screen name="admin/index" options={{ title: 'Campus Moderation' }} />
       </Stack>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
     </>
   );
 }
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100vh',
-    backgroundColor: '#060B10',
+    backgroundColor: '#E6EBF2',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -113,9 +113,9 @@ const styles = StyleSheet.create({
     width: 600,
     height: 600,
     borderRadius: 9999,
-    backgroundColor: '#344966',
-    opacity: 0.35,
-    ...(Platform.OS === 'web' ? { filter: 'blur(130px)' } : {}),
+    backgroundColor: '#BFDBFE',
+    opacity: 0.55,
+    ...(Platform.OS === 'web' ? { filter: 'blur(140px)' } : {}),
   },
   webAmbientGlow2: {
     position: 'absolute',
@@ -124,8 +124,8 @@ const styles = StyleSheet.create({
     width: 500,
     height: 500,
     borderRadius: 9999,
-    backgroundColor: '#BFCC94',
-    opacity: 0.16,
+    backgroundColor: '#C7D2FE',
+    opacity: 0.45,
     ...(Platform.OS === 'web' ? { filter: 'blur(130px)' } : {}),
   },
   mobileShell: {
@@ -136,10 +136,10 @@ const styles = StyleSheet.create({
     borderRadius: 36,
     overflow: 'hidden',
     borderWidth: 1.5,
-    borderColor: 'rgba(180, 205, 237, 0.28)',
+    borderColor: 'rgba(255, 255, 255, 0.90)',
     ...(Platform.OS === 'web' ? {
-      boxShadow: '0 25px 80px -15px rgba(0, 0, 0, 0.85), 0 0 45px rgba(180, 205, 237, 0.18)',
+      boxShadow: '0 25px 70px -10px rgba(15, 23, 42, 0.16), 0 0 35px rgba(59, 130, 246, 0.08)',
     } : {}),
-    backgroundColor: '#0D1821',
+    backgroundColor: '#F6F8FB',
   },
 });

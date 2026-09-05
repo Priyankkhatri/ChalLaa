@@ -47,10 +47,10 @@ export const LiquidCanvas = ({ children, style }) => {
         {/* Ambient Diagonal Fluid Gradient Mesh */}
         <LinearGradient
           colors={[
-            'rgba(245, 158, 11, 0.14)',
+            'rgba(96, 165, 250, 0.08)',
             'transparent',
-            'rgba(224, 109, 83, 0.08)',
-            'rgba(251, 191, 36, 0.12)',
+            'rgba(52, 211, 153, 0.05)',
+            'rgba(129, 140, 248, 0.08)',
           ]}
           locations={[0, 0.4, 0.75, 1]}
           start={{ x: 0, y: 0 }}
@@ -73,7 +73,7 @@ export const LiquidCanvas = ({ children, style }) => {
 export const LiquidGlassCard = ({
   children,
   style,
-  tint = 'dark',
+  tint = 'light',
   intensity = 45,
   variant = 'default', // 'default' | 'elevated' | 'accent' | 'sage' | 'ultra'
   ...props
@@ -81,24 +81,24 @@ export const LiquidGlassCard = ({
   const getBorderColor = () => {
     switch (variant) {
       case 'accent':
-        return Colors.glassBorderGlow;
+        return 'rgba(37, 99, 235, 0.35)';
       case 'sage':
-        return Colors.glassSageBorder;
+        return 'rgba(16, 185, 129, 0.35)';
       default:
-        return Colors.glassBorder;
+        return 'rgba(255, 255, 255, 0.95)';
     }
   };
 
   const getGradientColors = () => {
     switch (variant) {
       case 'sage':
-        return ['rgba(191, 204, 148, 0.16)', 'rgba(52, 73, 102, 0.22)', 'rgba(13, 24, 33, 0.45)'];
+        return ['rgba(255, 255, 255, 0.98)', 'rgba(236, 253, 245, 0.92)'];
       case 'accent':
-        return ['rgba(180, 205, 237, 0.22)', 'rgba(52, 73, 102, 0.30)', 'rgba(13, 24, 33, 0.45)'];
+        return ['rgba(255, 255, 255, 0.98)', 'rgba(239, 246, 255, 0.92)'];
       case 'ultra':
-        return ['rgba(240, 244, 239, 0.14)', 'rgba(180, 205, 237, 0.10)', 'rgba(13, 24, 33, 0.35)'];
+        return ['rgba(255, 255, 255, 0.99)', 'rgba(248, 250, 252, 0.95)'];
       default:
-        return ['rgba(180, 205, 237, 0.10)', 'rgba(52, 73, 102, 0.24)', 'rgba(13, 24, 33, 0.42)'];
+        return ['rgba(255, 255, 255, 0.96)', 'rgba(248, 250, 252, 0.88)'];
     }
   };
 
@@ -133,7 +133,7 @@ export const LiquidGlassCard = ({
       {...props}
     >
       <BlurView
-        intensity={Platform.OS === 'ios' ? intensity : 70}
+        intensity={Platform.OS === 'ios' ? intensity : 60}
         tint={tint}
         style={styles.blurContainer}
       >
@@ -174,15 +174,15 @@ export const LiquidGlassButton = ({
       case 'secondary':
         return Colors.gradientButton;
       case 'glass':
-        return ['rgba(180, 205, 237, 0.22)', 'rgba(52, 73, 102, 0.38)'];
+        return ['rgba(255, 255, 255, 0.9)', 'rgba(241, 245, 249, 0.8)'];
       default:
         return Colors.gradientPrimary;
     }
   };
 
   const getTextColor = () => {
-    if (variant === 'primary' || variant === 'sage') return Colors.inkBlack;
-    return Colors.porcelain;
+    if (variant === 'glass') return Colors.porcelain;
+    return '#FFFFFF';
   };
 
   return (
@@ -232,24 +232,24 @@ export const LiquidGlassBadge = ({
     switch (variant) {
       case 'sage':
         return {
-          bg: active ? Colors.drySage : 'rgba(191, 204, 148, 0.16)',
-          border: active ? Colors.drySage : Colors.glassSageBorder,
-          text: active ? Colors.inkBlack : Colors.drySage,
-          iconColor: active ? Colors.inkBlack : Colors.drySage,
+          bg: active ? Colors.drySage : 'rgba(5, 150, 105, 0.08)',
+          border: active ? Colors.drySage : 'rgba(5, 150, 105, 0.25)',
+          text: active ? '#FFFFFF' : Colors.drySage,
+          iconColor: active ? '#FFFFFF' : Colors.drySage,
         };
       case 'yale':
         return {
-          bg: active ? Colors.yaleBlue : 'rgba(52, 73, 102, 0.35)',
-          border: active ? Colors.powderBlue : Colors.glassBorder,
-          text: Colors.porcelain,
-          iconColor: Colors.powderBlue,
+          bg: active ? Colors.powderBlue : 'rgba(255, 255, 255, 0.90)',
+          border: active ? Colors.powderBlue : Colors.cardBorder,
+          text: active ? '#FFFFFF' : Colors.porcelain,
+          iconColor: active ? '#FFFFFF' : Colors.powderBlue,
         };
       default:
         return {
-          bg: active ? Colors.powderBlue : 'rgba(180, 205, 237, 0.14)',
-          border: active ? Colors.powderBlue : Colors.glassBorder,
-          text: active ? Colors.inkBlack : Colors.powderBlue,
-          iconColor: active ? Colors.inkBlack : Colors.powderBlue,
+          bg: active ? Colors.powderBlue : 'rgba(37, 99, 235, 0.08)',
+          border: active ? Colors.powderBlue : 'rgba(37, 99, 235, 0.22)',
+          text: active ? '#FFFFFF' : Colors.powderBlue,
+          iconColor: active ? '#FFFFFF' : Colors.powderBlue,
         };
     }
   };
@@ -305,15 +305,15 @@ export const LiquidGlassInput = ({
 
 // Web-specific glassmorphism style rules for modern web browsers
 const webGlassStyle = Platform.OS === 'web' ? {
-  backdropFilter: 'blur(30px) saturate(210%)',
-  WebkitBackdropFilter: 'blur(30px) saturate(210%)',
-  boxShadow: '0 12px 36px 0 rgba(0, 0, 0, 0.45), inset 0 1px 1.5px 0 rgba(240, 244, 239, 0.35)',
+  backdropFilter: 'blur(30px) saturate(190%)',
+  WebkitBackdropFilter: 'blur(30px) saturate(190%)',
+  boxShadow: '0 10px 32px 0 rgba(15, 23, 42, 0.08), 0 2px 6px 0 rgba(15, 23, 42, 0.03), inset 0 1px 1.5px 0 #FFFFFF',
 } : {};
 
 const webGlassPillStyle = Platform.OS === 'web' ? {
   backdropFilter: 'blur(18px) saturate(180%)',
   WebkitBackdropFilter: 'blur(18px) saturate(180%)',
-  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(240, 244, 239, 0.3)',
+  boxShadow: '0 4px 14px rgba(15, 23, 42, 0.06), inset 0 1px 1px #FFFFFF',
 } : {};
 
 const styles = StyleSheet.create({
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
   },
   canvasBase: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#0D1821',
+    backgroundColor: Colors.inkBlack,
   },
   orbsWrapper: {
     ...StyleSheet.absoluteFillObject,
@@ -340,8 +340,8 @@ const styles = StyleSheet.create({
     right: -40,
     width: 320,
     height: 320,
-    backgroundColor: '#D97706',
-    opacity: 0.35,
+    backgroundColor: '#60A5FA',
+    opacity: 0.22,
     ...(Platform.OS === 'web' ? { filter: 'blur(80px)' } : {}),
   },
   orbMidLeft: {
@@ -349,8 +349,8 @@ const styles = StyleSheet.create({
     left: -70,
     width: 290,
     height: 290,
-    backgroundColor: '#E06D53',
-    opacity: 0.28,
+    backgroundColor: '#34D399',
+    opacity: 0.16,
     ...(Platform.OS === 'web' ? { filter: 'blur(85px)' } : {}),
   },
   orbCenter: {
@@ -358,8 +358,8 @@ const styles = StyleSheet.create({
     right: '20%',
     width: 280,
     height: 280,
-    backgroundColor: '#2C221E',
-    opacity: 0.50,
+    backgroundColor: '#818CF8',
+    opacity: 0.14,
     ...(Platform.OS === 'web' ? { filter: 'blur(90px)' } : {}),
   },
   orbBottomRight: {
@@ -367,8 +367,8 @@ const styles = StyleSheet.create({
     right: -30,
     width: 280,
     height: 280,
-    backgroundColor: '#F59E0B',
-    opacity: 0.32,
+    backgroundColor: '#38BDF8',
+    opacity: 0.20,
     ...(Platform.OS === 'web' ? { filter: 'blur(75px)' } : {}),
   },
   cardOuter: {
@@ -392,12 +392,13 @@ const styles = StyleSheet.create({
     left: 20,
     right: 20,
     height: 1.2,
-    backgroundColor: 'rgba(240, 244, 239, 0.45)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
   },
   buttonWrapper: {
     borderRadius: BorderRadius.full,
     overflow: 'hidden',
     position: 'relative',
+    ...Shadows.glow,
   },
   buttonGradient: {
     flexDirection: 'row',
@@ -414,12 +415,13 @@ const styles = StyleSheet.create({
     left: 24,
     right: 24,
     height: 1,
-    backgroundColor: 'rgba(240, 244, 239, 0.45)',
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
   },
   buttonText: {
     fontSize: Typography.sm + 1,
-    fontWeight: 'bold',
-    letterSpacing: 0.3,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 0.2,
   },
   btnDisabled: {
     opacity: 0.5,
@@ -441,9 +443,9 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(52, 73, 102, 0.25)',
+    backgroundColor: 'rgba(255, 255, 255, 0.90)',
     borderWidth: 1.2,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     borderRadius: BorderRadius.lg,
     paddingHorizontal: Spacing.md,
     height: 48,

@@ -1,82 +1,82 @@
 /**
  * ChalLaa iOS 26 Liquid Glass Design System
- * Option 4: Campus Espresso & Warm Amber Theme
+ * Apple / Linear Light Liquid Glass Theme
  * 
  * Curated Palette:
- * - Roasted Espresso: #12100E (Deep rich warm canvas & contrast)
- * - Smoked Mocha: #2C221E (Warm dark walnut, card base & translucent glass tint)
- * - Honey Amber: #F59E0B / #FBBF24 (Liquid gold sheen, specular highlights & active glow)
- * - Vanilla Cream: #FDFBF7 (Warm crisp typography & high-contrast elements)
- * - Warm Terracotta: #E06D53 (Warm terracotta for delivery alerts, active runners & badges)
+ * - Alabaster Mist: #F4F6F9 (Soft, modern, non-blinding canvas)
+ * - Crystalline Glass: rgba(255, 255, 255, 0.78) (Frosted white liquid glass)
+ * - Electric Royal Cobalt: #2563EB (Crisp, high-trust primary brand accent)
+ * - Slate Charcoal: #0F172A (Razor sharp, highly readable typography)
+ * - Fresh Emerald Mint: #10B981 (Karma rewards, currency ₹, & verified badges)
  */
 
 export const Colors = {
   // 5-Color Core System
-  inkBlack: '#12100E',        // Deep Roasted Espresso
-  yaleBlue: '#2C221E',        // Smoked Mocha / Warm Walnut
-  powderBlue: '#F59E0B',      // Honey Amber (Primary Brand Glow)
-  porcelain: '#FDFBF7',       // Vanilla Cream (Primary Typography)
-  drySage: '#E06D53',         // Warm Terracotta / Amber Cinnamon
+  inkBlack: '#F6F8FB',        // Soft Alabaster Canvas Base (Neither blinding nor dingy)
+  yaleBlue: '#FFFFFF',        // Pure Crystalline Glass Surface
+  powderBlue: '#2563EB',      // Electric Royal Cobalt (High-trust primary brand accent)
+  porcelain: '#0F172A',       // Slate 900 (High-Contrast Crisp Primary Text)
+  drySage: '#059669',         // Emerald Green (Clean karma rewards & verified badges)
 
   // Brand Mapping
-  primary: '#F59E0B',         // Honey Amber
-  primaryDark: '#B45309',     // Deep Amber
-  primaryDeep: '#12100E',     // Roasted Espresso
-  primaryLight: 'rgba(245, 158, 11, 0.18)',
-  primaryMuted: 'rgba(245, 158, 11, 0.55)',
+  primary: '#2563EB',         // Royal Cobalt
+  primaryDark: '#1D4ED8',     // Deep Cobalt
+  primaryDeep: '#0F172A',     // Slate 900
+  primaryLight: 'rgba(37, 99, 235, 0.08)',
+  primaryMuted: 'rgba(37, 99, 235, 0.45)',
 
-  // Secondary / Accent (Warm Terracotta for alerts, ratings, rewards)
-  secondary: '#E06D53',
-  secondaryDark: '#C2410C',
-  secondaryLight: 'rgba(224, 109, 83, 0.18)',
+  // Secondary / Accent (Mint Emerald for badges, karma rewards, offers)
+  secondary: '#10B981',
+  secondaryDark: '#059669',
+  secondaryLight: 'rgba(16, 185, 129, 0.10)',
 
   // Liquid Glass Material Layers
-  glassBackground: 'rgba(44, 34, 30, 0.55)',         // Smoked Mocha translucent
-  glassBackgroundLight: 'rgba(253, 251, 247, 0.08)', // Vanilla Cream translucent
-  glassBackgroundDark: 'rgba(18, 16, 14, 0.78)',     // Roasted Espresso translucent
-  glassBorder: 'rgba(245, 158, 11, 0.38)',           // Honey Amber specular reflection
-  glassBorderLight: 'rgba(253, 251, 247, 0.22)',     // Vanilla Cream subtle edge
-  glassBorderGlow: 'rgba(251, 191, 36, 0.60)',       // Honey Gold intense refraction
-  glassSageBorder: 'rgba(224, 109, 83, 0.45)',       // Terracotta border
-  glassHighlight: 'rgba(253, 251, 247, 0.25)',
+  glassBackground: 'rgba(255, 255, 255, 0.82)',       // Frosted crystalline light glass
+  glassBackgroundLight: 'rgba(255, 255, 255, 0.94)',  // Crisp white surface
+  glassBackgroundDark: 'rgba(241, 245, 249, 0.90)',   // Subtle slate tinted glass
+  glassBorder: 'rgba(255, 255, 255, 0.95)',          // Specular frosted white rim
+  glassBorderLight: 'rgba(226, 232, 240, 0.85)',      // Hairline slate boundary
+  glassBorderGlow: 'rgba(37, 99, 235, 0.35)',         // Royal Blue focus glow
+  glassSageBorder: 'rgba(16, 185, 129, 0.30)',        // Mint border
+  glassHighlight: '#FFFFFF',                          // Specular top rim
 
   // Gradients for liquid materials
-  gradientGlass: ['rgba(54, 40, 32, 0.70)', 'rgba(20, 16, 14, 0.85)'],
-  gradientGlassCard: ['rgba(50, 38, 32, 0.58)', 'rgba(30, 22, 18, 0.72)'],
-  gradientHero: ['#2C221E', '#1F1815', '#12100E'],
-  gradientPrimary: ['#FBBF24', '#F59E0B'],
-  gradientButton: ['#F59E0B', '#D97706'],
-  gradientAccent: ['#E06D53', '#C2410C'],
-  gradientActivePill: ['#FBBF24', '#F59E0B'],
-  gradientSageGlow: ['#E06D53', '#B45309'],
+  gradientGlass: ['rgba(255, 255, 255, 0.96)', 'rgba(248, 250, 252, 0.85)'],
+  gradientGlassCard: ['rgba(255, 255, 255, 0.96)', 'rgba(241, 245, 249, 0.88)'],
+  gradientHero: ['#FFFFFF', '#F8FAFC', '#F1F5F9'],
+  gradientPrimary: ['#3B82F6', '#2563EB'],            // Electric Royal Cobalt
+  gradientButton: ['#2563EB', '#1D4ED8'],
+  gradientAccent: ['#10B981', '#059669'],             // Fresh Emerald Mint
+  gradientActivePill: ['#3B82F6', '#2563EB'],
+  gradientSageGlow: ['#10B981', '#059669'],
 
   // Neutrals & Surfaces
-  background: '#12100E',      // Deep Roasted Espresso
-  backgroundSecondary: '#1A1614',
-  card: 'rgba(44, 34, 30, 0.48)',
-  cardAlt: 'rgba(245, 158, 11, 0.08)',
-  cardBorder: 'rgba(245, 158, 11, 0.26)',
-  darkCard: '#12100E',
+  background: '#F6F8FB',      // Soft Alabaster Mist
+  backgroundSecondary: '#EDF2F7',
+  card: 'rgba(255, 255, 255, 0.88)',
+  cardAlt: 'rgba(241, 245, 249, 0.85)',
+  cardBorder: 'rgba(226, 232, 240, 0.85)',
+  darkCard: '#FFFFFF',
 
   // Typography
-  text: '#FDFBF7',            // Vanilla Cream
-  textSecondary: '#F59E0B',   // Honey Amber
-  textMuted: 'rgba(253, 251, 247, 0.60)',
-  textLight: '#FDFBF7',
+  text: '#0F172A',            // Slate 900
+  textSecondary: '#2563EB',   // Royal Blue
+  textMuted: '#64748B',       // Slate 500
+  textLight: '#94A3B8',       // Slate 400
 
-  border: 'rgba(245, 158, 11, 0.22)',
-  borderLight: 'rgba(253, 251, 247, 0.12)',
-  borderFocus: '#F59E0B',
+  border: 'rgba(226, 232, 240, 0.85)',
+  borderLight: 'rgba(255, 255, 255, 0.95)',
+  borderFocus: '#2563EB',
 
   // Status & Feedback
-  success: '#10B981',
-  successBg: 'rgba(16, 185, 129, 0.15)',
-  warning: '#F59E0B',
-  warningBg: 'rgba(245, 158, 11, 0.15)',
-  danger: '#EF4444',
-  dangerBg: 'rgba(239, 68, 68, 0.15)',
-  dangerLight: 'rgba(239, 68, 68, 0.15)',
-  dangerDark: '#B91C1C',
+  success: '#059669',
+  successBg: 'rgba(16, 185, 129, 0.10)',
+  warning: '#D97706',
+  warningBg: 'rgba(245, 158, 11, 0.10)',
+  danger: '#DC2626',
+  dangerBg: 'rgba(239, 68, 68, 0.10)',
+  dangerLight: 'rgba(239, 68, 68, 0.10)',
+  dangerDark: '#991B1B',
 
   white: '#FFFFFF',
   black: '#000000',
@@ -115,38 +115,38 @@ export const BorderRadius = {
 
 export const Shadows = {
   subtle: {
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 3,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
   },
   card: {
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.45,
-    shadowRadius: 20,
-    elevation: 6,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    elevation: 4,
   },
   glass: {
-    shadowColor: '#F59E0B',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.22,
-    shadowRadius: 18,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
     elevation: 5,
   },
   glow: {
-    shadowColor: '#F59E0B',
+    shadowColor: '#2563EB',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.50,
-    shadowRadius: 26,
-    elevation: 8,
-  },
-  sageGlow: {
-    shadowColor: '#E06D53',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.42,
+    shadowOpacity: 0.22,
     shadowRadius: 20,
     elevation: 7,
+  },
+  sageGlow: {
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.20,
+    shadowRadius: 16,
+    elevation: 6,
   },
 };
