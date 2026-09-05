@@ -8,6 +8,7 @@ export default function TabLayout() {
     <Tabs
       tabBar={(props) => <LiquidGlassTabBar {...props} />}
       screenOptions={{
+        animation: 'shift',
         headerStyle: {
           backgroundColor: 'rgba(13, 24, 33, 0.85)',
           borderBottomWidth: 1,
