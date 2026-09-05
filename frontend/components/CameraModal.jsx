@@ -15,6 +15,10 @@ import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, Typography, BorderRadius } from '../constants/theme';
 
+/**
+ * Camera Modal Component
+ * Leverages expo-camera (CameraView) and expo-image-manipulator for native proof capture & compression.
+ */
 export default function CameraModal({ visible, onClose, onPhotoCaptured }) {
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState('back');
