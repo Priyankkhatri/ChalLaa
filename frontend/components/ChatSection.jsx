@@ -24,6 +24,10 @@ const QUICK_PROMPTS = [
   'Delivered at your door! 📦',
 ];
 
+/**
+ * ChatSection Component
+ * Dual REST & WebSocket communication channel between Requester and Runner.
+ */
 export default function ChatSection({ errand, currentUser }) {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
