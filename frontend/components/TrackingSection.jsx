@@ -29,6 +29,10 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   return (R * c).toFixed(2);
 }
 
+/**
+ * TrackingSection Component
+ * Real-time runner GPS broadcasting and requester live map telemetry over WebSockets.
+ */
 export default function TrackingSection({ errand, currentUser }) {
   const isRunner = errand?.runnerId?._id === currentUser?._id || errand?.runnerId === currentUser?._id;
   const isRequester = errand?.requesterId?._id === currentUser?._id || errand?.requesterId === currentUser?._id;
