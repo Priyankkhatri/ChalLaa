@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import LiquidGlassTabBar from '../../components/navigation/LiquidGlassTabBar';
+import { LiquidGlassTabBar } from '../../components/navigation';
 import { Colors } from '../../constants/theme';
 
 export default function TabLayout() {
