@@ -25,7 +25,7 @@ import {
 } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
-import { LiquidGlassCard } from '../../components/ui/LiquidGlass';
+import { LiquidGlassCard, LiquidCanvas } from '../../components/ui/LiquidGlass';
 
 export default function LoginScreen() {
   const { login } = useAuth();
@@ -66,13 +66,14 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
+    <LiquidCanvas style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.flexFill}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
         {/* Liquid Glass Hero Banner */}
@@ -225,13 +226,16 @@ export default function LoginScreen() {
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
+    </LiquidCanvas>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.inkBlack,
+  },
+  flexFill: {
+    flex: 1,
   },
   scrollContent: {
     padding: Spacing.md,
@@ -242,8 +246,13 @@ const styles = StyleSheet.create({
   heroOuter: {
     borderRadius: BorderRadius.xxl,
     overflow: 'hidden',
-    borderWidth: 1,
+    borderWidth: 1.2,
     borderColor: Colors.glassBorder,
+    ...(Platform.OS === 'web' ? {
+      backdropFilter: 'blur(30px) saturate(190%)',
+      WebkitBackdropFilter: 'blur(30px) saturate(190%)',
+      boxShadow: '0 12px 35px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(240, 244, 239, 0.3)',
+    } : {}),
     ...Shadows.glow,
   },
   heroBlur: {

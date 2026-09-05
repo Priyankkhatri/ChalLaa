@@ -39,7 +39,7 @@ import {
 } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
-import { LiquidGlassCard, LiquidGlassButton } from '../../components/ui/LiquidGlass';
+import { LiquidGlassCard, LiquidGlassButton, LiquidCanvas } from '../../components/ui/LiquidGlass';
 
 export default function ProfileScreen() {
   const { user, logout, updateUser } = useAuth();
@@ -198,9 +198,10 @@ export default function ProfileScreen() {
   );
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      {/* Liquid Glass Luxury Profile Header */}
-      <View style={styles.heroOuter}>
+    <LiquidCanvas style={styles.container}>
+      <ScrollView style={styles.flexFill} contentContainerStyle={styles.scrollContent}>
+        {/* Liquid Glass Luxury Profile Header */}
+        <View style={styles.heroOuter}>
         <BlurView intensity={Platform.OS === 'ios' ? 45 : 60} tint="dark" style={styles.heroBlur}>
           <LinearGradient
             colors={['rgba(52, 73, 102, 0.65)', 'rgba(13, 24, 33, 0.9)']}
@@ -570,14 +571,17 @@ export default function ProfileScreen() {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+      </ScrollView>
+    </LiquidCanvas>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.inkBlack,
+  },
+  flexFill: {
+    flex: 1,
   },
   scrollContent: {
     padding: Spacing.md,
@@ -587,8 +591,13 @@ const styles = StyleSheet.create({
   heroOuter: {
     borderRadius: BorderRadius.xxl,
     overflow: 'hidden',
-    borderWidth: 1,
+    borderWidth: 1.2,
     borderColor: Colors.glassBorder,
+    ...(Platform.OS === 'web' ? {
+      backdropFilter: 'blur(30px) saturate(190%)',
+      WebkitBackdropFilter: 'blur(30px) saturate(190%)',
+      boxShadow: '0 12px 35px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(240, 244, 239, 0.3)',
+    } : {}),
     ...Shadows.glow,
   },
   heroBlur: {
