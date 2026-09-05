@@ -136,6 +136,8 @@ export default function PostErrandScreen() {
         description: description.trim(),
         category,
         budget: numericBudget,
+        latitude: lat,
+        longitude: lng,
         address: address.trim() || 'Campus Hostels',
         location: {
           type: 'Point',
