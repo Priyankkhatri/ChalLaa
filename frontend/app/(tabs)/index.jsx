@@ -237,7 +237,7 @@ export default function DiscoveryFeedScreen() {
                 style={styles.helpButton}
               >
                 <Text style={styles.helpButtonText}>Help Peer</Text>
-                <ArrowRight size={13} color={Colors.inkBlack} strokeWidth={2.8} />
+                <ArrowRight size={13} color="#FFFFFF" strokeWidth={2.8} />
               </LinearGradient>
             </View>
           </View>
@@ -250,9 +250,9 @@ export default function DiscoveryFeedScreen() {
     <LiquidCanvas style={styles.container}>
       {/* Liquid Glass Header Hero */}
       <View style={styles.heroGlassWrapper}>
-        <BlurView intensity={Platform.OS === 'ios' ? 45 : 70} tint="dark" style={styles.heroBlur}>
+        <BlurView intensity={Platform.OS === 'ios' ? 45 : 60} tint="light" style={styles.heroBlur}>
           <LinearGradient
-            colors={['rgba(52, 73, 102, 0.40)', 'rgba(13, 24, 33, 0.65)']}
+            colors={['rgba(255, 255, 255, 0.96)', 'rgba(241, 245, 249, 0.90)']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.heroGradient}
@@ -341,7 +341,7 @@ export default function DiscoveryFeedScreen() {
               >
                 <Icon
                   size={14}
-                  color={isSelected ? Colors.inkBlack : Colors.powderBlue}
+                  color={isSelected ? '#FFFFFF' : Colors.powderBlue}
                   strokeWidth={2.4}
                 />
                 <Text
@@ -399,7 +399,7 @@ export default function DiscoveryFeedScreen() {
                   end={{ x: 1, y: 1 }}
                   style={styles.emptyBtn}
                 >
-                  <Plus size={16} color={Colors.inkBlack} strokeWidth={2.8} />
+                  <Plus size={16} color="#FFFFFF" strokeWidth={2.8} />
                   <Text style={styles.emptyBtnText}>Post Errand Request</Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -420,7 +420,7 @@ export default function DiscoveryFeedScreen() {
           end={{ x: 1, y: 1 }}
           style={styles.fab}
         >
-          <Plus size={28} color={Colors.inkBlack} strokeWidth={2.8} />
+          <Plus size={28} color="#FFFFFF" strokeWidth={2.8} />
         </LinearGradient>
       </TouchableOpacity>
     </LiquidCanvas>
@@ -437,11 +437,11 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: BorderRadius.xxl,
     overflow: 'hidden',
     borderBottomWidth: 1.2,
-    borderBottomColor: Colors.glassBorder,
+    borderBottomColor: 'rgba(226, 232, 240, 0.90)',
     ...(Platform.OS === 'web' ? {
       backdropFilter: 'blur(30px) saturate(190%)',
       WebkitBackdropFilter: 'blur(30px) saturate(190%)',
-      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(240, 244, 239, 0.25)',
+      boxShadow: '0 10px 30px rgba(15, 23, 42, 0.05), inset 0 1px 1px #FFFFFF',
     } : {}),
     ...Shadows.subtle,
   },
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
     left: 40,
     right: 40,
     height: 1,
-    backgroundColor: 'rgba(240, 244, 239, 0.35)',
+    backgroundColor: '#FFFFFF',
   },
   headerTop: {
     flexDirection: 'row',
@@ -495,9 +495,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: 'rgba(52, 73, 102, 0.35)',
+    backgroundColor: 'rgba(255, 255, 255, 0.90)',
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.95)',
     paddingHorizontal: Spacing.sm + 4,
     paddingVertical: 5,
     borderRadius: BorderRadius.full,
@@ -505,6 +505,7 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'web' ? {
       backdropFilter: 'blur(16px)',
       WebkitBackdropFilter: 'blur(16px)',
+      boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
     } : {}),
   },
   locationChipText: {
@@ -515,9 +516,9 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(13, 24, 33, 0.45)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1.2,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.95)',
     borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.md,
     height: 44,
@@ -525,6 +526,7 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'web' ? {
       backdropFilter: 'blur(20px)',
       WebkitBackdropFilter: 'blur(20px)',
+      boxShadow: '0 3px 12px rgba(15, 23, 42, 0.04), inset 0 1px 1px #FFFFFF',
     } : {}),
   },
   searchInput: {
@@ -535,7 +537,7 @@ const styles = StyleSheet.create({
   filterSection: {
     paddingVertical: Spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(52, 73, 102, 0.25)',
+    borderBottomColor: 'rgba(226, 232, 240, 0.70)',
   },
   radiusRow: {
     flexDirection: 'row',
@@ -555,28 +557,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm + 4,
     paddingVertical: 4,
     borderRadius: BorderRadius.full,
-    backgroundColor: 'rgba(52, 73, 102, 0.20)',
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     ...(Platform.OS === 'web' ? {
       backdropFilter: 'blur(12px)',
       WebkitBackdropFilter: 'blur(12px)',
+      boxShadow: '0 2px 6px rgba(15, 23, 42, 0.03)',
     } : {}),
   },
   radiusPillActive: {
     backgroundColor: Colors.powderBlue,
     borderColor: Colors.powderBlue,
     ...(Platform.OS === 'web' ? {
-      boxShadow: '0 0 12px rgba(180, 205, 237, 0.4)',
+      boxShadow: '0 3px 10px rgba(37, 99, 235, 0.35)',
     } : {}),
   },
   radiusPillText: {
     fontSize: Typography.xs - 2,
     fontWeight: '600',
-    color: Colors.porcelain,
+    color: Colors.textMuted,
   },
   radiusPillTextActive: {
-    color: Colors.inkBlack,
+    color: '#FFFFFF',
     fontWeight: '800',
   },
   categoryScroller: {
@@ -591,19 +594,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm + 6,
     paddingVertical: 7,
     borderRadius: BorderRadius.full,
-    backgroundColor: 'rgba(52, 73, 102, 0.20)',
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     ...(Platform.OS === 'web' ? {
       backdropFilter: 'blur(14px)',
       WebkitBackdropFilter: 'blur(14px)',
+      boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
     } : {}),
   },
   categoryCardActive: {
     backgroundColor: Colors.powderBlue,
     borderColor: Colors.powderBlue,
     ...(Platform.OS === 'web' ? {
-      boxShadow: '0 0 14px rgba(180, 205, 237, 0.4)',
+      boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
     } : {}),
   },
   categoryCardLabel: {
@@ -612,7 +616,7 @@ const styles = StyleSheet.create({
     color: Colors.porcelain,
   },
   categoryCardLabelActive: {
-    color: Colors.inkBlack,
+    color: '#FFFFFF',
     fontWeight: '800',
   },
   feedList: {
@@ -639,9 +643,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm + 2,
     paddingVertical: 3,
     borderRadius: BorderRadius.full,
-    backgroundColor: 'rgba(180, 205, 237, 0.12)',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(180, 205, 237, 0.22)',
+    borderColor: 'rgba(37, 99, 235, 0.20)',
   },
   categoryBadgeText: {
     fontSize: Typography.xs - 2,
@@ -653,12 +657,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'baseline',
     gap: 4,
-    backgroundColor: 'rgba(191, 204, 148, 0.15)',
+    backgroundColor: 'rgba(5, 150, 105, 0.08)',
     paddingHorizontal: Spacing.sm + 6,
     paddingVertical: 3,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: Colors.glassSageBorder,
+    borderColor: 'rgba(5, 150, 105, 0.25)',
   },
   priceLabel: {
     fontSize: Typography.xs - 3,
@@ -681,7 +685,7 @@ const styles = StyleSheet.create({
   },
   errandDescription: {
     fontSize: Typography.xs,
-    color: 'rgba(240, 244, 239, 0.7)',
+    color: '#475569',
     marginTop: 4,
     lineHeight: 17,
   },
@@ -692,11 +696,11 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
     paddingTop: Spacing.xs + 2,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(52, 73, 102, 0.35)',
+    borderTopColor: 'rgba(226, 232, 240, 0.85)',
   },
   locationText: {
     fontSize: Typography.xs - 1,
-    color: Colors.powderBlue,
+    color: '#64748B',
     flex: 1,
   },
   cardFooter: {
@@ -714,9 +718,9 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: 'rgba(52, 73, 102, 0.55)',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(37, 99, 235, 0.20)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -762,7 +766,7 @@ const styles = StyleSheet.create({
   helpButtonText: {
     fontSize: Typography.xs,
     fontWeight: '800',
-    color: Colors.inkBlack,
+    color: '#FFFFFF',
     letterSpacing: 0.2,
   },
   fabWrapper: {
@@ -801,9 +805,9 @@ const styles = StyleSheet.create({
     width: 76,
     height: 76,
     borderRadius: 38,
-    backgroundColor: 'rgba(52, 73, 102, 0.45)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.md,
@@ -816,7 +820,7 @@ const styles = StyleSheet.create({
   },
   emptySubtitle: {
     fontSize: Typography.xs,
-    color: 'rgba(240, 244, 239, 0.7)',
+    color: '#64748B',
     textAlign: 'center',
     marginTop: 4,
     lineHeight: 18,
@@ -836,7 +840,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
   },
   emptyBtnText: {
-    color: Colors.inkBlack,
+    color: '#FFFFFF',
     fontSize: Typography.sm,
     fontWeight: '800',
   },
