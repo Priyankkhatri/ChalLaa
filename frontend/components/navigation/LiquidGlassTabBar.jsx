@@ -269,8 +269,10 @@ export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
                 key={route.key}
                 accessibilityRole="button"
                 accessibilityState={isFocused ? { selected: true } : {}}
-                accessibilityLabel={options.tabBarAccessibilityLabel}
-                testID={options.tabBarTestID}
+                accessibilityLabel={options.tabBarAccessibilityLabel || config.label}
+                accessibilityHint={`Switches active tab to ${config.label}`}
+                testID={options.tabBarTestID || `tab-${route.name}`}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 onPress={onPress}
                 activeOpacity={0.78}
                 style={styles.tabItem}
