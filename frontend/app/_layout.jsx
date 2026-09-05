@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
@@ -38,7 +38,7 @@ function NavigationGuard() {
       <Stack
         screenOptions={{
           headerStyle: {
-            backgroundColor: Colors.inkBlack,
+            backgroundColor: 'rgba(13, 24, 33, 0.85)',
             borderBottomWidth: 1,
             borderBottomColor: Colors.glassBorder,
           },
@@ -60,7 +60,7 @@ function NavigationGuard() {
           options={{ title: 'Post New Errand', presentation: 'card' }}
         />
         <Stack.Screen name="errand/[id]" options={{ title: 'Errand Details' }} />
-        <Stack.Screen name="admin/index" options={{ title: 'Campus Moderation Panel' }} />
+        <Stack.Screen name="admin/index" options={{ title: 'Campus Moderation' }} />
       </Stack>
       <StatusBar style="light" />
     </>
@@ -68,11 +68,25 @@ function NavigationGuard() {
 }
 
 export default function RootLayout() {
-  return (
+  const content = (
     <AuthProvider>
       <NavigationGuard />
     </AuthProvider>
   );
+
+  if (Platform.OS === 'web') {
+    return (
+      <View style={styles.webViewport}>
+        <View style={styles.webAmbientGlow1} />
+        <View style={styles.webAmbientGlow2} />
+        <View style={styles.mobileShell}>
+          {content}
+        </View>
+      </View>
+    );
+  }
+
+  return content;
 }
 
 const styles = StyleSheet.create({
@@ -81,5 +95,51 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Colors.inkBlack,
+  },
+  webViewport: {
+    flex: 1,
+    width: '100%',
+    height: '100vh',
+    backgroundColor: '#060B10',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  webAmbientGlow1: {
+    position: 'absolute',
+    top: '5%',
+    left: '15%',
+    width: 600,
+    height: 600,
+    borderRadius: 9999,
+    backgroundColor: '#344966',
+    opacity: 0.35,
+    ...(Platform.OS === 'web' ? { filter: 'blur(130px)' } : {}),
+  },
+  webAmbientGlow2: {
+    position: 'absolute',
+    bottom: '5%',
+    right: '15%',
+    width: 500,
+    height: 500,
+    borderRadius: 9999,
+    backgroundColor: '#BFCC94',
+    opacity: 0.16,
+    ...(Platform.OS === 'web' ? { filter: 'blur(130px)' } : {}),
+  },
+  mobileShell: {
+    width: '100%',
+    maxWidth: 440,
+    height: '100%',
+    maxHeight: 920,
+    borderRadius: 36,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: 'rgba(180, 205, 237, 0.28)',
+    ...(Platform.OS === 'web' ? {
+      boxShadow: '0 25px 80px -15px rgba(0, 0, 0, 0.85), 0 0 45px rgba(180, 205, 237, 0.18)',
+    } : {}),
+    backgroundColor: '#0D1821',
   },
 });

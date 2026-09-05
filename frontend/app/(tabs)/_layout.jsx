@@ -13,32 +13,37 @@ export default function TabLayout() {
         tabBarInactiveTintColor: 'rgba(240, 244, 239, 0.45)',
         tabBarBackground: () => (
           <BlurView
-            intensity={Platform.OS === 'ios' ? 45 : 70}
+            intensity={Platform.OS === 'ios' ? 50 : 80}
             tint="dark"
             style={StyleSheet.absoluteFill}
           />
         ),
         tabBarStyle: {
           position: 'absolute',
-          bottom: Platform.OS === 'ios' ? 24 : 16,
-          left: 18,
-          right: 18,
-          backgroundColor: 'rgba(13, 24, 33, 0.75)',
-          borderWidth: 1,
-          borderColor: Colors.glassBorder,
+          bottom: Platform.OS === 'ios' ? 24 : 14,
+          left: 20,
+          right: 20,
+          backgroundColor: 'rgba(13, 24, 33, 0.80)',
+          borderWidth: 1.2,
+          borderColor: 'rgba(180, 205, 237, 0.35)',
           borderRadius: BorderRadius.xxl,
-          height: 64,
-          paddingBottom: Platform.OS === 'ios' ? 8 : 10,
-          paddingTop: 8,
+          height: 60,
+          paddingBottom: 6,
+          paddingTop: 6,
+          ...(Platform.OS === 'web' ? {
+            backdropFilter: 'blur(28px) saturate(190%)',
+            WebkitBackdropFilter: 'blur(28px) saturate(190%)',
+            boxShadow: '0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(240, 244, 239, 0.3)',
+          } : {}),
           ...Shadows.glow,
         },
         tabBarLabelStyle: {
           fontWeight: '700',
-          fontSize: 11,
+          fontSize: 10,
           letterSpacing: 0.2,
         },
         headerStyle: {
-          backgroundColor: Colors.inkBlack,
+          backgroundColor: 'rgba(13, 24, 33, 0.85)',
           borderBottomWidth: 1,
           borderBottomColor: Colors.glassBorder,
         },
@@ -56,7 +61,7 @@ export default function TabLayout() {
           title: 'Campus Feed',
           tabBarIcon: ({ color, focused }) => (
             <View style={focused ? styles.activeIconGlow : null}>
-              <Compass size={22} color={color} strokeWidth={focused ? 2.5 : 2} />
+              <Compass size={20} color={color} strokeWidth={focused ? 2.6 : 2} />
             </View>
           ),
         }}
@@ -67,7 +72,7 @@ export default function TabLayout() {
           title: 'My Errands',
           tabBarIcon: ({ color, focused }) => (
             <View style={focused ? styles.activeIconGlow : null}>
-              <ListChecks size={22} color={color} strokeWidth={focused ? 2.5 : 2} />
+              <ListChecks size={20} color={color} strokeWidth={focused ? 2.6 : 2} />
             </View>
           ),
         }}
@@ -78,7 +83,7 @@ export default function TabLayout() {
           title: 'Profile',
           tabBarIcon: ({ color, focused }) => (
             <View style={focused ? styles.activeIconGlow : null}>
-              <User size={22} color={color} strokeWidth={focused ? 2.5 : 2} />
+              <User size={20} color={color} strokeWidth={focused ? 2.6 : 2} />
             </View>
           ),
         }}
@@ -91,7 +96,8 @@ const styles = StyleSheet.create({
   activeIconGlow: {
     shadowColor: Colors.powderBlue,
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 8,
+    shadowOpacity: 0.85,
+    shadowRadius: 10,
+    ...(Platform.OS === 'web' ? { filter: 'drop-shadow(0 0 6px rgba(180, 205, 237, 0.7))' } : {}),
   },
 });
