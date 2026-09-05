@@ -53,12 +53,12 @@ export default function RatingModal({ visible, errand, currentUser, onClose, onR
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.modalCard}>
-          <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-            <X size={20} color={Colors.textSecondary} />
+          <TouchableOpacity style={styles.closeBtn} onPress={onClose} activeOpacity={0.8}>
+            <X size={20} color={Colors.powderBlue} />
           </TouchableOpacity>
 
           <View style={styles.iconCircle}>
-            <Star size={30} color="#F59E0B" fill="#F59E0B" />
+            <Star size={32} color={Colors.drySage} fill={Colors.drySage} />
           </View>
 
           <Text style={styles.title}>Rate {peerName}</Text>
@@ -69,11 +69,11 @@ export default function RatingModal({ visible, errand, currentUser, onClose, onR
           {/* Star selector */}
           <View style={styles.starsRow}>
             {[1, 2, 3, 4, 5].map((star) => (
-              <TouchableOpacity key={star} onPress={() => setScore(star)} style={styles.starTouch}>
+              <TouchableOpacity key={star} onPress={() => setScore(star)} style={styles.starTouch} activeOpacity={0.8}>
                 <Star
-                  size={34}
-                  color={star <= score ? '#F59E0B' : Colors.border}
-                  fill={star <= score ? '#F59E0B' : 'transparent'}
+                  size={36}
+                  color={star <= score ? Colors.drySage : 'rgba(52, 73, 102, 0.7)'}
+                  fill={star <= score ? Colors.drySage : 'transparent'}
                 />
               </TouchableOpacity>
             ))}
@@ -104,15 +104,16 @@ export default function RatingModal({ visible, errand, currentUser, onClose, onR
             onPress={handleSubmit}
             disabled={submitting}
             style={styles.submitBtnWrapper}
+            activeOpacity={0.85}
           >
             <LinearGradient
-              colors={Colors.gradientAccent}
+              colors={Colors.gradientSageGlow}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={[styles.submitBtn, submitting && styles.btnDisabled]}
             >
               {submitting ? (
-                <ActivityIndicator color={Colors.white} />
+                <ActivityIndicator color={Colors.inkBlack} />
               ) : (
                 <Text style={styles.submitBtnText}>Submit Karma Rating</Text>
               )}
@@ -127,43 +128,48 @@ export default function RatingModal({ visible, errand, currentUser, onClose, onR
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(13, 24, 33, 0.88)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.lg,
   },
   modalCard: {
     width: '100%',
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
+    maxWidth: 380,
+    backgroundColor: Colors.yaleBlue,
+    borderRadius: BorderRadius.xxl,
     padding: Spacing.xl,
     alignItems: 'center',
     position: 'relative',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
     ...Shadows.glow,
   },
   closeBtn: {
     position: 'absolute',
     top: Spacing.md,
     right: Spacing.md,
-    padding: 4,
+    padding: 6,
   },
   iconCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#FEF3C7',
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(191, 204, 148, 0.15)',
+    borderWidth: 1,
+    borderColor: Colors.glassSageBorder,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.md,
   },
   title: {
     fontSize: Typography.lg,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   subtitle: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     textAlign: 'center',
     marginTop: 4,
     marginBottom: Spacing.md,
@@ -179,27 +185,28 @@ const styles = StyleSheet.create({
   },
   scoreLabel: {
     fontSize: Typography.xs,
-    fontWeight: 'bold',
-    color: Colors.textSecondary,
+    fontWeight: '800',
+    color: Colors.drySage,
     marginBottom: Spacing.md,
   },
   input: {
     width: '100%',
     height: 80,
-    backgroundColor: Colors.background,
-    borderRadius: BorderRadius.md,
+    backgroundColor: 'rgba(13, 24, 33, 0.6)',
+    borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
     fontSize: Typography.sm,
-    color: Colors.text,
+    color: Colors.porcelain,
     textAlignVertical: 'top',
     marginBottom: Spacing.lg,
   },
   submitBtnWrapper: {
     width: '100%',
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.full,
     overflow: 'hidden',
+    ...Shadows.sageGlow,
   },
   submitBtn: {
     width: '100%',
@@ -208,9 +215,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   submitBtnText: {
-    color: Colors.white,
+    color: Colors.inkBlack,
     fontSize: Typography.sm,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   btnDisabled: {
     opacity: 0.6,
