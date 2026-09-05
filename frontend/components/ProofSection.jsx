@@ -38,6 +38,11 @@ export default function ProofSection({ errand, currentUser, onErrandUpdated }) {
       const match = /\.(\w+)$/.exec(filename);
       const fileType = match ? `image/${match[1]}` : `image/jpeg`;
 
+      formData.append('proof', {
+        uri: localPhotoUri,
+        name: filename,
+        type: fileType,
+      });
       formData.append('proofPhoto', {
         uri: localPhotoUri,
         name: filename,
