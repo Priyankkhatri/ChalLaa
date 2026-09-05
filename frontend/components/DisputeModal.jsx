@@ -21,6 +21,10 @@ const DISPUTE_REASONS = [
   { key: 'other', label: 'Other Concern' },
 ];
 
+/**
+ * Dispute Modal Component
+ * Allows errand participants to submit formal dispute reports to campus moderators.
+ */
 export default function DisputeModal({ visible, errand, onClose }) {
   const [selectedReason, setSelectedReason] = useState('incorrect_items');
   const [description, setDescription] = useState('');
