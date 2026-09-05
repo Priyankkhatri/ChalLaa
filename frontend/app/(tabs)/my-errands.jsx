@@ -41,7 +41,7 @@ const STATUS_CONFIG = {
 };
 
 export default function MyErrandsScreen() {
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [errands, setErrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -49,6 +49,12 @@ export default function MyErrandsScreen() {
   const [selectedRole, setSelectedRole] = useState('all');
 
   const fetchMyErrands = useCallback(async () => {
+    if (!isAuthenticated) {
+      setLoading(false);
+      setRefreshing(false);
+      return;
+    }
+
     try {
       setError(null);
       const params = {};
@@ -58,18 +64,22 @@ export default function MyErrandsScreen() {
       const response = await api.get('/errands/mine', { params });
       setErrands(response.data.errands || []);
     } catch (err) {
-      const msg = err.response?.data?.message || err.message || 'Failed to load your errands';
-      setError(msg);
+      if (err.response?.status !== 401) {
+        const msg = err.response?.data?.message || err.message || 'Failed to load your errands';
+        setError(msg);
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [selectedRole]);
+  }, [isAuthenticated, selectedRole]);
 
   useEffect(() => {
-    setLoading(true);
-    fetchMyErrands();
-  }, [selectedRole, fetchMyErrands]);
+    if (isAuthenticated && !authLoading) {
+      setLoading(true);
+      fetchMyErrands();
+    }
+  }, [isAuthenticated, authLoading, selectedRole, fetchMyErrands]);
 
   const onRefresh = async () => {
     setRefreshing(true);
