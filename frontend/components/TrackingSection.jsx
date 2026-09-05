@@ -12,6 +12,7 @@ import * as Location from 'expo-location';
 import { Navigation, Radio, Gauge, Flag, Clock, Compass } from 'lucide-react-native';
 import { getSocket } from '../services/socket';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
+import { LiquidGlassCard } from './ui/LiquidGlass';
 
 // Haversine distance calculator in kilometers
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -141,35 +142,37 @@ export default function TrackingSection({ errand, currentUser }) {
   return (
     <View style={styles.container}>
       {/* Status Header Banner */}
-      <View style={styles.banner}>
-        <View style={styles.bannerIconBox}>
-          <Navigation size={22} color={Colors.primary} />
+      <LiquidGlassCard variant="default">
+        <View style={styles.bannerContent}>
+          <View style={styles.bannerIconBox}>
+            <Navigation size={22} color={Colors.powderBlue} />
+          </View>
+          <View style={styles.bannerTextBox}>
+            <Text style={styles.bannerTitle}>
+              {errand.status === 'in_progress'
+                ? 'Live Trip Tracking'
+                : errand.status === 'delivered'
+                ? 'Errand Completed'
+                : 'Tracking Ready'}
+            </Text>
+            <Text style={styles.bannerSubtitle}>
+              {errand.status === 'in_progress'
+                ? isRunner
+                  ? 'Your GPS position is actively shared with requester.'
+                  : 'Runner is currently on the move for your errand.'
+                : errand.status === 'accepted'
+                ? 'Waiting for runner to start the errand.'
+                : 'Live tracking activates when runner marks "In Progress".'}
+            </Text>
+          </View>
         </View>
-        <View style={styles.bannerTextBox}>
-          <Text style={styles.bannerTitle}>
-            {errand.status === 'in_progress'
-              ? 'Live Trip Tracking'
-              : errand.status === 'delivered'
-              ? 'Errand Completed'
-              : 'Tracking Ready'}
-          </Text>
-          <Text style={styles.bannerSubtitle}>
-            {errand.status === 'in_progress'
-              ? isRunner
-                ? 'Your GPS position is actively shared with requester.'
-                : 'Runner is currently on the move for your errand.'
-              : errand.status === 'accepted'
-              ? 'Waiting for runner to start the errand.'
-              : 'Live tracking activates when runner marks "In Progress".'}
-          </Text>
-        </View>
-      </View>
+      </LiquidGlassCard>
 
-      {/* Visual GPS Tracking Panel */}
-      <View style={styles.trackingCard}>
+      {/* Visual GPS Tracking Radar Panel */}
+      <LiquidGlassCard variant="default">
         <View style={styles.visualMapPlaceholder}>
           <View style={styles.radarPulse}>
-            <Radio size={48} color={Colors.primary} />
+            <Radio size={48} color={Colors.powderBlue} />
           </View>
 
           <Text style={styles.mapStatusText}>
@@ -184,23 +187,23 @@ export default function TrackingSection({ errand, currentUser }) {
 
           {activeDistance !== null ? (
             <View style={styles.etaPill}>
-              <Gauge size={15} color={Colors.secondaryDark} />
+              <Gauge size={15} color={Colors.drySage} />
               <Text style={styles.etaPillText}>~{activeDistance} km from destination</Text>
             </View>
           ) : null}
         </View>
 
-        {/* Live Coordinate telemetry grid */}
+        {/* Live Coordinate Telemetry Grid */}
         <View style={styles.telemetryGrid}>
           <View style={styles.telemetryItem}>
-            <Text style={styles.telemetryLabel}>Runner Latitude</Text>
+            <Text style={styles.telemetryLabel}>Runner Lat</Text>
             <Text style={styles.telemetryValue}>
               {activeRunnerLocation?.lat ? activeRunnerLocation.lat.toFixed(5) : '--'}
             </Text>
           </View>
 
           <View style={styles.telemetryItem}>
-            <Text style={styles.telemetryLabel}>Runner Longitude</Text>
+            <Text style={styles.telemetryLabel}>Runner Lng</Text>
             <Text style={styles.telemetryValue}>
               {activeRunnerLocation?.lng ? activeRunnerLocation.lng.toFixed(5) : '--'}
             </Text>
@@ -224,12 +227,12 @@ export default function TrackingSection({ errand, currentUser }) {
             </Text>
           </View>
         </View>
-      </View>
+      </LiquidGlassCard>
 
       {/* Destination Info Box */}
-      <View style={styles.destinationCard}>
+      <LiquidGlassCard variant="default">
         <View style={styles.destHeader}>
-          <Flag size={18} color={Colors.danger} />
+          <Flag size={18} color={Colors.powderBlue} />
           <Text style={styles.destTitle}>Delivery Destination</Text>
         </View>
         <Text style={styles.destAddress}>{errand.address || 'Campus Hostels'}</Text>
@@ -238,32 +241,27 @@ export default function TrackingSection({ errand, currentUser }) {
             Target: {destinationCoords.lat.toFixed(4)}, {destinationCoords.lng.toFixed(4)}
           </Text>
         ) : null}
-      </View>
+      </LiquidGlassCard>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: Spacing.md,
     gap: Spacing.md,
   },
-  banner: {
+  bannerContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
     gap: Spacing.md,
-    ...Shadows.subtle,
   },
   bannerIconBox: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: 'rgba(180, 205, 237, 0.15)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -272,58 +270,49 @@ const styles = StyleSheet.create({
   },
   bannerTitle: {
     fontSize: Typography.base,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   bannerSubtitle: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     marginTop: 2,
     lineHeight: 16,
   },
-  trackingCard: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.card,
-  },
   visualMapPlaceholder: {
     height: 180,
-    backgroundColor: Colors.background,
+    backgroundColor: 'rgba(13, 24, 33, 0.55)',
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: 'rgba(52, 73, 102, 0.35)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.md,
-    position: 'relative',
   },
   radarPulse: {
     marginBottom: Spacing.xs,
   },
   mapStatusText: {
     fontSize: Typography.sm,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   etaPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#DCFCE7',
-    borderColor: '#86EFAC',
+    backgroundColor: 'rgba(191, 204, 148, 0.15)',
+    borderColor: Colors.glassSageBorder,
     borderWidth: 1,
     paddingHorizontal: Spacing.md,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: BorderRadius.full,
     marginTop: Spacing.sm,
   },
   etaPillText: {
     fontSize: Typography.xs,
-    fontWeight: 'bold',
-    color: Colors.secondaryDark,
+    fontWeight: '800',
+    color: Colors.drySage,
   },
   telemetryGrid: {
     flexDirection: 'row',
@@ -334,31 +323,24 @@ const styles = StyleSheet.create({
   telemetryItem: {
     flex: 1,
     minWidth: '45%',
-    backgroundColor: Colors.background,
+    backgroundColor: 'rgba(13, 24, 33, 0.55)',
     borderRadius: BorderRadius.md,
     padding: Spacing.sm,
     borderWidth: 1,
-    borderColor: Colors.borderLight,
+    borderColor: 'rgba(52, 73, 102, 0.35)',
   },
   telemetryLabel: {
     fontSize: Typography.xs - 2,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     textTransform: 'uppercase',
-    fontWeight: 'bold',
+    fontWeight: '800',
+    letterSpacing: 0.3,
   },
   telemetryValue: {
     fontSize: Typography.sm,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
     marginTop: 2,
-  },
-  destinationCard: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.subtle,
   },
   destHeader: {
     flexDirection: 'row',
@@ -368,16 +350,17 @@ const styles = StyleSheet.create({
   },
   destTitle: {
     fontSize: Typography.sm,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   destAddress: {
     fontSize: Typography.sm,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
+    marginTop: 2,
   },
   destCoords: {
     fontSize: Typography.xs,
-    color: Colors.textMuted,
-    marginTop: 2,
+    color: 'rgba(240, 244, 239, 0.6)',
+    marginTop: 3,
   },
 });
