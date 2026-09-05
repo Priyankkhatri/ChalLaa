@@ -31,12 +31,14 @@ const TAB_CONFIG = {
 
 /**
  * LiquidGlassTabBar
- * Ultra-interactive iOS 26 Liquid Glass floating bottom navigation bar.
+ * Ultra-interactive iOS 26 Liquid Glass floating bottom navigation bar
+ * Theme: Option 4 — Campus Espresso & Warm Amber
+ * 
  * Features:
- * - Real-time gesture slide & drag (touch & hold to glide the liquid mercury bubble)
- * - Fluid velocity-based squash & stretch physics
- * - Smooth spring transitions between tabs
- * - Optical caustic refraction & specular crest reflections
+ * - Real-time slide & glide: touch/mouse hold & slide smoothly tracks the finger
+ * - Sliding from Campus Feed to My Errands transitions the active tab & route
+ * - Velocity-aware squash-and-stretch fluid mercury physics
+ * - Warm Honey Amber caustics & Vanilla Cream specular crest
  */
 export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
   const [containerWidth, setContainerWidth] = useState(0);
@@ -61,13 +63,13 @@ export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
         Animated.spring(translateX, {
           toValue: state.index * tabWidth + 4,
           useNativeDriver: true,
-          tension: 72,
-          friction: 8.5,
+          tension: 75,
+          friction: 8,
         }),
         Animated.sequence([
           Animated.timing(bubbleScaleX, {
-            toValue: 1.15,
-            duration: 100,
+            toValue: 1.16,
+            duration: 110,
             useNativeDriver: true,
           }),
           Animated.spring(bubbleScaleX, {
@@ -81,22 +83,24 @@ export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
     }
   }, [state.index, tabWidth]);
 
-  // Touch & Hold Gesture PanResponder (Slide & Glide)
+  // Touch & Drag PanResponder (Native & Web Touch)
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: () => false,
+      onStartShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponderCapture: () => false,
       onMoveShouldSetPanResponder: (_, gestureState) =>
-        Math.abs(gestureState.dx) > 8,
+        Math.abs(gestureState.dx) > 4,
+      onMoveShouldSetPanResponderCapture: (_, gestureState) =>
+        Math.abs(gestureState.dx) > 4,
       onPanResponderGrant: () => {
-        // Morph into fluid mercury mode: stretch horizontally, compress vertically
         Animated.parallel([
           Animated.spring(bubbleScaleX, {
-            toValue: 1.22,
+            toValue: 1.25,
             friction: 5,
             useNativeDriver: true,
           }),
           Animated.spring(bubbleScaleY, {
-            toValue: 0.92,
+            toValue: 0.90,
             friction: 5,
             useNativeDriver: true,
           }),
@@ -108,7 +112,7 @@ export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
         const basePos = state.index * tabWidth + 4;
         let newX = basePos + gestureState.dx;
 
-        // Apply fluid elasticity resistance beyond bar bounds
+        // Fluid boundary elasticity
         const minX = 4;
         const maxX = (numTabs - 1) * tabWidth + 4;
         if (newX < minX) {
@@ -119,7 +123,7 @@ export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
 
         translateX.setValue(newX);
 
-        // Detect hovered tab under finger
+        // Detect hovered tab
         const relativeX = newX - 4;
         const rawIndex = Math.round(relativeX / tabWidth);
         const hoveredIndex = Math.max(0, Math.min(numTabs - 1, rawIndex));
@@ -143,11 +147,10 @@ export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
         );
         targetIndex = Math.max(0, Math.min(numTabs - 1, targetIndex));
 
-        // Snap bubble to nearest tab with liquid spring
         Animated.parallel([
           Animated.spring(translateX, {
             toValue: targetIndex * tabWidth + 4,
-            tension: 78,
+            tension: 80,
             friction: 8,
             useNativeDriver: true,
           }),
@@ -180,21 +183,110 @@ export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
     })
   ).current;
 
+  // Web-specific pointer drag support for desktop browsers
+  const isPointerDragging = useRef(false);
+  const pointerStartX = useRef(0);
+  const pointerBaseX = useRef(0);
+
+  const handlePointerDown = (e) => {
+    if (Platform.OS !== 'web' || tabWidth <= 0) return;
+    isPointerDragging.current = true;
+    pointerStartX.current = e.clientX || 0;
+    pointerBaseX.current = state.index * tabWidth + 4;
+
+    Animated.parallel([
+      Animated.spring(bubbleScaleX, {
+        toValue: 1.25,
+        friction: 5,
+        useNativeDriver: true,
+      }),
+      Animated.spring(bubbleScaleY, {
+        toValue: 0.90,
+        friction: 5,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const handlePointerMove = (e) => {
+    if (Platform.OS !== 'web' || !isPointerDragging.current || tabWidth <= 0) return;
+    const clientX = e.clientX || 0;
+    const deltaX = clientX - pointerStartX.current;
+    let newX = pointerBaseX.current + deltaX;
+
+    const minX = 4;
+    const maxX = (numTabs - 1) * tabWidth + 4;
+    if (newX < minX) newX = minX - Math.pow(Math.abs(newX - minX), 0.72);
+    else if (newX > maxX) newX = maxX + Math.pow(newX - maxX, 0.72);
+
+    translateX.setValue(newX);
+
+    const relativeX = newX - 4;
+    const rawIndex = Math.round(relativeX / tabWidth);
+    const hoveredIndex = Math.max(0, Math.min(numTabs - 1, rawIndex));
+
+    if (hoveredIndex !== lastHoveredIndex.current) {
+      lastHoveredIndex.current = hoveredIndex;
+      setActiveDragIndex(hoveredIndex);
+    }
+  };
+
+  const handlePointerUp = (e) => {
+    if (Platform.OS !== 'web' || !isPointerDragging.current || tabWidth <= 0) return;
+    isPointerDragging.current = false;
+    const clientX = e.clientX || 0;
+    const deltaX = clientX - pointerStartX.current;
+    const finalX = pointerBaseX.current + deltaX;
+
+    const targetIndex = Math.max(
+      0,
+      Math.min(numTabs - 1, Math.round((finalX - 4) / tabWidth))
+    );
+
+    Animated.parallel([
+      Animated.spring(translateX, {
+        toValue: targetIndex * tabWidth + 4,
+        tension: 80,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+      Animated.spring(bubbleScaleX, {
+        toValue: 1,
+        friction: 5,
+        tension: 90,
+        useNativeDriver: true,
+      }),
+      Animated.spring(bubbleScaleY, {
+        toValue: 1,
+        friction: 5,
+        tension: 90,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    setActiveDragIndex(targetIndex);
+
+    if (targetIndex !== state.index) {
+      const targetRoute = state.routes[targetIndex];
+      navigation.navigate(targetRoute.name);
+    }
+  };
+
   return (
     <View style={styles.floatingContainer} pointerEvents="box-none">
       <LiquidGlassView
         variant="regular"
-        tintColor="rgba(13, 24, 33, 0.72)"
+        tintColor="rgba(18, 16, 14, 0.78)"
         borderRadius={32}
         interactive={true}
         intensity={65}
         rim={true}
         style={[styles.glassPill, webGlassStyle]}
       >
-        {/* Ambient Caustic Underglow Fields */}
+        {/* Ambient Honey Amber & Mocha Caustic Fields */}
         <View style={styles.causticBackdrop} pointerEvents="none">
-          <View style={styles.causticOrbBlue} />
-          <View style={styles.causticOrbSage} />
+          <View style={styles.causticOrbAmber} />
+          <View style={styles.causticOrbMocha} />
         </View>
 
         {/* Tab Bar Inner Container & Gesture Track */}
@@ -202,8 +294,16 @@ export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
           style={styles.tabBarInner}
           onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
           {...panResponder.panHandlers}
+          {...(Platform.OS === 'web'
+            ? {
+                onPointerDown: handlePointerDown,
+                onPointerMove: handlePointerMove,
+                onPointerUp: handlePointerUp,
+                onPointerLeave: handlePointerUp,
+              }
+            : {})}
         >
-          {/* Fluid Sliding Mercury Bubble */}
+          {/* Fluid Sliding Honey Amber Mercury Bubble */}
           {tabWidth > 0 && (
             <Animated.View
               pointerEvents="none"
@@ -221,15 +321,15 @@ export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
             >
               <LinearGradient
                 colors={[
-                  'rgba(180, 205, 237, 0.32)',
-                  'rgba(52, 73, 102, 0.52)',
-                  'rgba(24, 38, 56, 0.68)',
+                  'rgba(245, 158, 11, 0.40)',
+                  'rgba(180, 83, 9, 0.58)',
+                  'rgba(44, 30, 22, 0.75)',
                 ]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 0, y: 1 }}
                 style={styles.mercuryGradient}
               >
-                {/* Specular Curved Highlight Crest */}
+                {/* Specular Vanilla Cream Highlight Crest */}
                 <View style={styles.mercuryCrest} />
               </LinearGradient>
             </Animated.View>
@@ -274,17 +374,17 @@ export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
                 testID={options.tabBarTestID || `tab-${route.name}`}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 onPress={onPress}
-                activeOpacity={0.78}
-                style={styles.tabItem}
+                activeOpacity={0.82}
+                style={[styles.tabItem, isHovered && styles.tabItemHovered]}
               >
-                {/* Tab Icon with Dynamic Powder Blue Glow */}
+                {/* Tab Icon with Dynamic Honey Amber Glow */}
                 <View style={isHovered ? styles.activeIconGlow : null}>
                   <Icon
                     size={21}
                     color={
                       isHovered
-                        ? Colors.powderBlue
-                        : 'rgba(180, 205, 237, 0.45)'
+                        ? '#FBBF24'
+                        : 'rgba(245, 158, 11, 0.40)'
                     }
                     strokeWidth={isHovered ? 2.6 : 1.9}
                   />
@@ -318,8 +418,8 @@ const webGlassStyle =
         backdropFilter: 'blur(36px) saturate(220%)',
         WebkitBackdropFilter: 'blur(36px) saturate(220%)',
         boxShadow:
-          '0 20px 48px 0 rgba(0, 0, 0, 0.70), 0 0 24px 0 rgba(180, 205, 237, 0.20), inset 0 1.5px 2px 0 rgba(240, 244, 239, 0.60), inset 0 -1px 2px 0 rgba(52, 73, 102, 0.40)',
-        borderColor: 'rgba(180, 205, 237, 0.40)',
+          '0 20px 48px 0 rgba(0, 0, 0, 0.75), 0 0 24px 0 rgba(245, 158, 11, 0.22), inset 0 1.5px 2px 0 rgba(253, 251, 247, 0.55), inset 0 -1px 2px 0 rgba(180, 83, 9, 0.40)',
+        borderColor: 'rgba(245, 158, 11, 0.42)',
         borderWidth: 1.2,
       }
     : {};
@@ -338,8 +438,8 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     overflow: 'hidden',
     borderWidth: 1.2,
-    borderColor: 'rgba(180, 205, 237, 0.38)',
-    borderTopColor: 'rgba(240, 244, 239, 0.65)',
+    borderColor: 'rgba(245, 158, 11, 0.38)',
+    borderTopColor: 'rgba(251, 191, 36, 0.70)',
     ...Shadows.glow,
   },
   causticBackdrop: {
@@ -347,24 +447,24 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: 32,
   },
-  causticOrbBlue: {
+  causticOrbAmber: {
     position: 'absolute',
     top: -12,
     left: '25%',
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: 'rgba(180, 205, 237, 0.12)',
+    backgroundColor: 'rgba(245, 158, 11, 0.16)',
     ...(Platform.OS === 'web' ? { filter: 'blur(22px)' } : {}),
   },
-  causticOrbSage: {
+  causticOrbMocha: {
     position: 'absolute',
     bottom: -15,
     right: '25%',
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(191, 204, 148, 0.10)',
+    backgroundColor: 'rgba(224, 109, 83, 0.14)',
     ...(Platform.OS === 'web' ? { filter: 'blur(20px)' } : {}),
   },
   tabBarInner: {
@@ -375,6 +475,7 @@ const styles = StyleSheet.create({
     height: '100%',
     position: 'relative',
     paddingHorizontal: 4,
+    cursor: 'pointer',
   },
   mercuryBubble: {
     position: 'absolute',
@@ -383,13 +484,13 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(180, 205, 237, 0.55)',
-    borderTopColor: 'rgba(240, 244, 239, 0.85)',
+    borderColor: 'rgba(245, 158, 11, 0.65)',
+    borderTopColor: 'rgba(253, 251, 247, 0.90)',
     zIndex: 1,
     ...(Platform.OS === 'web'
       ? {
           boxShadow:
-            '0 0 20px rgba(180, 205, 237, 0.35), inset 0 1px 2px rgba(240, 244, 239, 0.75), inset 0 -1px 2px rgba(52, 73, 102, 0.50)',
+            '0 0 22px rgba(245, 158, 11, 0.45), inset 0 1px 2px rgba(253, 251, 247, 0.80), inset 0 -1px 2px rgba(180, 83, 9, 0.55)',
         }
       : {}),
   },
@@ -405,7 +506,7 @@ const styles = StyleSheet.create({
     right: '20%',
     height: 1.5,
     borderRadius: 1,
-    backgroundColor: 'rgba(240, 244, 239, 0.75)',
+    backgroundColor: 'rgba(253, 251, 247, 0.85)',
   },
   tabItem: {
     flex: 1,
@@ -416,15 +517,19 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     gap: 3,
     zIndex: 2,
+    transition: 'transform 0.15s ease',
+  },
+  tabItemHovered: {
+    transform: [{ scale: 1.05 }],
   },
   activeIconGlow: {
-    shadowColor: Colors.powderBlue,
+    shadowColor: '#F59E0B',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.95,
     shadowRadius: 12,
     ...(Platform.OS === 'web'
       ? {
-          filter: 'drop-shadow(0 0 8px rgba(180, 205, 237, 0.85))',
+          filter: 'drop-shadow(0 0 8px rgba(245, 158, 11, 0.85))',
         }
       : {}),
   },
@@ -433,11 +538,11 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
   tabLabelActive: {
-    color: Colors.porcelain,
+    color: '#FDFBF7',
     fontWeight: '800',
   },
   tabLabelInactive: {
-    color: 'rgba(240, 244, 239, 0.55)',
+    color: 'rgba(253, 251, 247, 0.50)',
     fontWeight: '600',
   },
 });
