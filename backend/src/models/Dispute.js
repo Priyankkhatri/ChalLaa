@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 
+/**
+ * Dispute Schema
+ * Formally filed peer disputes escalated to campus moderators with review status.
+ */
 const disputeSchema = new mongoose.Schema(
   {
     errandId: {
