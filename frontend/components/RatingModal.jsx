@@ -14,6 +14,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import api from '../services/api';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
 
+/**
+ * RatingModal Component
+ * Allows requesters and runners to exchange peer ratings and increment campus karma scores.
+ */
 export default function RatingModal({ visible, errand, currentUser, onClose, onRatingSubmitted }) {
   const [score, setScore] = useState(5);
   const [feedback, setFeedback] = useState('');
