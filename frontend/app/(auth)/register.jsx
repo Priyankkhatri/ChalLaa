@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import {
   User,
   Mail,
@@ -20,9 +21,11 @@ import {
   Building2,
   CheckCircle2,
   AlertCircle,
+  Sparkles,
 } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
+import { LiquidGlassCard } from '../../components/ui/LiquidGlass';
 
 export default function RegisterScreen() {
   const { register } = useAuth();
@@ -77,27 +80,38 @@ export default function RegisterScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <LinearGradient
-          colors={['#4F46E5', '#6366F1', '#8B5CF6']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.heroBanner}
-        >
-          <Text style={styles.heroTitle}>Create Account ✨</Text>
-          <Text style={styles.heroSubtitle}>Join your campus hostel peer network</Text>
-        </LinearGradient>
+        {/* Liquid Glass Hero Banner */}
+        <View style={styles.heroOuter}>
+          <BlurView intensity={Platform.OS === 'ios' ? 45 : 60} tint="dark" style={styles.heroBlur}>
+            <LinearGradient
+              colors={['rgba(52, 73, 102, 0.65)', 'rgba(13, 24, 33, 0.9)']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0.9, y: 1 }}
+              style={styles.heroBanner}
+            >
+              <View style={styles.heroSpecular} />
+
+              <View style={styles.logoBadge}>
+                <Sparkles size={30} color={Colors.powderBlue} />
+              </View>
+              <Text style={styles.heroTitle}>Create Account ✨</Text>
+              <Text style={styles.heroSubtitle}>Join your campus hostel peer network</Text>
+            </LinearGradient>
+          </BlurView>
+        </View>
 
         {errorMessage ? (
           <View style={styles.errorContainer}>
-            <AlertCircle size={18} color={Colors.danger} />
+            <AlertCircle size={18} color="#F87171" />
             <Text style={styles.errorText}>{errorMessage}</Text>
           </View>
         ) : null}
 
-        <View style={styles.formCard}>
+        {/* Liquid Glass Form Card */}
+        <LiquidGlassCard variant="default">
           <Text style={styles.label}>Full Name *</Text>
           <View style={styles.inputBox}>
-            <User size={18} color={Colors.textMuted} style={styles.fieldIcon} />
+            <User size={18} color={Colors.powderBlue} style={styles.fieldIcon} />
             <TextInput
               style={styles.input}
               placeholder="e.g. Priyank Khatri"
@@ -112,7 +126,7 @@ export default function RegisterScreen() {
 
           <Text style={styles.label}>Hostel / College Email *</Text>
           <View style={styles.inputBox}>
-            <Mail size={18} color={Colors.textMuted} style={styles.fieldIcon} />
+            <Mail size={18} color={Colors.powderBlue} style={styles.fieldIcon} />
             <TextInput
               style={styles.input}
               placeholder="e.g. priyank@campus.edu"
@@ -129,7 +143,7 @@ export default function RegisterScreen() {
 
           <Text style={styles.label}>Password (min 6 characters) *</Text>
           <View style={styles.inputBox}>
-            <Lock size={18} color={Colors.textMuted} style={styles.fieldIcon} />
+            <Lock size={18} color={Colors.powderBlue} style={styles.fieldIcon} />
             <TextInput
               style={styles.input}
               placeholder="••••••••"
@@ -146,7 +160,7 @@ export default function RegisterScreen() {
 
           <Text style={styles.label}>Phone Number (Optional)</Text>
           <View style={styles.inputBox}>
-            <Phone size={18} color={Colors.textMuted} style={styles.fieldIcon} />
+            <Phone size={18} color={Colors.powderBlue} style={styles.fieldIcon} />
             <TextInput
               style={styles.input}
               placeholder="e.g. +91 9876543210"
@@ -159,7 +173,7 @@ export default function RegisterScreen() {
 
           <Text style={styles.label}>Hostel Block & Room ID (Optional)</Text>
           <View style={styles.inputBox}>
-            <Building2 size={18} color={Colors.textMuted} style={styles.fieldIcon} />
+            <Building2 size={18} color={Colors.powderBlue} style={styles.fieldIcon} />
             <TextInput
               style={styles.input}
               placeholder="e.g. Hostel 4, Room 302"
@@ -176,22 +190,22 @@ export default function RegisterScreen() {
             style={styles.buttonWrapper}
           >
             <LinearGradient
-              colors={['#4F46E5', '#6366F1']}
+              colors={Colors.gradientPrimary}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={[styles.button, loading && styles.buttonDisabled]}
             >
               {loading ? (
-                <ActivityIndicator color={Colors.white} />
+                <ActivityIndicator color={Colors.inkBlack} />
               ) : (
                 <View style={styles.buttonInner}>
                   <Text style={styles.buttonText}>Register Student Account</Text>
-                  <CheckCircle2 size={18} color={Colors.white} />
+                  <CheckCircle2 size={18} color={Colors.inkBlack} strokeWidth={2.6} />
                 </View>
               )}
             </LinearGradient>
           </TouchableOpacity>
-        </View>
+        </LiquidGlassCard>
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>Already have an account? </Text>
@@ -207,70 +221,91 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.inkBlack,
   },
   scrollContent: {
     padding: Spacing.md,
     paddingTop: Platform.OS === 'ios' ? Spacing.xl : Spacing.md,
-    paddingBottom: Spacing.xxl,
+    paddingBottom: Spacing.xxl + 20,
     gap: Spacing.md,
   },
+  heroOuter: {
+    borderRadius: BorderRadius.xxl,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    ...Shadows.glow,
+  },
+  heroBlur: {
+    width: '100%',
+  },
   heroBanner: {
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.lg,
+    padding: Spacing.xl,
     alignItems: 'center',
+  },
+  heroSpecular: {
+    position: 'absolute',
+    top: 0,
+    left: 40,
+    right: 40,
+    height: 1,
+    backgroundColor: 'rgba(240, 244, 239, 0.25)',
+  },
+  logoBadge: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(52, 73, 102, 0.55)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorderGlow,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
     ...Shadows.glow,
   },
   heroTitle: {
     fontSize: Typography.xl,
-    fontWeight: 'bold',
-    color: Colors.white,
+    fontWeight: '800',
+    color: Colors.porcelain,
     marginBottom: 2,
+    letterSpacing: -0.2,
   },
   heroSubtitle: {
     fontSize: Typography.xs,
-    color: 'rgba(255,255,255,0.85)',
+    color: Colors.powderBlue,
     textAlign: 'center',
   },
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-    backgroundColor: Colors.dangerLight,
-    borderColor: Colors.danger,
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderColor: 'rgba(239, 68, 68, 0.35)',
     borderWidth: 1,
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
   },
   errorText: {
-    color: Colors.dangerDark,
+    color: '#F87171',
     fontSize: Typography.xs,
     flex: 1,
-    fontWeight: '500',
-  },
-  formCard: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.card,
+    fontWeight: '600',
   },
   label: {
     fontSize: Typography.xs,
-    fontWeight: '600',
-    color: Colors.text,
+    fontWeight: '700',
+    color: Colors.powderBlue,
     marginBottom: 4,
     marginTop: Spacing.xs,
   },
   inputBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 46,
+    height: 48,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
     borderRadius: BorderRadius.md,
-    backgroundColor: Colors.white,
+    backgroundColor: 'rgba(13, 24, 33, 0.6)',
     paddingHorizontal: Spacing.sm,
     marginBottom: Spacing.xs,
   },
@@ -280,16 +315,16 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: Typography.sm,
-    color: Colors.text,
+    color: Colors.porcelain,
   },
   buttonWrapper: {
     marginTop: Spacing.lg,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.full,
     overflow: 'hidden',
     ...Shadows.glow,
   },
   button: {
-    height: 48,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -302,9 +337,9 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: Colors.white,
-    fontSize: Typography.sm,
-    fontWeight: 'bold',
+    color: Colors.inkBlack,
+    fontSize: Typography.sm + 1,
+    fontWeight: '800',
   },
   footer: {
     flexDirection: 'row',
@@ -314,11 +349,11 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: Typography.sm,
-    color: Colors.textSecondary,
+    color: 'rgba(240, 244, 239, 0.7)',
   },
   linkText: {
     fontSize: Typography.sm,
-    color: Colors.primary,
-    fontWeight: 'bold',
+    color: Colors.powderBlue,
+    fontWeight: '800',
   },
 });
