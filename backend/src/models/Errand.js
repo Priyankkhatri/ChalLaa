@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 
+/**
+ * Errand Schema with 2dsphere GeoJSON index
+ * Supports GPS radius discovery, runner assignment, proof attachments, and status history.
+ */
 const errandSchema = new mongoose.Schema(
   {
     requesterId: {
