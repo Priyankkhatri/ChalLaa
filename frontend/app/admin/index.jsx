@@ -9,9 +9,11 @@ import {
   ActivityIndicator,
   Alert,
   RefreshControl,
+  Platform,
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import {
   ShieldAlert,
   Users,
@@ -30,6 +32,7 @@ import {
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
+import { LiquidGlassCard } from '../../components/ui/LiquidGlass';
 
 /**
  * Admin Dashboard Screen
@@ -133,7 +136,7 @@ export default function AdminDashboardScreen() {
   if (user?.role !== 'admin') {
     return (
       <View style={styles.restrictedContainer}>
-        <Lock size={64} color={Colors.danger} />
+        <Lock size={64} color="#F87171" />
         <Text style={styles.restrictedTitle}>Admin Access Required</Text>
         <Text style={styles.restrictedSubtitle}>
           You do not have administrative privileges to access the campus moderation panel.
@@ -157,45 +160,55 @@ export default function AdminDashboardScreen() {
   return (
     <View style={styles.container}>
       {/* Sub-tab Navigation */}
-      <View style={styles.tabNav}>
-        <TouchableOpacity
-          style={[styles.tabNavItem, activeTab === 'disputes' && styles.tabNavItemActive]}
-          onPress={() => setActiveTab('disputes')}
-        >
-          <ShieldAlert
-            size={16}
-            color={activeTab === 'disputes' ? Colors.danger : Colors.textSecondary}
-          />
-          <Text style={[styles.tabNavText, activeTab === 'disputes' && styles.tabNavTextActive]}>
-            Disputes ({disputes.filter((d) => d.status === 'open').length})
-          </Text>
-        </TouchableOpacity>
+      <View style={styles.tabNavWrapper}>
+        <BlurView intensity={Platform.OS === 'ios' ? 35 : 55} tint="dark" style={styles.tabBlur}>
+          <View style={styles.tabNav}>
+            <TouchableOpacity
+              style={[styles.tabNavItem, activeTab === 'disputes' && styles.tabNavItemActive]}
+              onPress={() => setActiveTab('disputes')}
+              activeOpacity={0.8}
+            >
+              <ShieldAlert
+                size={15}
+                color={activeTab === 'disputes' ? Colors.inkBlack : '#F87171'}
+                strokeWidth={2.4}
+              />
+              <Text style={[styles.tabNavText, activeTab === 'disputes' && styles.tabNavTextActive]}>
+                Disputes ({disputes.filter((d) => d.status === 'open').length})
+              </Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.tabNavItem, activeTab === 'users' && styles.tabNavItemActive]}
-          onPress={() => setActiveTab('users')}
-        >
-          <Users
-            size={16}
-            color={activeTab === 'users' ? Colors.primary : Colors.textSecondary}
-          />
-          <Text style={[styles.tabNavText, activeTab === 'users' && styles.tabNavTextActive]}>
-            Students ({users.length})
-          </Text>
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tabNavItem, activeTab === 'users' && styles.tabNavItemActive]}
+              onPress={() => setActiveTab('users')}
+              activeOpacity={0.8}
+            >
+              <Users
+                size={15}
+                color={activeTab === 'users' ? Colors.inkBlack : Colors.powderBlue}
+                strokeWidth={2.4}
+              />
+              <Text style={[styles.tabNavText, activeTab === 'users' && styles.tabNavTextActive]}>
+                Students ({users.length})
+              </Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.tabNavItem, activeTab === 'errands' && styles.tabNavItemActive]}
-          onPress={() => setActiveTab('errands')}
-        >
-          <ListOrdered
-            size={16}
-            color={activeTab === 'errands' ? Colors.primary : Colors.textSecondary}
-          />
-          <Text style={[styles.tabNavText, activeTab === 'errands' && styles.tabNavTextActive]}>
-            Errands ({errands.length})
-          </Text>
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tabNavItem, activeTab === 'errands' && styles.tabNavItemActive]}
+              onPress={() => setActiveTab('errands')}
+              activeOpacity={0.8}
+            >
+              <ListOrdered
+                size={15}
+                color={activeTab === 'errands' ? Colors.inkBlack : Colors.powderBlue}
+                strokeWidth={2.4}
+              />
+              <Text style={[styles.tabNavText, activeTab === 'errands' && styles.tabNavTextActive]}>
+                Errands ({errands.length})
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </BlurView>
       </View>
 
       <ScrollView
@@ -205,8 +218,8 @@ export default function AdminDashboardScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[Colors.primary]}
-            tintColor={Colors.primary}
+            colors={[Colors.powderBlue]}
+            tintColor={Colors.powderBlue}
           />
         }
       >
@@ -215,24 +228,24 @@ export default function AdminDashboardScreen() {
           <View style={styles.kpiGrid}>
             <View style={styles.kpiCard}>
               <Text style={styles.kpiValue}>{stats.totalUsers}</Text>
-              <Text style={styles.kpiLabel}>Total Students</Text>
+              <Text style={styles.kpiLabel}>Students</Text>
             </View>
 
             <View style={styles.kpiCard}>
-              <Text style={[styles.kpiValue, { color: Colors.primary }]}>{stats.activeErrands}</Text>
-              <Text style={styles.kpiLabel}>Active Tasks</Text>
+              <Text style={[styles.kpiValue, { color: Colors.powderBlue }]}>{stats.activeErrands}</Text>
+              <Text style={styles.kpiLabel}>Active</Text>
             </View>
 
             <View style={styles.kpiCard}>
-              <Text style={[styles.kpiValue, { color: Colors.secondaryDark }]}>
+              <Text style={[styles.kpiValue, { color: Colors.drySage }]}>
                 {stats.completedErrands}
               </Text>
               <Text style={styles.kpiLabel}>Delivered</Text>
             </View>
 
             <View style={styles.kpiCard}>
-              <Text style={[styles.kpiValue, { color: Colors.danger }]}>{stats.openDisputes}</Text>
-              <Text style={styles.kpiLabel}>Open Disputes</Text>
+              <Text style={[styles.kpiValue, { color: '#F87171' }]}>{stats.openDisputes}</Text>
+              <Text style={styles.kpiLabel}>Disputes</Text>
             </View>
           </View>
         ) : null}
@@ -243,94 +256,100 @@ export default function AdminDashboardScreen() {
             <Text style={styles.sectionHeading}>Campus Dispute Moderation</Text>
 
             {loading ? (
-              <ActivityIndicator color={Colors.primary} style={{ marginVertical: Spacing.xl }} />
+              <ActivityIndicator color={Colors.powderBlue} style={{ marginVertical: Spacing.xl }} />
             ) : disputes.length > 0 ? (
               disputes.map((dispute) => {
                 const isResolved = dispute.status === 'resolved';
                 const isDismissed = dispute.status === 'dismissed';
 
                 return (
-                  <View key={dispute._id} style={styles.itemCard}>
-                    <View style={styles.cardHeaderRow}>
-                      <View style={styles.disputeReasonBadge}>
-                        <Text style={styles.disputeReasonText}>
-                          {dispute.reason.replace('_', ' ').toUpperCase()}
-                        </Text>
-                      </View>
+                  <View key={dispute._id} style={styles.cardOuter}>
+                    <LiquidGlassCard variant="default">
+                      <View style={styles.cardHeaderRow}>
+                        <View style={styles.disputeReasonBadge}>
+                          <Text style={styles.disputeReasonText}>
+                            {dispute.reason.replace('_', ' ').toUpperCase()}
+                          </Text>
+                        </View>
 
-                      <View
-                        style={[
-                          styles.statusBadge,
-                          isResolved
-                            ? styles.statusBadgeSuccess
-                            : isDismissed
-                            ? styles.statusBadgeDismissed
-                            : styles.statusBadgeOpen,
-                        ]}
-                      >
-                        <Text
+                        <View
                           style={[
-                            styles.statusBadgeText,
+                            styles.statusBadge,
                             isResolved
-                              ? styles.statusTextSuccess
+                              ? styles.statusBadgeSuccess
                               : isDismissed
-                              ? styles.statusTextDismissed
-                              : styles.statusTextOpen,
+                              ? styles.statusBadgeDismissed
+                              : styles.statusBadgeOpen,
                           ]}
                         >
-                          {dispute.status.toUpperCase()}
-                        </Text>
+                          <Text
+                            style={[
+                              styles.statusBadgeText,
+                              isResolved
+                                ? styles.statusTextSuccess
+                                : isDismissed
+                                ? styles.statusTextDismissed
+                                : styles.statusTextOpen,
+                            ]}
+                          >
+                            {dispute.status.toUpperCase()}
+                          </Text>
+                        </View>
                       </View>
-                    </View>
 
-                    <Text style={styles.disputeDescription}>"{dispute.description}"</Text>
+                      <Text style={styles.disputeDescription}>"{dispute.description}"</Text>
 
-                    <View style={styles.disputePartyInfo}>
-                      <Text style={styles.partyText}>
-                        <Text style={styles.bold}>Reporter:</Text> {dispute.reportedBy?.name} (
-                        {dispute.reportedBy?.phone || 'No phone'})
-                      </Text>
-                      <Text style={styles.partyText}>
-                        <Text style={styles.bold}>Target Peer:</Text> {dispute.againstUser?.name} (
-                        {dispute.againstUser?.phone || 'No phone'})
-                      </Text>
-                      {dispute.errandId ? (
+                      <View style={styles.disputePartyInfo}>
                         <Text style={styles.partyText}>
-                          <Text style={styles.bold}>Errand:</Text> {dispute.errandId.title} (₹
-                          {dispute.errandId.budget})
+                          <Text style={styles.bold}>Reporter:</Text> {dispute.reportedBy?.name} (
+                          {dispute.reportedBy?.phone || 'No phone'})
                         </Text>
-                      ) : null}
-                    </View>
-
-                    {/* Action buttons */}
-                    {dispute.status === 'open' || dispute.status === 'in_review' ? (
-                      <View style={styles.disputeActionsRow}>
-                        <TouchableOpacity
-                          style={styles.dismissBtn}
-                          onPress={() => handleResolveDispute(dispute._id, 'dismissed')}
-                          disabled={actionLoading === `dispute_${dispute._id}`}
-                        >
-                          <Text style={styles.dismissBtnText}>Dismiss Report</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                          style={styles.resolveBtn}
-                          onPress={() => handleResolveDispute(dispute._id, 'resolved')}
-                          disabled={actionLoading === `dispute_${dispute._id}`}
-                        >
-                          <Text style={styles.resolveBtnText}>Resolve & Close</Text>
-                        </TouchableOpacity>
+                        <Text style={styles.partyText}>
+                          <Text style={styles.bold}>Target Peer:</Text> {dispute.againstUser?.name} (
+                          {dispute.againstUser?.phone || 'No phone'})
+                        </Text>
+                        {dispute.errandId ? (
+                          <Text style={styles.partyText}>
+                            <Text style={styles.bold}>Errand:</Text> {dispute.errandId.title} (₹
+                            {dispute.errandId.budget})
+                          </Text>
+                        ) : null}
                       </View>
-                    ) : null}
+
+                      {/* Action buttons */}
+                      {dispute.status === 'open' || dispute.status === 'in_review' ? (
+                        <View style={styles.disputeActionsRow}>
+                          <TouchableOpacity
+                            style={styles.dismissBtn}
+                            onPress={() => handleResolveDispute(dispute._id, 'dismissed')}
+                            disabled={actionLoading === `dispute_${dispute._id}`}
+                            activeOpacity={0.8}
+                          >
+                            <Text style={styles.dismissBtnText}>Dismiss Report</Text>
+                          </TouchableOpacity>
+
+                          <TouchableOpacity
+                            style={styles.resolveBtn}
+                            onPress={() => handleResolveDispute(dispute._id, 'resolved')}
+                            disabled={actionLoading === `dispute_${dispute._id}`}
+                            activeOpacity={0.8}
+                          >
+                            <Text style={styles.resolveBtnText}>Resolve & Close</Text>
+                          </TouchableOpacity>
+                        </View>
+                      ) : null}
+                    </LiquidGlassCard>
                   </View>
                 );
               })
             ) : (
-              <View style={styles.emptyCard}>
-                <CheckCircle2 size={44} color={Colors.secondaryDark} />
-                <Text style={styles.emptyTitle}>No Open Disputes</Text>
-                <Text style={styles.emptySubtitle}>All peer issues have been reviewed and resolved.</Text>
-              </View>
+              <LiquidGlassCard variant="default">
+                <View style={styles.emptyCard}>
+                  <CheckCircle2 size={44} color={Colors.drySage} />
+                  <Text style={styles.emptyTitle}>No Open Disputes</Text>
+                  <Text style={styles.emptySubtitle}>All peer issues have been reviewed and resolved.</Text>
+                </View>
+              </LiquidGlassCard>
             )}
           </View>
         ) : null}
@@ -341,7 +360,7 @@ export default function AdminDashboardScreen() {
             <Text style={styles.sectionHeading}>Student Verification & Directory</Text>
 
             <View style={styles.searchBox}>
-              <Search size={16} color={Colors.textMuted} />
+              <Search size={16} color={Colors.powderBlue} />
               <TextInput
                 style={styles.searchInput}
                 placeholder="Search by student name or hostel ID..."
@@ -352,45 +371,50 @@ export default function AdminDashboardScreen() {
             </View>
 
             {filteredUsers.map((u) => (
-              <View key={u._id} style={styles.userCard}>
-                <View style={styles.userAvatar}>
-                  <Text style={styles.userAvatarText}>{u.name ? u.name.charAt(0).toUpperCase() : 'U'}</Text>
-                </View>
+              <View key={u._id} style={styles.cardOuter}>
+                <LiquidGlassCard variant="default">
+                  <View style={styles.userCardContent}>
+                    <View style={styles.userAvatar}>
+                      <Text style={styles.userAvatarText}>{u.name ? u.name.charAt(0).toUpperCase() : 'U'}</Text>
+                    </View>
 
-                <View style={styles.userInfo}>
-                  <View style={styles.userNameRow}>
-                    <Text style={styles.userNameText}>{u.name}</Text>
-                    {u.isVerified ? (
-                      <CheckCircle2 size={13} color={Colors.secondaryDark} />
-                    ) : null}
-                  </View>
-                  <Text style={styles.userSubtext}>
-                    {u.email} • {u.hostelOrCollegeId || 'No ID'}
-                  </Text>
-                  <Text style={styles.userKarma}>⭐ {u.karmaScore ?? 100} Karma Points</Text>
-                </View>
+                    <View style={styles.userInfo}>
+                      <View style={styles.userNameRow}>
+                        <Text style={styles.userNameText}>{u.name}</Text>
+                        {u.isVerified ? (
+                          <CheckCircle2 size={13} color={Colors.drySage} />
+                        ) : null}
+                      </View>
+                      <Text style={styles.userSubtext}>
+                        {u.email} • {u.hostelOrCollegeId || 'No ID'}
+                      </Text>
+                      <Text style={styles.userKarma}>⭐ {u.karmaScore ?? 100} Karma Points</Text>
+                    </View>
 
-                <TouchableOpacity
-                  style={[
-                    styles.verifyBtn,
-                    u.isVerified ? styles.verifyBtnActive : styles.verifyBtnInactive,
-                  ]}
-                  onPress={() => handleToggleVerify(u._id, u.isVerified)}
-                  disabled={actionLoading === `user_${u._id}`}
-                >
-                  {actionLoading === `user_${u._id}` ? (
-                    <ActivityIndicator size="small" color={u.isVerified ? Colors.white : Colors.primary} />
-                  ) : (
-                    <Text
+                    <TouchableOpacity
                       style={[
-                        styles.verifyBtnText,
-                        u.isVerified ? styles.verifyBtnTextActive : styles.verifyBtnTextInactive,
+                        styles.verifyBtn,
+                        u.isVerified ? styles.verifyBtnActive : styles.verifyBtnInactive,
                       ]}
+                      onPress={() => handleToggleVerify(u._id, u.isVerified)}
+                      disabled={actionLoading === `user_${u._id}`}
+                      activeOpacity={0.8}
                     >
-                      {u.isVerified ? 'Verified' : 'Verify ID'}
-                    </Text>
-                  )}
-                </TouchableOpacity>
+                      {actionLoading === `user_${u._id}` ? (
+                        <ActivityIndicator size="small" color={u.isVerified ? Colors.inkBlack : Colors.powderBlue} />
+                      ) : (
+                        <Text
+                          style={[
+                            styles.verifyBtnText,
+                            u.isVerified ? styles.verifyBtnTextActive : styles.verifyBtnTextInactive,
+                          ]}
+                        >
+                          {u.isVerified ? 'Verified' : 'Verify ID'}
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                </LiquidGlassCard>
               </View>
             ))}
           </View>
@@ -404,23 +428,26 @@ export default function AdminDashboardScreen() {
             {errands.map((e) => (
               <TouchableOpacity
                 key={e._id}
-                style={styles.errandModerationCard}
+                style={styles.cardOuter}
                 onPress={() => router.push(`/errand/${e._id}`)}
+                activeOpacity={0.85}
               >
-                <View style={styles.cardHeaderRow}>
-                  <Text style={styles.errandModerationTitle}>{e.title}</Text>
-                  <View style={styles.budgetBadge}>
-                    <Text style={styles.budgetText}>₹{e.budget}</Text>
+                <LiquidGlassCard variant="default">
+                  <View style={styles.cardHeaderRow}>
+                    <Text style={styles.errandModerationTitle}>{e.title}</Text>
+                    <View style={styles.budgetBadge}>
+                      <Text style={styles.budgetText}>₹{e.budget}</Text>
+                    </View>
                   </View>
-                </View>
 
-                <Text style={styles.errandModerationSub}>
-                  Status: <Text style={styles.bold}>{e.status.toUpperCase()}</Text> • Requester:{' '}
-                  {e.requesterId?.name || 'Student'}
-                </Text>
-                <Text style={styles.errandModerationDate}>
-                  Posted on {new Date(e.createdAt).toLocaleString()}
-                </Text>
+                  <Text style={styles.errandModerationSub}>
+                    Status: <Text style={styles.bold}>{e.status.toUpperCase()}</Text> • Requester:{' '}
+                    {e.requesterId?.name || 'Student'}
+                  </Text>
+                  <Text style={styles.errandModerationDate}>
+                    Posted on {new Date(e.createdAt).toLocaleString()}
+                  </Text>
+                </LiquidGlassCard>
               </TouchableOpacity>
             ))}
           </View>
@@ -433,41 +460,44 @@ export default function AdminDashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.inkBlack,
+  },
+  tabNavWrapper: {
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(52, 73, 102, 0.35)',
+  },
+  tabBlur: {
+    width: '100%',
   },
   tabNav: {
     flexDirection: 'row',
-    backgroundColor: Colors.card,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    paddingHorizontal: Spacing.sm,
-    ...Shadows.subtle,
+    padding: Spacing.xs + 2,
+    backgroundColor: 'rgba(13, 24, 33, 0.45)',
   },
   tabNavItem: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
+    gap: 5,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.full,
   },
   tabNavItemActive: {
-    borderBottomColor: Colors.primary,
+    backgroundColor: Colors.powderBlue,
   },
   tabNavText: {
     fontSize: Typography.xs,
     fontWeight: '600',
-    color: Colors.textSecondary,
+    color: Colors.porcelain,
   },
   tabNavTextActive: {
-    color: Colors.primary,
-    fontWeight: 'bold',
+    color: Colors.inkBlack,
+    fontWeight: '800',
   },
   scrollContent: {
     padding: Spacing.md,
-    paddingBottom: Spacing.xxl,
+    paddingBottom: Spacing.xxl + 40,
     gap: Spacing.md,
   },
   kpiGrid: {
@@ -476,60 +506,55 @@ const styles = StyleSheet.create({
   },
   kpiCard: {
     flex: 1,
-    backgroundColor: Colors.card,
+    backgroundColor: 'rgba(52, 73, 102, 0.35)',
     borderRadius: BorderRadius.lg,
     padding: Spacing.sm + 2,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.subtle,
+    borderColor: Colors.glassBorder,
   },
   kpiValue: {
     fontSize: Typography.lg,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   kpiLabel: {
     fontSize: Typography.xs - 3,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     textTransform: 'uppercase',
     marginTop: 2,
-    fontWeight: 'bold',
+    fontWeight: '800',
     textAlign: 'center',
+    letterSpacing: 0.3,
   },
   sectionContainer: {
     gap: Spacing.sm,
   },
   sectionHeading: {
     fontSize: Typography.base,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
     marginBottom: Spacing.xs,
   },
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 44,
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.md,
+    height: 46,
+    backgroundColor: 'rgba(13, 24, 33, 0.65)',
+    borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
     gap: Spacing.xs,
     marginBottom: Spacing.xs,
   },
   searchInput: {
     flex: 1,
     fontSize: Typography.sm,
-    color: Colors.text,
+    color: Colors.porcelain,
   },
-  itemCard: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.subtle,
+  cardOuter: {
+    marginBottom: Spacing.xs,
   },
   cardHeaderRow: {
     flexDirection: 'row',
@@ -538,63 +563,72 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
   disputeReasonBadge: {
-    backgroundColor: Colors.dangerLight,
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.35)',
     paddingHorizontal: Spacing.sm + 2,
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderRadius: BorderRadius.full,
   },
   disputeReasonText: {
     fontSize: Typography.xs - 2,
-    fontWeight: 'bold',
-    color: Colors.dangerDark,
+    fontWeight: '800',
+    color: '#F87171',
   },
   statusBadge: {
     paddingHorizontal: Spacing.sm + 2,
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderRadius: BorderRadius.full,
+    borderWidth: 1,
   },
   statusBadgeSuccess: {
-    backgroundColor: '#DCFCE7',
+    backgroundColor: 'rgba(191, 204, 148, 0.15)',
+    borderColor: Colors.glassSageBorder,
   },
   statusBadgeDismissed: {
-    backgroundColor: '#F1F5F9',
+    backgroundColor: 'rgba(52, 73, 102, 0.3)',
+    borderColor: Colors.glassBorder,
   },
   statusBadgeOpen: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: 'rgba(180, 205, 237, 0.15)',
+    borderColor: 'rgba(180, 205, 237, 0.3)',
   },
   statusBadgeText: {
     fontSize: Typography.xs - 2,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   statusTextSuccess: {
-    color: Colors.secondaryDark,
+    color: Colors.drySage,
   },
   statusTextDismissed: {
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
   },
   statusTextOpen: {
-    color: '#B45309',
+    color: Colors.powderBlue,
   },
   disputeDescription: {
     fontSize: Typography.sm,
-    color: Colors.text,
+    color: Colors.porcelain,
     fontStyle: 'italic',
     marginVertical: Spacing.xs,
+    lineHeight: 18,
   },
   disputePartyInfo: {
-    backgroundColor: Colors.background,
+    backgroundColor: 'rgba(13, 24, 33, 0.55)',
     borderRadius: BorderRadius.md,
     padding: Spacing.sm,
     marginTop: Spacing.xs,
-    gap: 2,
+    gap: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 73, 102, 0.35)',
   },
   partyText: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
   },
   bold: {
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   disputeActionsRow: {
     flexDirection: 'row',
@@ -603,55 +637,51 @@ const styles = StyleSheet.create({
   },
   dismissBtn: {
     flex: 1,
-    height: 38,
-    borderRadius: BorderRadius.md,
-    backgroundColor: Colors.background,
+    height: 40,
+    borderRadius: BorderRadius.full,
+    backgroundColor: 'rgba(52, 73, 102, 0.45)',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
     justifyContent: 'center',
     alignItems: 'center',
   },
   dismissBtnText: {
     fontSize: Typography.xs,
-    fontWeight: 'bold',
-    color: Colors.textSecondary,
+    fontWeight: '700',
+    color: Colors.powderBlue,
   },
   resolveBtn: {
     flex: 1,
-    height: 38,
-    borderRadius: BorderRadius.md,
-    backgroundColor: Colors.primary,
+    height: 40,
+    borderRadius: BorderRadius.full,
+    backgroundColor: Colors.powderBlue,
     justifyContent: 'center',
     alignItems: 'center',
   },
   resolveBtnText: {
     fontSize: Typography.xs,
-    fontWeight: 'bold',
-    color: Colors.white,
+    fontWeight: '800',
+    color: Colors.inkBlack,
   },
-  userCard: {
+  userCardContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.subtle,
   },
   userAvatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: 'rgba(180, 205, 237, 0.15)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.sm,
   },
   userAvatarText: {
     fontSize: Typography.base,
-    fontWeight: 'bold',
-    color: Colors.primary,
+    fontWeight: '800',
+    color: Colors.powderBlue,
   },
   userInfo: {
     flex: 1,
@@ -663,18 +693,18 @@ const styles = StyleSheet.create({
   },
   userNameText: {
     fontSize: Typography.sm,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   userSubtext: {
     fontSize: Typography.xs - 1,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     marginTop: 1,
   },
   userKarma: {
     fontSize: Typography.xs - 2,
-    color: '#B45309',
-    fontWeight: '600',
+    color: Colors.drySage,
+    fontWeight: '700',
     marginTop: 2,
   },
   verifyBtn: {
@@ -683,77 +713,65 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
   },
   verifyBtnActive: {
-    backgroundColor: '#DCFCE7',
-    borderWidth: 1,
-    borderColor: '#86EFAC',
+    backgroundColor: Colors.drySage,
   },
   verifyBtnInactive: {
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: 'rgba(52, 73, 102, 0.4)',
     borderWidth: 1,
-    borderColor: Colors.primaryMuted,
+    borderColor: Colors.glassBorder,
   },
   verifyBtnText: {
     fontSize: Typography.xs - 1,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   verifyBtnTextActive: {
-    color: Colors.secondaryDark,
+    color: Colors.inkBlack,
   },
   verifyBtnTextInactive: {
-    color: Colors.primary,
-  },
-  errandModerationCard: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.subtle,
+    color: Colors.powderBlue,
   },
   errandModerationTitle: {
     fontSize: Typography.sm,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
     flex: 1,
   },
   budgetBadge: {
-    backgroundColor: '#DCFCE7',
-    paddingHorizontal: Spacing.sm + 2,
-    paddingVertical: 2,
+    backgroundColor: 'rgba(191, 204, 148, 0.15)',
+    borderWidth: 1,
+    borderColor: Colors.glassSageBorder,
+    paddingHorizontal: Spacing.sm + 4,
+    paddingVertical: 3,
     borderRadius: BorderRadius.full,
   },
   budgetText: {
     fontSize: Typography.xs - 1,
-    fontWeight: 'bold',
-    color: Colors.secondaryDark,
+    fontWeight: '800',
+    color: Colors.drySage,
   },
   errandModerationSub: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     marginTop: 4,
   },
   errandModerationDate: {
     fontSize: Typography.xs - 2,
-    color: Colors.textMuted,
+    color: 'rgba(240, 244, 239, 0.55)',
     marginTop: 2,
   },
   emptyCard: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
     padding: Spacing.xl,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
   },
   emptyTitle: {
     fontSize: Typography.base,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
     marginTop: Spacing.sm,
   },
   emptySubtitle: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     marginTop: 2,
     textAlign: 'center',
   },
@@ -762,29 +780,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.xl,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.inkBlack,
   },
   restrictedTitle: {
     fontSize: Typography.lg,
-    fontWeight: 'bold',
-    color: Colors.danger,
+    fontWeight: '800',
+    color: '#F87171',
     marginTop: Spacing.md,
   },
   restrictedSubtitle: {
     fontSize: Typography.sm,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     textAlign: 'center',
     marginTop: Spacing.xs,
     marginBottom: Spacing.lg,
   },
   backBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.powderBlue,
     paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.sm + 2,
-    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.sm + 4,
+    borderRadius: BorderRadius.full,
   },
   backBtnText: {
-    color: Colors.white,
-    fontWeight: 'bold',
+    color: Colors.inkBlack,
+    fontWeight: '800',
   },
 });
