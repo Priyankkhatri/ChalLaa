@@ -31,6 +31,10 @@ import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
+/**
+ * Admin Dashboard Screen
+ * Campus moderation panel for student ID verification, dispute investigation, and metrics.
+ */
 export default function AdminDashboardScreen() {
   const { user } = useAuth();
 
