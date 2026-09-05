@@ -7,8 +7,10 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import {
   User,
   Bike,
@@ -25,6 +27,7 @@ import { router } from 'expo-router';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
+import { LiquidGlassCard } from '../../components/ui/LiquidGlass';
 
 const ROLE_FILTERS = [
   { id: 'all', label: 'All Tasks' },
@@ -33,11 +36,11 @@ const ROLE_FILTERS = [
 ];
 
 const STATUS_CONFIG = {
-  posted: { bg: '#EFF6FF', text: '#2563EB', label: 'Posted', icon: Clock },
-  accepted: { bg: '#FEF3C7', text: '#D97706', label: 'Accepted', icon: Bike },
-  in_progress: { bg: '#EEF2FF', text: '#4F46E5', label: 'In Progress', icon: Navigation },
-  delivered: { bg: '#ECFDF5', text: '#059669', label: 'Delivered', icon: CheckCircle2 },
-  cancelled: { bg: '#FEE2E2', text: '#DC2626', label: 'Cancelled', icon: XCircle },
+  posted: { bg: 'rgba(180, 205, 237, 0.15)', text: Colors.powderBlue, label: 'Posted', icon: Clock },
+  accepted: { bg: 'rgba(191, 204, 148, 0.18)', text: Colors.drySage, label: 'Accepted', icon: Bike },
+  in_progress: { bg: 'rgba(52, 73, 102, 0.45)', text: Colors.porcelain, label: 'In Progress', icon: Navigation },
+  delivered: { bg: 'rgba(191, 204, 148, 0.25)', text: Colors.drySage, label: 'Delivered', icon: CheckCircle2 },
+  cancelled: { bg: 'rgba(239, 68, 68, 0.15)', text: '#F87171', label: 'Cancelled', icon: XCircle },
 };
 
 export default function MyErrandsScreen() {
@@ -95,96 +98,108 @@ export default function MyErrandsScreen() {
 
     return (
       <TouchableOpacity
-        style={styles.card}
-        activeOpacity={0.85}
+        activeOpacity={0.88}
         onPress={() => router.push(`/errand/${item._id}`)}
+        style={styles.cardOuter}
       >
-        <View style={styles.cardHeader}>
-          {/* Role Badge */}
-          <View style={[styles.roleBadge, isRequester ? styles.roleRequester : styles.roleRunner]}>
-            {isRequester ? (
-              <User size={12} color={Colors.primary} />
-            ) : (
-              <Bike size={12} color={Colors.secondaryDark} />
-            )}
-            <Text
-              style={[
-                styles.roleBadgeText,
-                isRequester ? styles.roleTextRequester : styles.roleTextRunner,
-              ]}
-            >
-              {isRequester ? 'My Request' : 'I am Runner'}
-            </Text>
+        <LiquidGlassCard variant="default">
+          {/* Card Header */}
+          <View style={styles.cardHeader}>
+            {/* Role Badge */}
+            <View style={[styles.roleBadge, isRequester ? styles.roleRequester : styles.roleRunner]}>
+              {isRequester ? (
+                <User size={12} color={Colors.powderBlue} />
+              ) : (
+                <Bike size={12} color={Colors.drySage} />
+              )}
+              <Text
+                style={[
+                  styles.roleBadgeText,
+                  isRequester ? styles.roleTextRequester : styles.roleTextRunner,
+                ]}
+              >
+                {isRequester ? 'My Request' : 'I am Runner'}
+              </Text>
+            </View>
+
+            {/* Status Badge */}
+            <View style={[styles.statusBadge, { backgroundColor: statusConf.bg }]}>
+              <StatusIcon size={12} color={statusConf.text} />
+              <Text style={[styles.statusBadgeText, { color: statusConf.text }]}>
+                {statusConf.label}
+              </Text>
+            </View>
           </View>
 
-          {/* Status Badge */}
-          <View style={[styles.statusBadge, { backgroundColor: statusConf.bg }]}>
-            <StatusIcon size={12} color={statusConf.text} />
-            <Text style={[styles.statusBadgeText, { color: statusConf.text }]}>
-              {statusConf.label}
-            </Text>
-          </View>
-        </View>
+          <Text style={styles.errandTitle} numberOfLines={2}>
+            {item.title}
+          </Text>
 
-        <Text style={styles.errandTitle}>{item.title}</Text>
+          {/* Details Row */}
+          <View style={styles.detailsRow}>
+            <View style={styles.budgetBox}>
+              <Text style={styles.budgetLabel}>Offer</Text>
+              <Text style={styles.budgetValue}>₹{item.budget || 0}</Text>
+            </View>
 
-        <View style={styles.detailsRow}>
-          <View style={styles.budgetBox}>
-            <Text style={styles.budgetLabel}>Budget</Text>
-            <Text style={styles.budgetValue}>₹{item.budget || 0}</Text>
-          </View>
+            <View style={styles.divider} />
 
-          <View style={styles.divider} />
-
-          <View style={styles.personBox}>
-            <Text style={styles.personLabel}>{otherRoleLabel}</Text>
-            <Text style={styles.personValue} numberOfLines={1}>
-              {otherPerson ? otherPerson.name : 'Waiting for runner...'}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.cardFooter}>
-          <View style={styles.dateRow}>
-            <Calendar size={12} color={Colors.textMuted} />
-            <Text style={styles.dateText}>
-              {new Date(item.createdAt).toLocaleDateString()}
-            </Text>
+            <View style={styles.personBox}>
+              <Text style={styles.personLabel}>{otherRoleLabel}</Text>
+              <Text style={styles.personValue} numberOfLines={1}>
+                {otherPerson ? otherPerson.name : 'Waiting for runner...'}
+              </Text>
+            </View>
           </View>
 
-          <View style={styles.viewDetailsRow}>
-            <Text style={styles.viewDetailsText}>Open Task</Text>
-            <ArrowRight size={13} color={Colors.primary} strokeWidth={2.5} />
+          {/* Card Footer */}
+          <View style={styles.cardFooter}>
+            <View style={styles.dateRow}>
+              <Calendar size={12} color={Colors.powderBlue} />
+              <Text style={styles.dateText}>
+                {new Date(item.createdAt).toLocaleDateString()}
+              </Text>
+            </View>
+
+            <View style={styles.viewDetailsRow}>
+              <Text style={styles.viewDetailsText}>Open Task</Text>
+              <ArrowRight size={13} color={Colors.powderBlue} strokeWidth={2.8} />
+            </View>
           </View>
-        </View>
+        </LiquidGlassCard>
       </TouchableOpacity>
     );
   };
 
   return (
     <View style={styles.container}>
-      {/* Segmented Control */}
-      <View style={styles.segmentedControl}>
-        {ROLE_FILTERS.map((f) => {
-          const isSelected = selectedRole === f.id;
-          return (
-            <TouchableOpacity
-              key={f.id}
-              style={[styles.segmentBtn, isSelected && styles.segmentBtnActive]}
-              onPress={() => setSelectedRole(f.id)}
-            >
-              <Text style={[styles.segmentText, isSelected && styles.segmentTextActive]}>
-                {f.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
+      {/* Liquid Glass Segmented Capsule */}
+      <View style={styles.segmentedWrapper}>
+        <BlurView intensity={Platform.OS === 'ios' ? 30 : 50} tint="dark" style={styles.segmentedBlur}>
+          <View style={styles.segmentedControl}>
+            {ROLE_FILTERS.map((f) => {
+              const isSelected = selectedRole === f.id;
+              return (
+                <TouchableOpacity
+                  key={f.id}
+                  style={[styles.segmentBtn, isSelected && styles.segmentBtnActive]}
+                  onPress={() => setSelectedRole(f.id)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.segmentText, isSelected && styles.segmentTextActive]}>
+                    {f.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </BlurView>
       </View>
 
       {/* Main List */}
       {loading && !refreshing ? (
         <View style={styles.centerLoading}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+          <ActivityIndicator size="large" color={Colors.powderBlue} />
           <Text style={styles.loadingText}>Loading your errands...</Text>
         </View>
       ) : (
@@ -198,14 +213,14 @@ export default function MyErrandsScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={[Colors.primary]}
-              tintColor={Colors.primary}
+              colors={[Colors.powderBlue]}
+              tintColor={Colors.powderBlue}
             />
           }
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <View style={styles.emptyIconBox}>
-                <ClipboardList size={38} color={Colors.primary} />
+                <ClipboardList size={38} color={Colors.powderBlue} />
               </View>
               <Text style={styles.emptyTitle}>No Errands in this View</Text>
               <Text style={styles.emptySubtitle}>
@@ -219,14 +234,15 @@ export default function MyErrandsScreen() {
               <TouchableOpacity
                 style={styles.emptyPostBtnWrapper}
                 onPress={() => router.push('/errand/post')}
+                activeOpacity={0.85}
               >
                 <LinearGradient
-                  colors={['#4F46E5', '#6366F1']}
+                  colors={Colors.gradientPrimary}
                   start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
+                  end={{ x: 1, y: 1 }}
                   style={styles.emptyPostBtn}
                 >
-                  <Plus size={16} color={Colors.white} />
+                  <Plus size={16} color={Colors.inkBlack} strokeWidth={2.8} />
                   <Text style={styles.emptyPostBtnText}>Post a Request</Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -241,49 +257,49 @@ export default function MyErrandsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.inkBlack,
+  },
+  segmentedWrapper: {
+    margin: Spacing.md,
+    borderRadius: BorderRadius.full,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    ...Shadows.subtle,
+  },
+  segmentedBlur: {
+    width: '100%',
   },
   segmentedControl: {
     flexDirection: 'row',
-    backgroundColor: Colors.card,
-    margin: Spacing.md,
-    borderRadius: BorderRadius.lg,
     padding: 4,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.subtle,
+    backgroundColor: 'rgba(52, 73, 102, 0.25)',
   },
   segmentBtn: {
     flex: 1,
-    paddingVertical: Spacing.sm,
+    paddingVertical: Spacing.sm - 1,
     alignItems: 'center',
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.full,
   },
   segmentBtnActive: {
-    backgroundColor: Colors.primary,
-    ...Shadows.subtle,
+    backgroundColor: Colors.powderBlue,
   },
   segmentText: {
     fontSize: Typography.xs,
     fontWeight: '600',
-    color: Colors.textSecondary,
+    color: Colors.porcelain,
   },
   segmentTextActive: {
-    color: Colors.white,
-    fontWeight: 'bold',
+    color: Colors.inkBlack,
+    fontWeight: '800',
   },
   listContent: {
     paddingHorizontal: Spacing.md,
-    paddingBottom: Spacing.xxl,
+    paddingBottom: Spacing.xxl + 40,
     gap: Spacing.md,
   },
-  card: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.card,
+  cardOuter: {
+    marginBottom: Spacing.xs,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -294,102 +310,113 @@ const styles = StyleSheet.create({
   roleBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 3,
+    gap: 5,
+    paddingHorizontal: Spacing.sm + 2,
+    paddingVertical: 4,
     borderRadius: BorderRadius.full,
+    borderWidth: 1,
   },
   roleRequester: {
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: 'rgba(180, 205, 237, 0.12)',
+    borderColor: 'rgba(180, 205, 237, 0.25)',
   },
   roleRunner: {
-    backgroundColor: Colors.secondaryLight,
+    backgroundColor: 'rgba(191, 204, 148, 0.12)',
+    borderColor: Colors.glassSageBorder,
   },
   roleBadgeText: {
     fontSize: Typography.xs - 2,
-    fontWeight: 'bold',
+    fontWeight: '800',
+    letterSpacing: 0.2,
   },
   roleTextRequester: {
-    color: Colors.primary,
+    color: Colors.powderBlue,
   },
   roleTextRunner: {
-    color: Colors.secondaryDark,
+    color: Colors.drySage,
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
     paddingHorizontal: Spacing.sm + 2,
-    paddingVertical: 3,
+    paddingVertical: 4,
     borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
   },
   statusBadgeText: {
     fontSize: Typography.xs - 2,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   errandTitle: {
     fontSize: Typography.base,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '700',
+    color: Colors.porcelain,
     marginVertical: Spacing.xs,
+    letterSpacing: -0.2,
   },
   detailsRow: {
     flexDirection: 'row',
-    backgroundColor: Colors.background,
-    borderRadius: BorderRadius.md,
+    backgroundColor: 'rgba(13, 24, 33, 0.55)',
+    borderRadius: BorderRadius.lg,
     padding: Spacing.sm,
     marginTop: Spacing.xs,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(52, 73, 102, 0.35)',
   },
   budgetBox: {
     paddingRight: Spacing.md,
   },
   budgetLabel: {
-    fontSize: Typography.xs - 2,
-    color: Colors.textSecondary,
+    fontSize: Typography.xs - 3,
+    color: Colors.powderBlue,
     textTransform: 'uppercase',
-    fontWeight: 'bold',
+    fontWeight: '800',
+    letterSpacing: 0.4,
   },
   budgetValue: {
-    fontSize: Typography.sm,
-    fontWeight: 'bold',
-    color: Colors.secondaryDark,
+    fontSize: Typography.sm + 1,
+    fontWeight: '800',
+    color: Colors.drySage,
     marginTop: 2,
   },
   divider: {
     width: 1,
-    height: 24,
-    backgroundColor: Colors.border,
+    height: 26,
+    backgroundColor: 'rgba(52, 73, 102, 0.5)',
     marginRight: Spacing.md,
   },
   personBox: {
     flex: 1,
   },
   personLabel: {
-    fontSize: Typography.xs - 2,
-    color: Colors.textSecondary,
+    fontSize: Typography.xs - 3,
+    color: Colors.powderBlue,
     textTransform: 'uppercase',
-    fontWeight: 'bold',
+    fontWeight: '800',
+    letterSpacing: 0.4,
   },
   personValue: {
     fontSize: Typography.xs,
     fontWeight: '600',
-    color: Colors.text,
+    color: Colors.porcelain,
     marginTop: 2,
   },
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: Spacing.sm,
-    paddingTop: Spacing.xs,
+    marginTop: Spacing.sm + 2,
+    paddingTop: Spacing.xs + 2,
     borderTopWidth: 1,
-    borderTopColor: Colors.borderLight,
+    borderTopColor: 'rgba(52, 73, 102, 0.35)',
   },
   dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
   },
   dateText: {
     fontSize: Typography.xs - 2,
@@ -402,8 +429,8 @@ const styles = StyleSheet.create({
   },
   viewDetailsText: {
     fontSize: Typography.xs,
-    fontWeight: 'bold',
-    color: Colors.primary,
+    fontWeight: '800',
+    color: Colors.powderBlue,
   },
   centerLoading: {
     flex: 1,
@@ -412,8 +439,9 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: Spacing.sm,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     fontSize: Typography.sm,
+    fontWeight: '600',
   },
   emptyState: {
     alignItems: 'center',
@@ -422,42 +450,45 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
   },
   emptyIconBox: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    backgroundColor: Colors.primaryLight,
+    width: 74,
+    height: 74,
+    borderRadius: 37,
+    backgroundColor: 'rgba(52, 73, 102, 0.45)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.md,
   },
   emptyTitle: {
     fontSize: Typography.lg,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   emptySubtitle: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: 'rgba(240, 244, 239, 0.7)',
     textAlign: 'center',
     marginTop: 4,
     lineHeight: 18,
     marginBottom: Spacing.lg,
   },
   emptyPostBtnWrapper: {
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.full,
     overflow: 'hidden',
+    ...Shadows.glow,
   },
   emptyPostBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
     paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.sm + 2,
-    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.sm + 4,
+    borderRadius: BorderRadius.full,
   },
   emptyPostBtnText: {
-    color: Colors.white,
+    color: Colors.inkBlack,
     fontSize: Typography.sm,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
 });
