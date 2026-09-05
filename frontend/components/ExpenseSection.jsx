@@ -12,6 +12,7 @@ import { Receipt, CheckCircle2, Clock, Wallet, CheckCheck } from 'lucide-react-n
 import { LinearGradient } from 'expo-linear-gradient';
 import api from '../services/api';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
+import { LiquidGlassCard } from './ui/LiquidGlass';
 
 /**
  * ExpenseSection Component
@@ -106,7 +107,7 @@ export default function ExpenseSection({ errand, currentUser }) {
   return (
     <View style={styles.container}>
       {/* Expense Summary Header */}
-      <View style={styles.summaryCard}>
+      <LiquidGlassCard variant="sage">
         <View style={styles.summaryTopRow}>
           <Text style={styles.summaryTitle}>Expense & Reimbursement</Text>
           <View style={styles.budgetPill}>
@@ -121,20 +122,20 @@ export default function ExpenseSection({ errand, currentUser }) {
           </View>
           <View style={styles.statBox}>
             <Text style={styles.statLabel}>Pending</Text>
-            <Text style={[styles.statValue, { color: Colors.accent }]}>₹{summary.pendingAmount}</Text>
+            <Text style={[styles.statValue, { color: Colors.powderBlue }]}>₹{summary.pendingAmount}</Text>
           </View>
           <View style={styles.statBox}>
             <Text style={styles.statLabel}>Settled</Text>
-            <Text style={[styles.statValue, { color: Colors.secondaryDark }]}>
+            <Text style={[styles.statValue, { color: Colors.drySage }]}>
               ₹{summary.settledAmount}
             </Text>
           </View>
         </View>
-      </View>
+      </LiquidGlassCard>
 
       {/* Runner: Log Expense Form */}
       {isRunner && errand.status !== 'cancelled' ? (
-        <View style={styles.logCard}>
+        <LiquidGlassCard variant="default">
           <Text style={styles.formTitle}>Log Spent Amount</Text>
           <Text style={styles.formSubtitle}>
             Record exact money spent on this errand for requester reimbursement.
@@ -164,6 +165,7 @@ export default function ExpenseSection({ errand, currentUser }) {
             onPress={handleLogExpense}
             disabled={submitting}
             style={styles.logSubmitBtnWrapper}
+            activeOpacity={0.85}
           >
             <LinearGradient
               colors={Colors.gradientPrimary}
@@ -172,16 +174,16 @@ export default function ExpenseSection({ errand, currentUser }) {
               style={[styles.logSubmitBtn, submitting && styles.btnDisabled]}
             >
               {submitting ? (
-                <ActivityIndicator color={Colors.white} />
+                <ActivityIndicator color={Colors.inkBlack} />
               ) : (
                 <>
-                  <Receipt size={16} color={Colors.white} />
+                  <Receipt size={16} color={Colors.inkBlack} strokeWidth={2.4} />
                   <Text style={styles.logSubmitBtnText}>Record Expense</Text>
                 </>
               )}
             </LinearGradient>
           </TouchableOpacity>
-        </View>
+        </LiquidGlassCard>
       ) : null}
 
       {/* Expense List */}
@@ -189,82 +191,87 @@ export default function ExpenseSection({ errand, currentUser }) {
         <Text style={styles.listSectionTitle}>Logged Transactions</Text>
 
         {loading ? (
-          <ActivityIndicator color={Colors.primary} style={{ marginVertical: Spacing.md }} />
+          <ActivityIndicator color={Colors.powderBlue} style={{ marginVertical: Spacing.md }} />
         ) : expenses.length > 0 ? (
           expenses.map((item) => {
             const isSettled = item.status === 'settled';
             return (
-              <View key={item._id} style={styles.transactionCard}>
-                <View style={styles.transTopRow}>
-                  <View style={styles.amountBox}>
-                    <Text style={styles.transAmount}>₹{item.amount}</Text>
-                    <Text style={styles.transPaidBy}>
-                      Paid by: {item.paidBy?.name || 'Runner'}
-                    </Text>
-                  </View>
+              <View key={item._id} style={styles.transCardOuter}>
+                <LiquidGlassCard variant={isSettled ? 'sage' : 'default'}>
+                  <View style={styles.transTopRow}>
+                    <View style={styles.amountBox}>
+                      <Text style={styles.transAmount}>₹{item.amount}</Text>
+                      <Text style={styles.transPaidBy}>
+                        Paid by: {item.paidBy?.name || 'Runner'}
+                      </Text>
+                    </View>
 
-                  <View
-                    style={[
-                      styles.statusPill,
-                      isSettled ? styles.statusSettled : styles.statusPending,
-                    ]}
-                  >
-                    {isSettled ? (
-                      <CheckCircle2 size={12} color={Colors.secondaryDark} />
-                    ) : (
-                      <Clock size={12} color="#B45309" />
-                    )}
-                    <Text
+                    <View
                       style={[
-                        styles.statusPillText,
-                        isSettled ? styles.statusTextSettled : styles.statusTextPending,
+                        styles.statusPill,
+                        isSettled ? styles.statusSettled : styles.statusPending,
                       ]}
                     >
-                      {isSettled ? 'Settled' : 'Pending'}
-                    </Text>
-                  </View>
-                </View>
-
-                {item.notes ? <Text style={styles.transNotes}>"{item.notes}"</Text> : null}
-
-                <View style={styles.transFooter}>
-                  <Text style={styles.transDate}>
-                    {new Date(item.createdAt).toLocaleDateString()} at{' '}
-                    {new Date(item.createdAt).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </Text>
-
-                  {/* Requester settlement action */}
-                  {!isSettled && isRequester ? (
-                    <TouchableOpacity
-                      style={[
-                        styles.settleBtn,
-                        settlingId === item._id && styles.btnDisabled,
-                      ]}
-                      onPress={() => handleSettleExpense(item._id, item.amount)}
-                      disabled={settlingId === item._id}
-                    >
-                      {settlingId === item._id ? (
-                        <ActivityIndicator size="small" color={Colors.white} />
+                      {isSettled ? (
+                        <CheckCircle2 size={12} color={Colors.drySage} />
                       ) : (
-                        <>
-                          <CheckCheck size={14} color={Colors.white} />
-                          <Text style={styles.settleBtnText}>Mark Reimbursed</Text>
-                        </>
+                        <Clock size={12} color={Colors.powderBlue} />
                       )}
-                    </TouchableOpacity>
-                  ) : null}
-                </View>
+                      <Text
+                        style={[
+                          styles.statusPillText,
+                          isSettled ? styles.statusTextSettled : styles.statusTextPending,
+                        ]}
+                      >
+                        {isSettled ? 'Settled' : 'Pending'}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {item.notes ? <Text style={styles.transNotes}>"{item.notes}"</Text> : null}
+
+                  <View style={styles.transFooter}>
+                    <Text style={styles.transDate}>
+                      {new Date(item.createdAt).toLocaleDateString()} at{' '}
+                      {new Date(item.createdAt).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </Text>
+
+                    {/* Requester settlement action */}
+                    {!isSettled && isRequester ? (
+                      <TouchableOpacity
+                        style={[
+                          styles.settleBtn,
+                          settlingId === item._id && styles.btnDisabled,
+                        ]}
+                        onPress={() => handleSettleExpense(item._id, item.amount)}
+                        disabled={settlingId === item._id}
+                        activeOpacity={0.85}
+                      >
+                        {settlingId === item._id ? (
+                          <ActivityIndicator size="small" color={Colors.inkBlack} />
+                        ) : (
+                          <>
+                            <CheckCheck size={14} color={Colors.inkBlack} strokeWidth={2.4} />
+                            <Text style={styles.settleBtnText}>Mark Reimbursed</Text>
+                          </>
+                        )}
+                      </TouchableOpacity>
+                    ) : null}
+                  </View>
+                </LiquidGlassCard>
               </View>
             );
           })
         ) : (
-          <View style={styles.emptyTransactions}>
-            <Wallet size={32} color={Colors.textMuted} />
-            <Text style={styles.emptyTransactionsText}>No expenses logged for this errand yet.</Text>
-          </View>
+          <LiquidGlassCard variant="default">
+            <View style={styles.emptyTransactions}>
+              <Wallet size={32} color={Colors.powderBlue} />
+              <Text style={styles.emptyTransactionsText}>No expenses logged for this errand yet.</Text>
+            </View>
+          </LiquidGlassCard>
         )}
       </View>
     </View>
@@ -275,14 +282,6 @@ const styles = StyleSheet.create({
   container: {
     gap: Spacing.md,
   },
-  summaryCard: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.subtle,
-  },
   summaryTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -291,19 +290,21 @@ const styles = StyleSheet.create({
   },
   summaryTitle: {
     fontSize: Typography.base,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   budgetPill: {
-    backgroundColor: Colors.primaryLight,
-    paddingHorizontal: Spacing.sm + 2,
+    backgroundColor: 'rgba(191, 204, 148, 0.15)',
+    borderWidth: 1,
+    borderColor: Colors.glassSageBorder,
+    paddingHorizontal: Spacing.sm + 4,
     paddingVertical: 3,
     borderRadius: BorderRadius.full,
   },
   budgetText: {
     fontSize: Typography.xs - 2,
-    fontWeight: 'bold',
-    color: Colors.primaryDark,
+    fontWeight: '800',
+    color: Colors.drySage,
   },
   statsRow: {
     flexDirection: 'row',
@@ -312,41 +313,34 @@ const styles = StyleSheet.create({
   },
   statBox: {
     flex: 1,
-    backgroundColor: Colors.background,
-    borderRadius: BorderRadius.md,
+    backgroundColor: 'rgba(13, 24, 33, 0.55)',
+    borderRadius: BorderRadius.lg,
     padding: Spacing.sm,
     borderWidth: 1,
-    borderColor: Colors.borderLight,
+    borderColor: 'rgba(52, 73, 102, 0.35)',
     alignItems: 'center',
   },
   statLabel: {
     fontSize: Typography.xs - 2,
-    color: Colors.textSecondary,
-    fontWeight: 'bold',
+    color: Colors.powderBlue,
+    fontWeight: '800',
     textTransform: 'uppercase',
+    letterSpacing: 0.3,
   },
   statValue: {
     fontSize: Typography.base,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
     marginTop: 2,
-  },
-  logCard: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.subtle,
   },
   formTitle: {
     fontSize: Typography.sm,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   formSubtitle: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     marginTop: 2,
     marginBottom: Spacing.sm,
   },
@@ -357,36 +351,37 @@ const styles = StyleSheet.create({
   },
   currencySymbol: {
     fontSize: Typography.xl,
-    fontWeight: 'bold',
-    color: Colors.textSecondary,
+    fontWeight: '800',
+    color: Colors.drySage,
     marginRight: Spacing.sm,
   },
   amountInput: {
     flex: 1,
     height: 44,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassSageBorder,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     fontSize: Typography.lg,
-    fontWeight: 'bold',
-    color: Colors.text,
-    backgroundColor: Colors.white,
+    fontWeight: '800',
+    color: Colors.drySage,
+    backgroundColor: 'rgba(13, 24, 33, 0.55)',
   },
   notesInput: {
     height: 42,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     fontSize: Typography.sm,
-    color: Colors.text,
-    backgroundColor: Colors.white,
+    color: Colors.porcelain,
+    backgroundColor: 'rgba(13, 24, 33, 0.55)',
     marginBottom: Spacing.sm,
   },
   logSubmitBtnWrapper: {
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.full,
     overflow: 'hidden',
+    ...Shadows.glow,
   },
   logSubmitBtn: {
     flexDirection: 'row',
@@ -396,27 +391,21 @@ const styles = StyleSheet.create({
     height: 44,
   },
   logSubmitBtnText: {
-    color: Colors.white,
+    color: Colors.inkBlack,
     fontSize: Typography.sm,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   listSection: {
     marginTop: Spacing.xs,
   },
   listSectionTitle: {
     fontSize: Typography.sm,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
     marginBottom: Spacing.sm,
   },
-  transactionCard: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
+  transCardOuter: {
     marginBottom: Spacing.sm,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.subtle,
   },
   transTopRow: {
     flexDirection: 'row',
@@ -426,41 +415,44 @@ const styles = StyleSheet.create({
   amountBox: {},
   transAmount: {
     fontSize: Typography.lg,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   transPaidBy: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     marginTop: 2,
   },
   statusPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 2,
+    paddingHorizontal: Spacing.sm + 2,
+    paddingVertical: 3,
     borderRadius: BorderRadius.full,
+    borderWidth: 1,
   },
   statusPending: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: 'rgba(180, 205, 237, 0.15)',
+    borderColor: 'rgba(180, 205, 237, 0.3)',
   },
   statusSettled: {
-    backgroundColor: '#DCFCE7',
+    backgroundColor: 'rgba(191, 204, 148, 0.15)',
+    borderColor: Colors.glassSageBorder,
   },
   statusPillText: {
     fontSize: Typography.xs - 2,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   statusTextPending: {
-    color: '#B45309',
+    color: Colors.powderBlue,
   },
   statusTextSettled: {
-    color: Colors.secondaryDark,
+    color: Colors.drySage,
   },
   transNotes: {
     fontSize: Typography.xs,
-    color: Colors.text,
+    color: 'rgba(240, 244, 239, 0.8)',
     fontStyle: 'italic',
     marginTop: Spacing.xs,
     lineHeight: 16,
@@ -472,38 +464,34 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
     paddingTop: Spacing.xs,
     borderTopWidth: 1,
-    borderTopColor: Colors.borderLight,
+    borderTopColor: 'rgba(52, 73, 102, 0.35)',
   },
   transDate: {
     fontSize: Typography.xs - 2,
-    color: Colors.textMuted,
+    color: Colors.powderBlue,
   },
   settleBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: Colors.secondary,
-    paddingHorizontal: Spacing.sm + 2,
-    paddingVertical: 4,
-    borderRadius: BorderRadius.sm,
+    backgroundColor: Colors.drySage,
+    paddingHorizontal: Spacing.sm + 4,
+    paddingVertical: 5,
+    borderRadius: BorderRadius.full,
   },
   settleBtnText: {
-    color: Colors.white,
+    color: Colors.inkBlack,
     fontSize: Typography.xs - 1,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   emptyTransactions: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
   },
   emptyTransactionsText: {
     fontSize: Typography.xs,
-    color: Colors.textMuted,
+    color: Colors.powderBlue,
     marginTop: Spacing.xs,
   },
   btnDisabled: {
