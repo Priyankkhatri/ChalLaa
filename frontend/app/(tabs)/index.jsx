@@ -38,7 +38,7 @@ import { router } from 'expo-router';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
-import { LiquidGlassCard, LiquidGlassBadge } from '../../components/ui/LiquidGlass';
+import { LiquidGlassCard, LiquidGlassBadge, LiquidCanvas } from '../../components/ui/LiquidGlass';
 
 const RADIUS_OPTIONS = [1, 2, 5];
 
@@ -112,31 +112,32 @@ export default function DiscoveryFeedScreen() {
 
     try {
       setError(null);
-      const { status } = await Location.requestForegroundPermissionsAsync();
-
       let lat = 28.6139;
       let lng = 77.209;
 
-      if (status === 'granted') {
-        const loc = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-        });
-        lat = loc.coords.latitude;
-        lng = loc.coords.longitude;
-        setUserCoords({ lat, lng });
-
-        const rev = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lng });
-        if (rev && rev.length > 0) {
-          const item = rev[0];
-          setLocationName(item.name || item.district || item.city || 'Campus Area');
-        } else {
-          setLocationName('Campus Area');
+      if (Platform.OS !== 'web') {
+        try {
+          const perm = await Promise.race([
+            Location.requestForegroundPermissionsAsync(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000)),
+          ]);
+          if (perm?.status === 'granted') {
+            const loc = await Promise.race([
+              Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
+              new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2500)),
+            ]);
+            if (loc?.coords) {
+              lat = loc.coords.latitude;
+              lng = loc.coords.longitude;
+            }
+          }
+        } catch (locErr) {
+          // Fallback to default campus coords
         }
-      } else {
-        setUserCoords({ lat, lng });
-        setLocationName('Campus Area (Default)');
       }
 
+      setUserCoords({ lat, lng });
+      setLocationName('Campus Area');
       await fetchErrands(lat, lng, radiusKm, selectedCategory, searchQuery);
     } catch (err) {
       console.warn('[Feed initialize error]', err);
@@ -246,12 +247,12 @@ export default function DiscoveryFeedScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <LiquidCanvas style={styles.container}>
       {/* Liquid Glass Header Hero */}
       <View style={styles.heroGlassWrapper}>
-        <BlurView intensity={Platform.OS === 'ios' ? 45 : 60} tint="dark" style={styles.heroBlur}>
+        <BlurView intensity={Platform.OS === 'ios' ? 45 : 70} tint="dark" style={styles.heroBlur}>
           <LinearGradient
-            colors={['rgba(52, 73, 102, 0.55)', 'rgba(13, 24, 33, 0.85)']}
+            colors={['rgba(52, 73, 102, 0.40)', 'rgba(13, 24, 33, 0.65)']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.heroGradient}
@@ -422,7 +423,7 @@ export default function DiscoveryFeedScreen() {
           <Plus size={28} color={Colors.inkBlack} strokeWidth={2.8} />
         </LinearGradient>
       </TouchableOpacity>
-    </View>
+    </LiquidCanvas>
   );
 }
 
@@ -435,8 +436,13 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: BorderRadius.xxl,
     borderBottomRightRadius: BorderRadius.xxl,
     overflow: 'hidden',
-    borderBottomWidth: 1,
+    borderBottomWidth: 1.2,
     borderBottomColor: Colors.glassBorder,
+    ...(Platform.OS === 'web' ? {
+      backdropFilter: 'blur(30px) saturate(190%)',
+      WebkitBackdropFilter: 'blur(30px) saturate(190%)',
+      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(240, 244, 239, 0.25)',
+    } : {}),
     ...Shadows.subtle,
   },
   heroBlur: {
@@ -453,7 +459,7 @@ const styles = StyleSheet.create({
     left: 40,
     right: 40,
     height: 1,
-    backgroundColor: 'rgba(240, 244, 239, 0.25)',
+    backgroundColor: 'rgba(240, 244, 239, 0.35)',
   },
   headerTop: {
     flexDirection: 'row',
@@ -489,13 +495,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: 'rgba(52, 73, 102, 0.45)',
+    backgroundColor: 'rgba(52, 73, 102, 0.35)',
     borderWidth: 1,
     borderColor: Colors.glassBorder,
     paddingHorizontal: Spacing.sm + 4,
     paddingVertical: 5,
     borderRadius: BorderRadius.full,
     maxWidth: 145,
+    ...(Platform.OS === 'web' ? {
+      backdropFilter: 'blur(16px)',
+      WebkitBackdropFilter: 'blur(16px)',
+    } : {}),
   },
   locationChipText: {
     fontSize: Typography.xs - 2,
@@ -505,13 +515,17 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(13, 24, 33, 0.55)',
-    borderWidth: 1,
+    backgroundColor: 'rgba(13, 24, 33, 0.45)',
+    borderWidth: 1.2,
     borderColor: Colors.glassBorder,
     borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.md,
     height: 44,
     gap: Spacing.xs,
+    ...(Platform.OS === 'web' ? {
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+    } : {}),
   },
   searchInput: {
     flex: 1,
@@ -521,7 +535,7 @@ const styles = StyleSheet.create({
   filterSection: {
     paddingVertical: Spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(52, 73, 102, 0.35)',
+    borderBottomColor: 'rgba(52, 73, 102, 0.25)',
   },
   radiusRow: {
     flexDirection: 'row',
@@ -541,13 +555,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm + 4,
     paddingVertical: 4,
     borderRadius: BorderRadius.full,
-    backgroundColor: 'rgba(52, 73, 102, 0.25)',
+    backgroundColor: 'rgba(52, 73, 102, 0.20)',
     borderWidth: 1,
     borderColor: Colors.glassBorder,
+    ...(Platform.OS === 'web' ? {
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+    } : {}),
   },
   radiusPillActive: {
     backgroundColor: Colors.powderBlue,
     borderColor: Colors.powderBlue,
+    ...(Platform.OS === 'web' ? {
+      boxShadow: '0 0 12px rgba(180, 205, 237, 0.4)',
+    } : {}),
   },
   radiusPillText: {
     fontSize: Typography.xs - 2,
@@ -570,13 +591,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm + 6,
     paddingVertical: 7,
     borderRadius: BorderRadius.full,
-    backgroundColor: 'rgba(52, 73, 102, 0.25)',
+    backgroundColor: 'rgba(52, 73, 102, 0.20)',
     borderWidth: 1,
     borderColor: Colors.glassBorder,
+    ...(Platform.OS === 'web' ? {
+      backdropFilter: 'blur(14px)',
+      WebkitBackdropFilter: 'blur(14px)',
+    } : {}),
   },
   categoryCardActive: {
     backgroundColor: Colors.powderBlue,
     borderColor: Colors.powderBlue,
+    ...(Platform.OS === 'web' ? {
+      boxShadow: '0 0 14px rgba(180, 205, 237, 0.4)',
+    } : {}),
   },
   categoryCardLabel: {
     fontSize: Typography.xs,

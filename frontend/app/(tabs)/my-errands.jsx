@@ -27,7 +27,7 @@ import { router } from 'expo-router';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
-import { LiquidGlassCard } from '../../components/ui/LiquidGlass';
+import { LiquidGlassCard, LiquidCanvas } from '../../components/ui/LiquidGlass';
 
 const ROLE_FILTERS = [
   { id: 'all', label: 'All Tasks' },
@@ -172,10 +172,10 @@ export default function MyErrandsScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <LiquidCanvas style={styles.container}>
       {/* Liquid Glass Segmented Capsule */}
       <View style={styles.segmentedWrapper}>
-        <BlurView intensity={Platform.OS === 'ios' ? 30 : 50} tint="dark" style={styles.segmentedBlur}>
+        <BlurView intensity={Platform.OS === 'ios' ? 30 : 60} tint="dark" style={styles.segmentedBlur}>
           <View style={styles.segmentedControl}>
             {ROLE_FILTERS.map((f) => {
               const isSelected = selectedRole === f.id;
@@ -198,7 +198,7 @@ export default function MyErrandsScreen() {
 
       {/* Main List */}
       {loading && !refreshing ? (
-        <View style={styles.centerLoading}>
+        <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.powderBlue} />
           <Text style={styles.loadingText}>Loading your errands...</Text>
         </View>
@@ -218,17 +218,17 @@ export default function MyErrandsScreen() {
             />
           }
           ListEmptyComponent={
-            <View style={styles.emptyState}>
-              <View style={styles.emptyIconBox}>
-                <ClipboardList size={38} color={Colors.powderBlue} />
+            <View style={styles.emptyContainer}>
+              <View style={styles.emptyIconCircle}>
+                <ClipboardList size={36} color={Colors.powderBlue} />
               </View>
-              <Text style={styles.emptyTitle}>No Errands in this View</Text>
+              <Text style={styles.emptyTitle}>No Errands Found</Text>
               <Text style={styles.emptySubtitle}>
                 {selectedRole === 'posted'
-                  ? 'You haven\'t posted any errand requests yet.'
+                  ? "You haven't posted any errand requests yet."
                   : selectedRole === 'accepted'
-                  ? 'You haven\'t accepted any errands as a runner yet.'
-                  : 'You have no active or completed errands.'}
+                  ? "You haven't accepted any errands to run yet."
+                  : 'You have no active or completed errands at the moment.'}
               </Text>
 
               <TouchableOpacity
@@ -250,21 +250,25 @@ export default function MyErrandsScreen() {
           }
         />
       )}
-    </View>
+    </LiquidCanvas>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.inkBlack,
   },
   segmentedWrapper: {
     margin: Spacing.md,
     borderRadius: BorderRadius.full,
     overflow: 'hidden',
-    borderWidth: 1,
+    borderWidth: 1.2,
     borderColor: Colors.glassBorder,
+    ...(Platform.OS === 'web' ? {
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+    } : {}),
     ...Shadows.subtle,
   },
   segmentedBlur: {
