@@ -13,7 +13,7 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing, Typography, BorderRadius } from '../constants/theme';
+import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
 
 /**
  * Camera Modal Component
@@ -111,31 +111,31 @@ export default function CameraModal({ visible, onClose, onPhotoCaptured }) {
             <Image source={{ uri: capturedPhotoUri }} style={styles.previewImage} resizeMode="contain" />
 
             <View style={styles.previewControls}>
-              <TouchableOpacity style={styles.retakeBtn} onPress={handleRetake}>
-                <Ionicons name="refresh" size={18} color={Colors.white} />
-                <Text style={styles.previewBtnText}>Retake</Text>
+              <TouchableOpacity style={styles.retakeBtn} onPress={handleRetake} activeOpacity={0.8}>
+                <Ionicons name="refresh" size={18} color={Colors.porcelain} />
+                <Text style={styles.retakeBtnText}>Retake</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.confirmBtn} onPress={handleConfirmPhoto}>
-                <Ionicons name="checkmark-circle" size={20} color={Colors.white} />
-                <Text style={styles.previewBtnText}>Use Photo</Text>
+              <TouchableOpacity style={styles.confirmBtn} onPress={handleConfirmPhoto} activeOpacity={0.85}>
+                <Ionicons name="checkmark-circle" size={20} color={Colors.inkBlack} />
+                <Text style={styles.confirmBtnText}>Use Photo</Text>
               </TouchableOpacity>
             </View>
           </View>
         ) : !permission ? (
           /* Permission loading state */
           <View style={styles.permissionBox}>
-            <ActivityIndicator size="large" color={Colors.primary} />
+            <ActivityIndicator size="large" color={Colors.powderBlue} />
           </View>
         ) : !permission.granted ? (
           /* Permission request state per Unit 4 */
           <View style={styles.permissionBox}>
-            <Ionicons name="camera-outline" size={64} color={Colors.textMuted} />
+            <Ionicons name="camera-outline" size={64} color={Colors.powderBlue} />
             <Text style={styles.permTitle}>Camera Permission Required</Text>
             <Text style={styles.permSubtext}>
               ChalLaa needs camera access to take proof of purchase and item delivery photos.
             </Text>
-            <TouchableOpacity style={styles.permBtn} onPress={requestPermission}>
+            <TouchableOpacity style={styles.permBtn} onPress={requestPermission} activeOpacity={0.85}>
               <Text style={styles.permBtnText}>Grant Camera Permission</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.galleryFallbackBtn} onPress={handlePickFromGallery}>
@@ -152,11 +152,11 @@ export default function CameraModal({ visible, onClose, onPhotoCaptured }) {
               {/* Camera Header Overlay */}
               <View style={styles.cameraHeader}>
                 <TouchableOpacity style={styles.headerIconBtn} onPress={onClose}>
-                  <Ionicons name="close" size={28} color={Colors.white} />
+                  <Ionicons name="close" size={26} color={Colors.porcelain} />
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.headerIconBtn} onPress={toggleCameraFacing}>
-                  <Ionicons name="camera-reverse-outline" size={28} color={Colors.white} />
+                  <Ionicons name="camera-reverse-outline" size={26} color={Colors.porcelain} />
                 </TouchableOpacity>
               </View>
 
@@ -168,7 +168,7 @@ export default function CameraModal({ visible, onClose, onPhotoCaptured }) {
               {/* Bottom Controls */}
               <View style={styles.bottomControls}>
                 <TouchableOpacity style={styles.galleryBtn} onPress={handlePickFromGallery}>
-                  <Ionicons name="images-outline" size={28} color={Colors.white} />
+                  <Ionicons name="images-outline" size={26} color={Colors.porcelain} />
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -177,7 +177,7 @@ export default function CameraModal({ visible, onClose, onPhotoCaptured }) {
                   disabled={processing}
                 >
                   {processing ? (
-                    <ActivityIndicator color={Colors.primary} size="large" />
+                    <ActivityIndicator color={Colors.inkBlack} size="large" />
                   ) : (
                     <View style={styles.captureBtnInner} />
                   )}
@@ -196,7 +196,7 @@ export default function CameraModal({ visible, onClose, onPhotoCaptured }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.black,
+    backgroundColor: Colors.inkBlack,
   },
   cameraWrapper: {
     flex: 1,
@@ -215,22 +215,26 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(13, 24, 33, 0.65)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
     justifyContent: 'center',
     alignItems: 'center',
   },
   frameGuide: {
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingVertical: Spacing.xs,
-    paddingHorizontal: Spacing.md,
+    backgroundColor: 'rgba(13, 24, 33, 0.65)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    paddingVertical: Spacing.xs + 2,
+    paddingHorizontal: Spacing.md + 4,
     borderRadius: BorderRadius.full,
     alignSelf: 'center',
   },
   guideText: {
-    color: Colors.white,
+    color: Colors.porcelain,
     fontSize: Typography.xs,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   bottomControls: {
     flexDirection: 'row',
@@ -243,7 +247,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(13, 24, 33, 0.65)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -251,21 +257,22 @@ const styles = StyleSheet.create({
     width: 76,
     height: 76,
     borderRadius: 38,
-    borderWidth: 4,
-    borderColor: Colors.white,
+    borderWidth: 3,
+    borderColor: Colors.powderBlue,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(180, 205, 237, 0.2)',
+    ...Shadows.glow,
   },
   captureBtnInner: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.porcelain,
   },
   previewContainer: {
     flex: 1,
-    backgroundColor: Colors.black,
+    backgroundColor: Colors.inkBlack,
     justifyContent: 'space-between',
   },
   previewImage: {
@@ -277,7 +284,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingVertical: Spacing.lg,
     paddingBottom: Spacing.xl,
-    backgroundColor: 'rgba(0,0,0,0.8)',
+    backgroundColor: 'rgba(13, 24, 33, 0.85)',
+    borderTopWidth: 1,
+    borderTopColor: Colors.glassBorder,
   },
   retakeBtn: {
     flexDirection: 'row',
@@ -285,8 +294,15 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: Spacing.sm + 2,
     paddingHorizontal: Spacing.lg,
-    backgroundColor: '#475569',
-    borderRadius: BorderRadius.md,
+    backgroundColor: 'rgba(52, 73, 102, 0.65)',
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+  },
+  retakeBtnText: {
+    color: Colors.porcelain,
+    fontSize: Typography.sm,
+    fontWeight: '700',
   },
   confirmBtn: {
     flexDirection: 'row',
@@ -294,56 +310,58 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: Spacing.sm + 2,
     paddingHorizontal: Spacing.lg,
-    backgroundColor: Colors.secondary,
-    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.drySage,
+    borderRadius: BorderRadius.full,
+    ...Shadows.sageGlow,
   },
-  previewBtnText: {
-    color: Colors.white,
+  confirmBtnText: {
+    color: Colors.inkBlack,
     fontSize: Typography.sm,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   permissionBox: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.inkBlack,
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.xl,
   },
   permTitle: {
     fontSize: Typography.lg,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
     marginTop: Spacing.md,
     textAlign: 'center',
   },
   permSubtext: {
     fontSize: Typography.sm,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     textAlign: 'center',
     marginTop: Spacing.xs,
     lineHeight: 20,
     marginBottom: Spacing.lg,
   },
   permBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.powderBlue,
     paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.sm + 2,
-    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.sm + 4,
+    borderRadius: BorderRadius.full,
     marginBottom: Spacing.md,
+    ...Shadows.glow,
   },
   permBtnText: {
-    color: Colors.white,
+    color: Colors.inkBlack,
     fontSize: Typography.sm,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   galleryFallbackBtn: {
     paddingVertical: Spacing.xs,
     marginBottom: Spacing.md,
   },
   galleryFallbackText: {
-    color: Colors.primary,
+    color: Colors.powderBlue,
     fontSize: Typography.sm,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   cancelLink: {
     padding: Spacing.xs,
