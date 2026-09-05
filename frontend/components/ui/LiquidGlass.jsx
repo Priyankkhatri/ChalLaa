@@ -47,10 +47,10 @@ export const LiquidCanvas = ({ children, style }) => {
         {/* Ambient Diagonal Fluid Gradient Mesh */}
         <LinearGradient
           colors={[
-            'rgba(52, 73, 102, 0.18)',
+            'rgba(245, 158, 11, 0.14)',
             'transparent',
-            'rgba(191, 204, 148, 0.08)',
-            'rgba(180, 205, 237, 0.12)',
+            'rgba(224, 109, 83, 0.08)',
+            'rgba(251, 191, 36, 0.12)',
           ]}
           locations={[0, 0.4, 0.75, 1]}
           start={{ x: 0, y: 0 }}
@@ -340,35 +340,35 @@ const styles = StyleSheet.create({
     right: -40,
     width: 320,
     height: 320,
-    backgroundColor: '#344966',
-    opacity: 0.85,
-    ...(Platform.OS === 'web' ? { filter: 'blur(75px)' } : {}),
+    backgroundColor: '#D97706',
+    opacity: 0.35,
+    ...(Platform.OS === 'web' ? { filter: 'blur(80px)' } : {}),
   },
   orbMidLeft: {
     top: 220,
     left: -70,
     width: 290,
     height: 290,
-    backgroundColor: '#BFCC94',
-    opacity: 0.40,
-    ...(Platform.OS === 'web' ? { filter: 'blur(80px)' } : {}),
+    backgroundColor: '#E06D53',
+    opacity: 0.28,
+    ...(Platform.OS === 'web' ? { filter: 'blur(85px)' } : {}),
   },
   orbCenter: {
     top: '42%',
     right: '20%',
     width: 280,
     height: 280,
-    backgroundColor: '#344966',
-    opacity: 0.55,
-    ...(Platform.OS === 'web' ? { filter: 'blur(85px)' } : {}),
+    backgroundColor: '#2C221E',
+    opacity: 0.50,
+    ...(Platform.OS === 'web' ? { filter: 'blur(90px)' } : {}),
   },
   orbBottomRight: {
     bottom: 50,
     right: -30,
     width: 280,
     height: 280,
-    backgroundColor: '#B4CDED',
-    opacity: 0.42,
+    backgroundColor: '#F59E0B',
+    opacity: 0.32,
     ...(Platform.OS === 'web' ? { filter: 'blur(75px)' } : {}),
   },
   cardOuter: {
