@@ -13,6 +13,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import api from '../services/api';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
 
+/**
+ * ExpenseSection Component
+ * Real-time ledger for itemized out-of-pocket expenses and reimbursement settlements.
+ */
 export default function ExpenseSection({ errand, currentUser }) {
   const [expenses, setExpenses] = useState([]);
   const [summary, setSummary] = useState({ totalAmount: 0, pendingAmount: 0, settledAmount: 0 });
