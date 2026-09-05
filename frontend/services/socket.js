@@ -2,6 +2,10 @@ import { io } from 'socket.io-client';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
+/**
+ * Real-Time WebSocket Manager for ChalLaa (Socket.io)
+ * Handles errand chat rooms, typing indicators, and runner live GPS streaming.
+ */
 export const getSocketUrl = () => {
   const hostUri =
     Constants.expoConfig?.hostUri ||
