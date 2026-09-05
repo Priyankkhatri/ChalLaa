@@ -586,7 +586,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: Spacing.md,
-    paddingBottom: Spacing.xxl + 45,
+    paddingBottom: Spacing.xxl + 68,
     gap: Spacing.md,
   },
   heroOuter: {
@@ -991,7 +991,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(239, 68, 68, 0.25)',
     borderRadius: BorderRadius.full,
     height: 48,
-    marginTop: Spacing.xs,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.xs,
   },
   logoutButtonText: {
     color: '#DC2626',

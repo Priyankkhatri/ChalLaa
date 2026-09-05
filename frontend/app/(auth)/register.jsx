@@ -83,9 +83,9 @@ export default function RegisterScreen() {
       >
         {/* Liquid Glass Hero Banner */}
         <View style={styles.heroOuter}>
-          <BlurView intensity={Platform.OS === 'ios' ? 45 : 60} tint="dark" style={styles.heroBlur}>
+          <BlurView intensity={Platform.OS === 'ios' ? 45 : 60} tint="light" style={styles.heroBlur}>
             <LinearGradient
-              colors={['rgba(52, 73, 102, 0.65)', 'rgba(13, 24, 33, 0.9)']}
+              colors={['rgba(255, 255, 255, 0.96)', 'rgba(241, 245, 249, 0.90)']}
               start={{ x: 0, y: 0 }}
               end={{ x: 0.9, y: 1 }}
               style={styles.heroBanner}
@@ -237,13 +237,13 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xxl,
     overflow: 'hidden',
     borderWidth: 1.2,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     ...(Platform.OS === 'web' ? {
       backdropFilter: 'blur(30px) saturate(190%)',
       WebkitBackdropFilter: 'blur(30px) saturate(190%)',
-      boxShadow: '0 12px 35px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(240, 244, 239, 0.3)',
+      boxShadow: '0 10px 30px rgba(15, 23, 42, 0.05), inset 0 1px 1px #FFFFFF',
     } : {}),
-    ...Shadows.glow,
+    ...Shadows.subtle,
   },
   heroBlur: {
     width: '100%',
@@ -258,19 +258,19 @@ const styles = StyleSheet.create({
     left: 40,
     right: 40,
     height: 1,
-    backgroundColor: 'rgba(240, 244, 239, 0.25)',
+    backgroundColor: '#FFFFFF',
   },
   logoBadge: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: 'rgba(52, 73, 102, 0.55)',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
     borderWidth: 1,
-    borderColor: Colors.glassBorderGlow,
+    borderColor: 'rgba(37, 99, 235, 0.20)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.sm,
-    ...Shadows.glow,
+    ...Shadows.subtle,
   },
   heroTitle: {
     fontSize: Typography.xl,
@@ -281,21 +281,21 @@ const styles = StyleSheet.create({
   },
   heroSubtitle: {
     fontSize: Typography.xs,
-    color: Colors.powderBlue,
+    color: '#64748B',
     textAlign: 'center',
   },
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
-    borderColor: 'rgba(239, 68, 68, 0.35)',
+    backgroundColor: 'rgba(239, 68, 68, 0.10)',
+    borderColor: 'rgba(239, 68, 68, 0.25)',
     borderWidth: 1,
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
   },
   errorText: {
-    color: '#F87171',
+    color: '#DC2626',
     fontSize: Typography.xs,
     flex: 1,
     fontWeight: '600',
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: Typography.xs,
     fontWeight: '700',
-    color: Colors.powderBlue,
+    color: Colors.porcelain,
     marginBottom: 4,
     marginTop: Spacing.xs,
   },
@@ -312,10 +312,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 48,
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     borderRadius: BorderRadius.md,
-    backgroundColor: 'rgba(13, 24, 33, 0.6)',
-    paddingHorizontal: Spacing.sm,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: Spacing.md,
     marginBottom: Spacing.xs,
   },
   fieldIcon: {
@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: Colors.inkBlack,
+    color: '#FFFFFF',
     fontSize: Typography.sm + 1,
     fontWeight: '800',
   },
@@ -354,11 +354,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: Spacing.xs,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.md,
   },
   footerText: {
     fontSize: Typography.sm,
-    color: 'rgba(240, 244, 239, 0.7)',
+    color: '#64748B',
   },
   linkText: {
     fontSize: Typography.sm,

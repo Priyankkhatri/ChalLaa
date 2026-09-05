@@ -72,7 +72,7 @@ export default function RatingModal({ visible, errand, currentUser, onClose, onR
               <TouchableOpacity key={star} onPress={() => setScore(star)} style={styles.starTouch} activeOpacity={0.8}>
                 <Star
                   size={36}
-                  color={star <= score ? Colors.drySage : 'rgba(52, 73, 102, 0.7)'}
+                  color={star <= score ? Colors.drySage : '#CBD5E1'}
                   fill={star <= score ? Colors.drySage : 'transparent'}
                 />
               </TouchableOpacity>
@@ -136,14 +136,14 @@ const styles = StyleSheet.create({
   modalCard: {
     width: '100%',
     maxWidth: 380,
-    backgroundColor: Colors.yaleBlue,
+    backgroundColor: '#FFFFFF',
     borderRadius: BorderRadius.xxl,
-    padding: Spacing.xl,
+    padding: Spacing.lg + 4,
     alignItems: 'center',
     position: 'relative',
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    ...Shadows.glow,
+    borderWidth: 1.2,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
+    ...Shadows.card,
   },
   closeBtn: {
     position: 'absolute',
@@ -152,12 +152,12 @@ const styles = StyleSheet.create({
     padding: 6,
   },
   iconCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: 'rgba(191, 204, 148, 0.15)',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(16, 185, 129, 0.10)',
     borderWidth: 1,
-    borderColor: Colors.glassSageBorder,
+    borderColor: 'rgba(16, 185, 129, 0.25)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.md,
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: Typography.xs,
-    color: Colors.powderBlue,
+    color: '#64748B',
     textAlign: 'center',
     marginTop: 4,
     marginBottom: Spacing.md,
@@ -192,11 +192,11 @@ const styles = StyleSheet.create({
   input: {
     width: '100%',
     height: 80,
-    backgroundColor: 'rgba(13, 24, 33, 0.6)',
+    backgroundColor: 'rgba(248, 250, 252, 0.95)',
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     fontSize: Typography.sm,
     color: Colors.porcelain,
     textAlignVertical: 'top',
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   submitBtnText: {
-    color: Colors.inkBlack,
+    color: '#FFFFFF',
     fontSize: Typography.sm,
     fontWeight: '800',
   },

@@ -621,7 +621,7 @@ const styles = StyleSheet.create({
   },
   feedList: {
     padding: Spacing.md,
-    paddingBottom: Spacing.xxl + 55,
+    paddingBottom: Spacing.xxl + 68,
     gap: Spacing.md,
   },
   cardOuter: {
@@ -771,7 +771,7 @@ const styles = StyleSheet.create({
   },
   fabWrapper: {
     position: 'absolute',
-    bottom: 86,
+    bottom: Platform.OS === 'ios' ? 102 : 88,
     right: Spacing.lg,
     borderRadius: 30,
     overflow: 'hidden',

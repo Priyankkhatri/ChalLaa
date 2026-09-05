@@ -259,7 +259,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   segmentedWrapper: {
-    margin: Spacing.md,
+    marginHorizontal: Spacing.md,
+    marginTop: Spacing.sm + 2,
+    marginBottom: Spacing.md,
     borderRadius: BorderRadius.full,
     overflow: 'hidden',
     borderWidth: 1.2,
@@ -299,7 +301,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: Spacing.md,
-    paddingBottom: Spacing.xxl + 40,
+    paddingBottom: Spacing.xxl + 68,
     gap: Spacing.md,
   },
   cardOuter: {

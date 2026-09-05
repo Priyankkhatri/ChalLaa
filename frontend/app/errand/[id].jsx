@@ -576,7 +576,7 @@ export default function ErrandDetailScreen() {
                       end={{ x: 1, y: 0 }}
                       style={styles.primaryActionBtn}
                     >
-                      <Star size={18} color={Colors.inkBlack} fill={Colors.inkBlack} />
+                      <Star size={18} color="#FFFFFF" fill="#FFFFFF" />
                       <Text style={styles.primaryActionBtnText}>Rate Peer & Award Karma</Text>
                     </LinearGradient>
                   </TouchableOpacity>
@@ -634,7 +634,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tabNavWrapper: {
-    margin: Spacing.md,
+    marginHorizontal: Spacing.md,
+    marginTop: Spacing.sm + 2,
+    marginBottom: Spacing.sm,
     borderRadius: BorderRadius.full,
     overflow: 'hidden',
     borderWidth: 1.2,
@@ -672,7 +674,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: Spacing.md,
-    paddingBottom: Spacing.xxl + 40,
+    paddingBottom: Spacing.xxl + 50,
     gap: Spacing.md,
   },
   headerTopRow: {

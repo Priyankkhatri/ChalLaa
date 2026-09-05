@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: Spacing.md,
-    paddingBottom: Spacing.xxl + 40,
+    paddingBottom: Spacing.xxl + 50,
     gap: Spacing.md,
   },
   headerHeroWrapper: {
@@ -555,7 +555,8 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
     overflow: 'hidden',
     ...Shadows.glow,
-    marginTop: Spacing.xs,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.sm,
   },
   submitButton: {
     flexDirection: 'row',
