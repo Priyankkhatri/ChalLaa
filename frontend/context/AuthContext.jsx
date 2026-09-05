@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import * as SecureStore from 'expo-secure-store';
+import storage from '../services/storage';
 import api from '../services/api';
 
 /**
  * Authentication Context & Provider for ChalLaa
- * Handles persistent JWT session storage in SecureStore,
+ * Handles persistent JWT session storage in SecureStore (native) & localStorage (web),
  * login, registration, user profile updates, and logout.
  */
 const AuthContext = createContext();
@@ -14,12 +14,12 @@ export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check SecureStore for existing session on app startup
+  // Check persistent storage for existing session on app startup
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const storedToken = await SecureStore.getItemAsync('accessToken');
-        const storedUser = await SecureStore.getItemAsync('user');
+        const storedToken = await storage.getItem('accessToken');
+        const storedUser = await storage.getItem('user');
 
         if (storedToken && storedUser) {
           setAccessToken(storedToken);
@@ -39,9 +39,9 @@ export const AuthProvider = ({ children }) => {
     const response = await api.post('/auth/login', { email, password });
     const { accessToken: token, refreshToken, user: userData } = response.data;
 
-    await SecureStore.setItemAsync('accessToken', token);
-    await SecureStore.setItemAsync('refreshToken', refreshToken);
-    await SecureStore.setItemAsync('user', JSON.stringify(userData));
+    await storage.setItem('accessToken', token);
+    await storage.setItem('refreshToken', refreshToken);
+    await storage.setItem('user', JSON.stringify(userData));
 
     setAccessToken(token);
     setUser(userData);
@@ -51,9 +51,9 @@ export const AuthProvider = ({ children }) => {
     const response = await api.post('/auth/register', data);
     const { accessToken: token, refreshToken, user: userData } = response.data;
 
-    await SecureStore.setItemAsync('accessToken', token);
-    await SecureStore.setItemAsync('refreshToken', refreshToken);
-    await SecureStore.setItemAsync('user', JSON.stringify(userData));
+    await storage.setItem('accessToken', token);
+    await storage.setItem('refreshToken', refreshToken);
+    await storage.setItem('user', JSON.stringify(userData));
 
     setAccessToken(token);
     setUser(userData);
@@ -61,9 +61,9 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await SecureStore.deleteItemAsync('accessToken');
-      await SecureStore.deleteItemAsync('refreshToken');
-      await SecureStore.deleteItemAsync('user');
+      await storage.deleteItem('accessToken');
+      await storage.deleteItem('refreshToken');
+      await storage.deleteItem('user');
     } catch (error) {
       console.warn('[Auth Logout Clean Error]', error);
     } finally {
@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }) => {
   const updateUser = async (updatedData) => {
     const response = await api.put('/users/me', updatedData);
     const updatedUser = response.data.user;
-    await SecureStore.setItemAsync('user', JSON.stringify(updatedUser));
+    await storage.setItem('user', JSON.stringify(updatedUser));
     setUser(updatedUser);
   };
 
@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.get('/users/me');
       const latestUser = response.data.user;
-      await SecureStore.setItemAsync('user', JSON.stringify(latestUser));
+      await storage.setItem('user', JSON.stringify(latestUser));
       setUser(latestUser);
     } catch (error) {
       console.warn('[Auth RefreshProfile Error]', error);

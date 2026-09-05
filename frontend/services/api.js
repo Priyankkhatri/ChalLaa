@@ -1,5 +1,5 @@
 import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
+import storage from './storage';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
@@ -48,7 +48,7 @@ api.interceptors.request.use(
       // Ensure baseURL is dynamically resolved if host changed
       config.baseURL = getBaseUrl();
 
-      const accessToken = await SecureStore.getItemAsync('accessToken');
+      const accessToken = await storage.getItem('accessToken');
       if (accessToken && config.headers) {
         config.headers.Authorization = `Bearer ${accessToken}`;
       }
@@ -70,11 +70,11 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = await SecureStore.getItemAsync('refreshToken');
+        const refreshToken = await storage.getItem('refreshToken');
         if (!refreshToken) {
-          await SecureStore.deleteItemAsync('accessToken');
-          await SecureStore.deleteItemAsync('refreshToken');
-          await SecureStore.deleteItemAsync('user');
+          await storage.deleteItem('accessToken');
+          await storage.deleteItem('refreshToken');
+          await storage.deleteItem('user');
           return Promise.reject(error);
         }
 
@@ -86,9 +86,9 @@ api.interceptors.response.use(
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
           refreshResponse.data;
 
-        await SecureStore.setItemAsync('accessToken', newAccessToken);
+        await storage.setItem('accessToken', newAccessToken);
         if (newRefreshToken) {
-          await SecureStore.setItemAsync('refreshToken', newRefreshToken);
+          await storage.setItem('refreshToken', newRefreshToken);
         }
 
         if (originalRequest.headers) {
@@ -97,9 +97,9 @@ api.interceptors.response.use(
 
         return api(originalRequest);
       } catch (refreshError) {
-        await SecureStore.deleteItemAsync('accessToken');
-        await SecureStore.deleteItemAsync('refreshToken');
-        await SecureStore.deleteItemAsync('user');
+        await storage.deleteItem('accessToken');
+        await storage.deleteItem('refreshToken');
+        await storage.deleteItem('user');
         return Promise.reject(refreshError);
       }
     }
