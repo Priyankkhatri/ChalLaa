@@ -63,12 +63,12 @@ export default function DisputeModal({ visible, errand, onClose }) {
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.modalCard}>
-          <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-            <X size={20} color={Colors.textSecondary} />
+          <TouchableOpacity style={styles.closeBtn} onPress={onClose} activeOpacity={0.8}>
+            <X size={20} color={Colors.powderBlue} />
           </TouchableOpacity>
 
           <View style={styles.iconCircle}>
-            <ShieldAlert size={30} color={Colors.danger} />
+            <ShieldAlert size={30} color="#F87171" />
           </View>
 
           <Text style={styles.title}>Report Errand Issue</Text>
@@ -79,25 +79,29 @@ export default function DisputeModal({ visible, errand, onClose }) {
           {/* Reason selection chips */}
           <Text style={styles.sectionLabel}>Select Reason:</Text>
           <View style={styles.reasonsContainer}>
-            {DISPUTE_REASONS.map((r) => (
-              <TouchableOpacity
-                key={r.key}
-                style={[
-                  styles.reasonChip,
-                  selectedReason === r.key && styles.reasonChipActive,
-                ]}
-                onPress={() => setSelectedReason(r.key)}
-              >
-                <Text
+            {DISPUTE_REASONS.map((r) => {
+              const active = selectedReason === r.key;
+              return (
+                <TouchableOpacity
+                  key={r.key}
                   style={[
-                    styles.reasonText,
-                    selectedReason === r.key && styles.reasonTextActive,
+                    styles.reasonChip,
+                    active && styles.reasonChipActive,
                   ]}
+                  onPress={() => setSelectedReason(r.key)}
+                  activeOpacity={0.8}
                 >
-                  {r.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  <Text
+                    style={[
+                      styles.reasonText,
+                      active && styles.reasonTextActive,
+                    ]}
+                  >
+                    {r.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
 
           {/* Description input */}
@@ -116,6 +120,7 @@ export default function DisputeModal({ visible, errand, onClose }) {
             style={[styles.submitBtn, submitting && styles.btnDisabled]}
             onPress={handleSubmit}
             disabled={submitting}
+            activeOpacity={0.85}
           >
             {submitting ? (
               <ActivityIndicator color={Colors.white} />
@@ -132,30 +137,35 @@ export default function DisputeModal({ visible, errand, onClose }) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(13, 24, 33, 0.88)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.lg,
   },
   modalCard: {
     width: '100%',
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
+    maxWidth: 400,
+    backgroundColor: Colors.yaleBlue,
+    borderRadius: BorderRadius.xxl,
     padding: Spacing.xl,
     position: 'relative',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
     ...Shadows.glow,
   },
   closeBtn: {
     position: 'absolute',
     top: Spacing.md,
     right: Spacing.md,
-    padding: 4,
+    padding: 6,
   },
   iconCircle: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: Colors.dangerBg,
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.35)',
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
@@ -163,13 +173,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: Typography.lg,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     textAlign: 'center',
     marginTop: 4,
     marginBottom: Spacing.md,
@@ -177,8 +187,8 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: Typography.xs,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
     marginBottom: 6,
   },
   reasonsContainer: {
@@ -188,50 +198,52 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   reasonChip: {
-    backgroundColor: Colors.background,
-    paddingHorizontal: Spacing.sm + 2,
+    backgroundColor: 'rgba(13, 24, 33, 0.55)',
+    paddingHorizontal: Spacing.sm + 4,
     paddingVertical: 6,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
   },
   reasonChipActive: {
-    backgroundColor: Colors.dangerBg,
-    borderColor: Colors.danger,
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+    borderColor: '#F87171',
   },
   reasonText: {
     fontSize: Typography.xs - 1,
-    color: Colors.textSecondary,
+    color: Colors.porcelain,
+    fontWeight: '600',
   },
   reasonTextActive: {
-    color: Colors.danger,
-    fontWeight: 'bold',
+    color: '#F87171',
+    fontWeight: '800',
   },
   input: {
     width: '100%',
     height: 90,
-    backgroundColor: Colors.background,
-    borderRadius: BorderRadius.md,
+    backgroundColor: 'rgba(13, 24, 33, 0.6)',
+    borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
     fontSize: Typography.sm,
-    color: Colors.text,
+    color: Colors.porcelain,
     textAlignVertical: 'top',
     marginBottom: Spacing.lg,
   },
   submitBtn: {
     width: '100%',
     height: 48,
-    backgroundColor: Colors.danger,
-    borderRadius: BorderRadius.md,
+    backgroundColor: '#DC2626',
+    borderRadius: BorderRadius.full,
     justifyContent: 'center',
     alignItems: 'center',
+    ...Shadows.glow,
   },
   submitBtnText: {
     color: Colors.white,
     fontSize: Typography.sm,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   btnDisabled: {
     opacity: 0.6,
