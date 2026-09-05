@@ -767,7 +767,7 @@ const styles = StyleSheet.create({
   },
   fabWrapper: {
     position: 'absolute',
-    bottom: Spacing.xl + 20,
+    bottom: 86,
     right: Spacing.lg,
     borderRadius: 30,
     overflow: 'hidden',
