@@ -28,7 +28,7 @@ function NavigationGuard() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.primary} />
+        <ActivityIndicator size="large" color={Colors.powderBlue} />
       </View>
     );
   }
@@ -37,18 +37,32 @@ function NavigationGuard() {
     <>
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: Colors.primary },
-          headerTintColor: Colors.white,
-          headerTitleStyle: { fontWeight: 'bold' },
+          headerStyle: {
+            backgroundColor: Colors.inkBlack,
+            borderBottomWidth: 1,
+            borderBottomColor: Colors.glassBorder,
+          },
+          headerTintColor: Colors.porcelain,
+          headerTitleStyle: {
+            fontWeight: '800',
+            color: Colors.porcelain,
+            letterSpacing: -0.2,
+          },
+          contentStyle: {
+            backgroundColor: Colors.inkBlack,
+          },
         }}
       >
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="errand/post" options={{ title: 'Post New Errand', presentation: 'card' }} />
+        <Stack.Screen
+          name="errand/post"
+          options={{ title: 'Post New Errand', presentation: 'card' }}
+        />
         <Stack.Screen name="errand/[id]" options={{ title: 'Errand Details' }} />
         <Stack.Screen name="admin/index" options={{ title: 'Campus Moderation Panel' }} />
       </Stack>
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
     </>
   );
 }
@@ -66,6 +80,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.inkBlack,
   },
 });
