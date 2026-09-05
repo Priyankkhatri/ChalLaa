@@ -59,7 +59,7 @@ const CATEGORY_STYLES = {
 };
 
 export default function DiscoveryFeedScreen() {
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [errands, setErrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -74,7 +74,38 @@ export default function DiscoveryFeedScreen() {
   const [userCoords, setUserCoords] = useState(null);
   const [locationName, setLocationName] = useState('Detecting campus...');
 
+  const fetchErrands = async (lat, lng, radius, category, search) => {
+    try {
+      const params = {
+        lat: lat || userCoords?.lat || 28.6139,
+        lng: lng || userCoords?.lng || 77.209,
+        radius: radius || radiusKm,
+      };
+
+      if (category && category !== 'all') {
+        params.category = category;
+      }
+      if (search && search.trim()) {
+        params.search = search.trim();
+      }
+
+      const response = await api.get('/errands/nearby', { params });
+      setErrands(response.data.errands || []);
+    } catch (err) {
+      if (err.response?.status !== 401) {
+        console.warn('[Fetch errands error]', err);
+        setError(err.response?.data?.message || 'Failed to fetch nearby errands.');
+      }
+    }
+  };
+
   const initializeFeed = useCallback(async () => {
+    if (!isAuthenticated) {
+      setLoading(false);
+      setRefreshing(false);
+      return;
+    }
+
     try {
       setError(null);
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -110,34 +141,13 @@ export default function DiscoveryFeedScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [radiusKm, selectedCategory, searchQuery]);
-
-  const fetchErrands = async (lat, lng, radius, category, search) => {
-    try {
-      const params = {
-        lat: lat || userCoords?.lat || 28.6139,
-        lng: lng || userCoords?.lng || 77.209,
-        radius: radius || radiusKm,
-      };
-
-      if (category && category !== 'all') {
-        params.category = category;
-      }
-      if (search && search.trim()) {
-        params.search = search.trim();
-      }
-
-      const response = await api.get('/errands/nearby', { params });
-      setErrands(response.data.errands || []);
-    } catch (err) {
-      console.warn('[Fetch errands error]', err);
-      setError(err.response?.data?.message || 'Failed to fetch nearby errands.');
-    }
-  };
+  }, [isAuthenticated, radiusKm, selectedCategory, searchQuery]);
 
   useEffect(() => {
-    initializeFeed();
-  }, [initializeFeed]);
+    if (isAuthenticated && !authLoading) {
+      initializeFeed();
+    }
+  }, [initializeFeed, isAuthenticated, authLoading]);
 
   const onRefresh = async () => {
     setRefreshing(true);
