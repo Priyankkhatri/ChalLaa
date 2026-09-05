@@ -127,9 +127,7 @@ export default function ErrandDetailScreen() {
           onPress: async () => {
             setActionLoading(true);
             try {
-              const res = await api.patch(`/errands/${errand._id}/status`, {
-                status: 'accepted',
-              });
+              const res = await api.patch(`/errands/${errand._id}/accept`);
               setErrand(res.data.errand);
               Alert.alert('Errand Accepted!', 'You are now the active runner for this task.');
             } catch (err) {
