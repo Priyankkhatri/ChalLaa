@@ -1,3 +1,7 @@
+/**
+ * ChalLaa Modern Campus Design Tokens
+ * Harmonious color palettes, typography scale, borders, and glassmorphism shadows.
+ */
 export const Colors = {
   // Brand Primary: Electric Indigo & Violet
   primary: '#6366F1',
