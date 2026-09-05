@@ -31,14 +31,14 @@ const TAB_CONFIG = {
 
 /**
  * LiquidGlassTabBar
- * Ultra-interactive iOS 26 Liquid Glass floating bottom navigation bar
- * Theme: Option 4 — Campus Espresso & Warm Amber
+ * Ultra-crisp iOS 26 Light Liquid Glass floating bottom navigation bar
+ * Theme: Apple / Linear Light Liquid Glass (Royal Cobalt & Crystalline White)
  * 
  * Features:
- * - Real-time slide & glide: touch/mouse hold & slide smoothly tracks the finger
- * - Sliding from Campus Feed to My Errands transitions the active tab & route
+ * - Real-time hold-and-slide: glide finger/cursor smoothly to switch between tabs
  * - Velocity-aware squash-and-stretch fluid mercury physics
- * - Warm Honey Amber caustics & Vanilla Cream specular crest
+ * - High-contrast Royal Blue active capsule over crystalline frosted glass
+ * - Crisp Slate 900 typography and haptic touch feedback
  */
 export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
   const [containerWidth, setContainerWidth] = useState(0);
@@ -63,13 +63,13 @@ export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
         Animated.spring(translateX, {
           toValue: state.index * tabWidth + 4,
           useNativeDriver: true,
-          tension: 75,
-          friction: 8,
+          tension: 78,
+          friction: 8.5,
         }),
         Animated.sequence([
           Animated.timing(bubbleScaleX, {
-            toValue: 1.16,
-            duration: 110,
+            toValue: 1.15,
+            duration: 100,
             useNativeDriver: true,
           }),
           Animated.spring(bubbleScaleX, {
@@ -89,9 +89,9 @@ export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
       onStartShouldSetPanResponder: () => true,
       onStartShouldSetPanResponderCapture: () => false,
       onMoveShouldSetPanResponder: (_, gestureState) =>
-        Math.abs(gestureState.dx) > 4,
+        Math.abs(gestureState.dx) > 3,
       onMoveShouldSetPanResponderCapture: (_, gestureState) =>
-        Math.abs(gestureState.dx) > 4,
+        Math.abs(gestureState.dx) > 3,
       onPanResponderGrant: () => {
         Animated.parallel([
           Animated.spring(bubbleScaleX, {
@@ -276,17 +276,17 @@ export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
     <View style={styles.floatingContainer} pointerEvents="box-none">
       <LiquidGlassView
         variant="regular"
-        tintColor="rgba(18, 16, 14, 0.78)"
+        tintColor="rgba(255, 255, 255, 0.82)"
         borderRadius={32}
         interactive={true}
         intensity={65}
         rim={true}
         style={[styles.glassPill, webGlassStyle]}
       >
-        {/* Ambient Honey Amber & Mocha Caustic Fields */}
+        {/* Ambient Subtle Caustic Fields */}
         <View style={styles.causticBackdrop} pointerEvents="none">
-          <View style={styles.causticOrbAmber} />
-          <View style={styles.causticOrbMocha} />
+          <View style={styles.causticOrbSky} />
+          <View style={styles.causticOrbLilac} />
         </View>
 
         {/* Tab Bar Inner Container & Gesture Track */}
@@ -303,7 +303,7 @@ export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
               }
             : {})}
         >
-          {/* Fluid Sliding Honey Amber Mercury Bubble */}
+          {/* Fluid Sliding Royal Cobalt Mercury Bubble */}
           {tabWidth > 0 && (
             <Animated.View
               pointerEvents="none"
@@ -320,16 +320,12 @@ export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
               ]}
             >
               <LinearGradient
-                colors={[
-                  'rgba(245, 158, 11, 0.40)',
-                  'rgba(180, 83, 9, 0.58)',
-                  'rgba(44, 30, 22, 0.75)',
-                ]}
+                colors={['#3B82F6', '#2563EB']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 0, y: 1 }}
                 style={styles.mercuryGradient}
               >
-                {/* Specular Vanilla Cream Highlight Crest */}
+                {/* Specular Pure White Highlight Crest */}
                 <View style={styles.mercuryCrest} />
               </LinearGradient>
             </Animated.View>
@@ -377,16 +373,12 @@ export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
                 activeOpacity={0.82}
                 style={[styles.tabItem, isHovered && styles.tabItemHovered]}
               >
-                {/* Tab Icon with Dynamic Honey Amber Glow */}
+                {/* Tab Icon */}
                 <View style={isHovered ? styles.activeIconGlow : null}>
                   <Icon
-                    size={21}
-                    color={
-                      isHovered
-                        ? '#FBBF24'
-                        : 'rgba(245, 158, 11, 0.40)'
-                    }
-                    strokeWidth={isHovered ? 2.6 : 1.9}
+                    size={20}
+                    color={isHovered ? '#FFFFFF' : '#64748B'}
+                    strokeWidth={isHovered ? 2.5 : 2.0}
                   />
                 </View>
 
@@ -415,11 +407,11 @@ export default function LiquidGlassTabBar({ state, descriptors, navigation }) {
 const webGlassStyle =
   Platform.OS === 'web'
     ? {
-        backdropFilter: 'blur(36px) saturate(220%)',
-        WebkitBackdropFilter: 'blur(36px) saturate(220%)',
+        backdropFilter: 'blur(36px) saturate(190%)',
+        WebkitBackdropFilter: 'blur(36px) saturate(190%)',
         boxShadow:
-          '0 20px 48px 0 rgba(0, 0, 0, 0.75), 0 0 24px 0 rgba(245, 158, 11, 0.22), inset 0 1.5px 2px 0 rgba(253, 251, 247, 0.55), inset 0 -1px 2px 0 rgba(180, 83, 9, 0.40)',
-        borderColor: 'rgba(245, 158, 11, 0.42)',
+          '0 20px 48px 0 rgba(15, 23, 42, 0.12), 0 2px 10px 0 rgba(15, 23, 42, 0.04), inset 0 1.5px 2px 0 #FFFFFF, inset 0 -1px 2px 0 rgba(0, 0, 0, 0.03)',
+        borderColor: 'rgba(255, 255, 255, 0.95)',
         borderWidth: 1.2,
       }
     : {};
@@ -438,33 +430,33 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     overflow: 'hidden',
     borderWidth: 1.2,
-    borderColor: 'rgba(245, 158, 11, 0.38)',
-    borderTopColor: 'rgba(251, 191, 36, 0.70)',
-    ...Shadows.glow,
+    borderColor: 'rgba(255, 255, 255, 0.95)',
+    borderTopColor: '#FFFFFF',
+    ...Shadows.glass,
   },
   causticBackdrop: {
     ...StyleSheet.absoluteFillObject,
     overflow: 'hidden',
     borderRadius: 32,
   },
-  causticOrbAmber: {
+  causticOrbSky: {
     position: 'absolute',
     top: -12,
     left: '25%',
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: 'rgba(245, 158, 11, 0.16)',
+    backgroundColor: 'rgba(59, 130, 246, 0.10)',
     ...(Platform.OS === 'web' ? { filter: 'blur(22px)' } : {}),
   },
-  causticOrbMocha: {
+  causticOrbLilac: {
     position: 'absolute',
     bottom: -15,
     right: '25%',
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(224, 109, 83, 0.14)',
+    backgroundColor: 'rgba(139, 92, 246, 0.08)',
     ...(Platform.OS === 'web' ? { filter: 'blur(20px)' } : {}),
   },
   tabBarInner: {
@@ -484,13 +476,13 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.65)',
-    borderTopColor: 'rgba(253, 251, 247, 0.90)',
+    borderColor: 'rgba(255, 255, 255, 0.50)',
+    borderTopColor: 'rgba(255, 255, 255, 0.85)',
     zIndex: 1,
     ...(Platform.OS === 'web'
       ? {
           boxShadow:
-            '0 0 22px rgba(245, 158, 11, 0.45), inset 0 1px 2px rgba(253, 251, 247, 0.80), inset 0 -1px 2px rgba(180, 83, 9, 0.55)',
+            '0 6px 20px rgba(37, 99, 235, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.60)',
         }
       : {}),
   },
@@ -506,7 +498,7 @@ const styles = StyleSheet.create({
     right: '20%',
     height: 1.5,
     borderRadius: 1,
-    backgroundColor: 'rgba(253, 251, 247, 0.85)',
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
   },
   tabItem: {
     flex: 1,
@@ -520,29 +512,29 @@ const styles = StyleSheet.create({
     transition: 'transform 0.15s ease',
   },
   tabItemHovered: {
-    transform: [{ scale: 1.05 }],
+    transform: [{ scale: 1.04 }],
   },
   activeIconGlow: {
-    shadowColor: '#F59E0B',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.95,
-    shadowRadius: 12,
+    shadowColor: '#2563EB',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.40,
+    shadowRadius: 8,
     ...(Platform.OS === 'web'
       ? {
-          filter: 'drop-shadow(0 0 8px rgba(245, 158, 11, 0.85))',
+          filter: 'drop-shadow(0 2px 6px rgba(37, 99, 235, 0.30))',
         }
       : {}),
   },
   tabLabel: {
     fontSize: 10.5,
-    letterSpacing: 0.2,
+    letterSpacing: 0.15,
   },
   tabLabelActive: {
-    color: '#FDFBF7',
+    color: '#FFFFFF',
     fontWeight: '800',
   },
   tabLabelInactive: {
-    color: 'rgba(253, 251, 247, 0.50)',
+    color: '#64748B',
     fontWeight: '600',
   },
 });

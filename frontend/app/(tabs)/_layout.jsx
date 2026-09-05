@@ -10,9 +10,9 @@ export default function TabLayout() {
       screenOptions={{
         animation: 'shift',
         headerStyle: {
-          backgroundColor: 'rgba(13, 24, 33, 0.85)',
+          backgroundColor: 'rgba(255, 255, 255, 0.85)',
           borderBottomWidth: 1,
-          borderBottomColor: Colors.glassBorder,
+          borderBottomColor: 'rgba(226, 232, 240, 0.80)',
         },
         headerTintColor: Colors.porcelain,
         headerTitleStyle: {
