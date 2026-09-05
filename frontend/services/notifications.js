@@ -1,6 +1,10 @@
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { Platform } from 'react-native';
 
+/**
+ * Local Notification Manager for ChalLaa
+ * Safe execution across standalone builds and Expo Go environments.
+ */
 const isExpoGo =
   Constants.appOwnership === 'expo' ||
   Constants.executionEnvironment === ExecutionEnvironment.StoreClient ||
