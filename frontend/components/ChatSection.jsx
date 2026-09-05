@@ -12,6 +12,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { Send, MessageSquare, Clock, Sparkles, ShieldCheck } from 'lucide-react-native';
+import { BlurView } from 'expo-blur';
 import api from '../services/api';
 import { getSocket } from '../services/socket';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
@@ -189,13 +190,13 @@ export default function ChatSection({ errand, currentUser }) {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
       <View style={styles.chatHeader}>
-        <ShieldCheck size={16} color={Colors.primary} />
+        <ShieldCheck size={16} color={Colors.powderBlue} />
         <Text style={styles.chatHeaderTitle}>End-to-End Campus Errand Channel</Text>
       </View>
 
       {loading ? (
         <View style={styles.centerLoading}>
-          <ActivityIndicator color={Colors.primary} />
+          <ActivityIndicator color={Colors.powderBlue} />
           <Text style={styles.loadingText}>Connecting to errand chat...</Text>
         </View>
       ) : (
@@ -209,7 +210,7 @@ export default function ChatSection({ errand, currentUser }) {
           onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <MessageSquare size={40} color={Colors.textMuted} />
+              <MessageSquare size={40} color={Colors.powderBlue} />
               <Text style={styles.emptyTitle}>No messages yet</Text>
               <Text style={styles.emptySubtitle}>
                 Coordinate pickup, substitutions, or delivery details in real time.
@@ -234,6 +235,7 @@ export default function ChatSection({ errand, currentUser }) {
               key={idx}
               style={styles.quickPromptChip}
               onPress={() => handleSendMessage(prompt)}
+              activeOpacity={0.8}
             >
               <Text style={styles.quickPromptText}>{prompt}</Text>
             </TouchableOpacity>
@@ -257,8 +259,9 @@ export default function ChatSection({ errand, currentUser }) {
           style={[styles.sendBtn, !inputText.trim() && styles.sendBtnDisabled]}
           onPress={() => handleSendMessage()}
           disabled={!inputText.trim()}
+          activeOpacity={0.85}
         >
-          <Send size={16} color={Colors.white} />
+          <Send size={16} color={Colors.inkBlack} strokeWidth={2.6} />
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -268,22 +271,26 @@ export default function ChatSection({ errand, currentUser }) {
 const styles = StyleSheet.create({
   container: {
     height: 520,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.inkBlack,
+    borderRadius: BorderRadius.xl,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
   },
   chatHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-    backgroundColor: Colors.card,
+    backgroundColor: 'rgba(52, 73, 102, 0.45)',
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: Colors.glassBorder,
   },
   chatHeaderTitle: {
     fontSize: Typography.xs,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   messageList: {
     padding: Spacing.md,
@@ -301,10 +308,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   senderAvatar: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: Colors.primaryLight,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'rgba(180, 205, 237, 0.15)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 6,
@@ -312,8 +321,8 @@ const styles = StyleSheet.create({
   },
   senderAvatarText: {
     fontSize: Typography.xs - 2,
-    fontWeight: 'bold',
-    color: Colors.primary,
+    fontWeight: '800',
+    color: Colors.powderBlue,
   },
   bubble: {
     maxWidth: '78%',
@@ -322,21 +331,20 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
   },
   bubbleMe: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.powderBlue,
     borderBottomRightRadius: BorderRadius.xs,
-    ...Shadows.subtle,
+    ...Shadows.glow,
   },
   bubbleOther: {
-    backgroundColor: Colors.card,
+    backgroundColor: 'rgba(52, 73, 102, 0.55)',
     borderBottomLeftRadius: BorderRadius.xs,
     borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.subtle,
+    borderColor: Colors.glassBorder,
   },
   senderName: {
     fontSize: Typography.xs - 2,
-    fontWeight: 'bold',
-    color: Colors.primary,
+    fontWeight: '800',
+    color: Colors.powderBlue,
     marginBottom: 2,
   },
   messageText: {
@@ -344,21 +352,23 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   messageTextMe: {
-    color: Colors.white,
+    color: Colors.inkBlack,
+    fontWeight: '600',
   },
   messageTextOther: {
-    color: Colors.text,
+    color: Colors.porcelain,
   },
   timeText: {
     fontSize: Typography.xs - 4,
     marginTop: 3,
     alignSelf: 'flex-end',
+    fontWeight: '600',
   },
   timeTextMe: {
-    color: 'rgba(255,255,255,0.75)',
+    color: 'rgba(13, 24, 33, 0.7)',
   },
   timeTextOther: {
-    color: Colors.textMuted,
+    color: Colors.powderBlue,
   },
   typingBanner: {
     flexDirection: 'row',
@@ -366,17 +376,20 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: Spacing.md,
     paddingVertical: 4,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: 'rgba(191, 204, 148, 0.12)',
+    borderTopWidth: 1,
+    borderTopColor: Colors.glassSageBorder,
   },
   typingText: {
     fontSize: Typography.xs - 1,
-    color: Colors.primary,
+    color: Colors.drySage,
     fontStyle: 'italic',
+    fontWeight: '600',
   },
   quickPromptsWrapper: {
-    backgroundColor: Colors.card,
+    backgroundColor: 'rgba(13, 24, 33, 0.75)',
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    borderTopColor: 'rgba(52, 73, 102, 0.35)',
     paddingVertical: 6,
   },
   quickPromptsScroll: {
@@ -384,50 +397,51 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
   },
   quickPromptChip: {
-    backgroundColor: Colors.background,
+    backgroundColor: 'rgba(52, 73, 102, 0.35)',
     paddingHorizontal: Spacing.sm + 4,
     paddingVertical: 5,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
   },
   quickPromptText: {
     fontSize: Typography.xs - 1,
-    color: Colors.text,
-    fontWeight: '500',
+    color: Colors.porcelain,
+    fontWeight: '600',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.card,
+    backgroundColor: 'rgba(13, 24, 33, 0.85)',
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     gap: Spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    borderTopColor: Colors.glassBorder,
   },
   textInput: {
     flex: 1,
-    backgroundColor: Colors.background,
-    borderRadius: BorderRadius.lg,
+    backgroundColor: 'rgba(52, 73, 102, 0.3)',
+    borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
+    paddingVertical: Spacing.sm - 2,
     fontSize: Typography.sm,
-    color: Colors.text,
+    color: Colors.porcelain,
     maxHeight: 80,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
   },
   sendBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.powderBlue,
     justifyContent: 'center',
     alignItems: 'center',
+    ...Shadows.glow,
   },
   sendBtnDisabled: {
-    opacity: 0.5,
+    opacity: 0.4,
   },
   centerLoading: {
     flex: 1,
@@ -436,7 +450,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: Spacing.sm,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     fontSize: Typography.xs,
   },
   emptyContainer: {
@@ -447,13 +461,13 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: Typography.base,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
     marginTop: Spacing.xs,
   },
   emptySubtitle: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     textAlign: 'center',
     marginTop: 4,
     lineHeight: 16,
