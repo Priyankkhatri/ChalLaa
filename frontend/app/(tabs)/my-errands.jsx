@@ -175,7 +175,7 @@ export default function MyErrandsScreen() {
     <LiquidCanvas style={styles.container}>
       {/* Liquid Glass Segmented Capsule */}
       <View style={styles.segmentedWrapper}>
-        <BlurView intensity={Platform.OS === 'ios' ? 30 : 60} tint="dark" style={styles.segmentedBlur}>
+        <BlurView intensity={Platform.OS === 'ios' ? 30 : 60} tint="light" style={styles.segmentedBlur}>
           <View style={styles.segmentedControl}>
             {ROLE_FILTERS.map((f) => {
               const isSelected = selectedRole === f.id;
@@ -242,7 +242,7 @@ export default function MyErrandsScreen() {
                   end={{ x: 1, y: 1 }}
                   style={styles.emptyPostBtn}
                 >
-                  <Plus size={16} color={Colors.inkBlack} strokeWidth={2.8} />
+                  <Plus size={16} color="#FFFFFF" strokeWidth={2.8} />
                   <Text style={styles.emptyPostBtnText}>Post a Request</Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -263,11 +263,11 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
     overflow: 'hidden',
     borderWidth: 1.2,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     ...(Platform.OS === 'web' ? {
       backdropFilter: 'blur(20px)',
       WebkitBackdropFilter: 'blur(20px)',
-      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+      boxShadow: '0 4px 16px rgba(15, 23, 42, 0.05)',
     } : {}),
     ...Shadows.subtle,
   },
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   segmentedControl: {
     flexDirection: 'row',
     padding: 4,
-    backgroundColor: 'rgba(52, 73, 102, 0.25)',
+    backgroundColor: 'rgba(241, 245, 249, 0.85)',
   },
   segmentBtn: {
     flex: 1,
@@ -291,10 +291,10 @@ const styles = StyleSheet.create({
   segmentText: {
     fontSize: Typography.xs,
     fontWeight: '600',
-    color: Colors.porcelain,
+    color: Colors.textMuted,
   },
   segmentTextActive: {
-    color: Colors.inkBlack,
+    color: '#FFFFFF',
     fontWeight: '800',
   },
   listContent: {
@@ -321,12 +321,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   roleRequester: {
-    backgroundColor: 'rgba(180, 205, 237, 0.12)',
-    borderColor: 'rgba(180, 205, 237, 0.25)',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
+    borderColor: 'rgba(37, 99, 235, 0.20)',
   },
   roleRunner: {
-    backgroundColor: 'rgba(191, 204, 148, 0.12)',
-    borderColor: Colors.glassSageBorder,
+    backgroundColor: 'rgba(5, 150, 105, 0.08)',
+    borderColor: 'rgba(5, 150, 105, 0.25)',
   },
   roleBadgeText: {
     fontSize: Typography.xs - 2,
@@ -347,7 +347,8 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
+    backgroundColor: 'rgba(255, 255, 255, 0.90)',
   },
   statusBadgeText: {
     fontSize: Typography.xs - 2,
@@ -362,20 +363,20 @@ const styles = StyleSheet.create({
   },
   detailsRow: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(13, 24, 33, 0.55)',
+    backgroundColor: 'rgba(248, 250, 252, 0.90)',
     borderRadius: BorderRadius.lg,
     padding: Spacing.sm,
     marginTop: Spacing.xs,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(52, 73, 102, 0.35)',
+    borderColor: 'rgba(226, 232, 240, 0.85)',
   },
   budgetBox: {
     paddingRight: Spacing.md,
   },
   budgetLabel: {
     fontSize: Typography.xs - 3,
-    color: Colors.powderBlue,
+    color: Colors.textMuted,
     textTransform: 'uppercase',
     fontWeight: '800',
     letterSpacing: 0.4,
@@ -389,7 +390,7 @@ const styles = StyleSheet.create({
   divider: {
     width: 1,
     height: 26,
-    backgroundColor: 'rgba(52, 73, 102, 0.5)',
+    backgroundColor: 'rgba(226, 232, 240, 0.90)',
     marginRight: Spacing.md,
   },
   personBox: {
@@ -397,7 +398,7 @@ const styles = StyleSheet.create({
   },
   personLabel: {
     fontSize: Typography.xs - 3,
-    color: Colors.powderBlue,
+    color: Colors.textMuted,
     textTransform: 'uppercase',
     fontWeight: '800',
     letterSpacing: 0.4,
@@ -415,7 +416,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm + 2,
     paddingTop: Spacing.xs + 2,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(52, 73, 102, 0.35)',
+    borderTopColor: 'rgba(226, 232, 240, 0.80)',
   },
   dateRow: {
     flexDirection: 'row',
@@ -457,9 +458,9 @@ const styles = StyleSheet.create({
     width: 74,
     height: 74,
     borderRadius: 37,
-    backgroundColor: 'rgba(52, 73, 102, 0.45)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.md,
@@ -471,7 +472,7 @@ const styles = StyleSheet.create({
   },
   emptySubtitle: {
     fontSize: Typography.xs,
-    color: 'rgba(240, 244, 239, 0.7)',
+    color: '#64748B',
     textAlign: 'center',
     marginTop: 4,
     lineHeight: 18,
@@ -491,7 +492,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
   },
   emptyPostBtnText: {
-    color: Colors.inkBlack,
+    color: '#FFFFFF',
     fontSize: Typography.sm,
     fontWeight: '800',
   },

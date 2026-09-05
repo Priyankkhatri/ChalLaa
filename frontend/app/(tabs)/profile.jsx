@@ -202,9 +202,9 @@ export default function ProfileScreen() {
       <ScrollView style={styles.flexFill} contentContainerStyle={styles.scrollContent}>
         {/* Liquid Glass Luxury Profile Header */}
         <View style={styles.heroOuter}>
-        <BlurView intensity={Platform.OS === 'ios' ? 45 : 60} tint="dark" style={styles.heroBlur}>
+        <BlurView intensity={Platform.OS === 'ios' ? 45 : 60} tint="light" style={styles.heroBlur}>
           <LinearGradient
-            colors={['rgba(52, 73, 102, 0.65)', 'rgba(13, 24, 33, 0.9)']}
+            colors={['rgba(255, 255, 255, 0.96)', 'rgba(241, 245, 249, 0.90)']}
             start={{ x: 0, y: 0 }}
             end={{ x: 0.9, y: 1 }}
             style={styles.heroGradient}
@@ -274,9 +274,9 @@ export default function ProfileScreen() {
           onPress={() => router.push('/admin')}
           style={styles.adminBannerWrapper}
         >
-          <BlurView intensity={35} tint="dark" style={styles.adminBlur}>
+          <BlurView intensity={35} tint="light" style={styles.adminBlur}>
             <LinearGradient
-              colors={['rgba(52, 73, 102, 0.45)', 'rgba(13, 24, 33, 0.7)']}
+              colors={['rgba(255, 255, 255, 0.95)', 'rgba(239, 246, 255, 0.90)']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.adminBanner}
@@ -308,7 +308,7 @@ export default function ProfileScreen() {
             onPress={() => setIsEditing(!isEditing)}
             activeOpacity={0.8}
           >
-            <Edit3 size={13} color={Colors.inkBlack} />
+            <Edit3 size={13} color="#FFFFFF" />
             <Text style={styles.editLink}>{isEditing ? 'Cancel' : 'Edit'}</Text>
           </TouchableOpacity>
         </View>
@@ -356,7 +356,7 @@ export default function ProfileScreen() {
                 style={[styles.saveButton, savingProfile && styles.btnDisabled]}
               >
                 {savingProfile ? (
-                  <ActivityIndicator color={Colors.inkBlack} />
+                  <ActivityIndicator color="#FFFFFF" />
                 ) : (
                   <Text style={styles.saveButtonText}>Save Details</Text>
                 )}
@@ -579,6 +579,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.inkBlack,
   },
   flexFill: {
     flex: 1,
@@ -592,13 +593,13 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xxl,
     overflow: 'hidden',
     borderWidth: 1.2,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     ...(Platform.OS === 'web' ? {
       backdropFilter: 'blur(30px) saturate(190%)',
       WebkitBackdropFilter: 'blur(30px) saturate(190%)',
-      boxShadow: '0 12px 35px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(240, 244, 239, 0.3)',
+      boxShadow: '0 10px 30px rgba(15, 23, 42, 0.05), inset 0 1px 1px #FFFFFF',
     } : {}),
-    ...Shadows.glow,
+    ...Shadows.subtle,
   },
   heroBlur: {
     width: '100%',
@@ -613,15 +614,15 @@ const styles = StyleSheet.create({
     left: 40,
     right: 40,
     height: 1,
-    backgroundColor: 'rgba(240, 244, 239, 0.25)',
+    backgroundColor: '#FFFFFF',
   },
   avatarGlow: {
     width: 86,
     height: 86,
     borderRadius: 43,
-    backgroundColor: 'rgba(180, 205, 237, 0.15)',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
     borderWidth: 1,
-    borderColor: Colors.glassBorderGlow,
+    borderColor: 'rgba(37, 99, 235, 0.20)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.sm,
@@ -630,9 +631,12 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: Colors.yaleBlue,
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
+    ...(Platform.OS === 'web' ? {
+      boxShadow: '0 4px 14px rgba(37, 99, 235, 0.12)',
+    } : {}),
   },
   avatarText: {
     fontSize: Typography.title,
@@ -647,7 +651,7 @@ const styles = StyleSheet.create({
   },
   userEmail: {
     fontSize: Typography.xs,
-    color: Colors.powderBlue,
+    color: '#64748B',
     marginTop: 2,
   },
   badgeRow: {
@@ -661,16 +665,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: 'rgba(52, 73, 102, 0.45)',
+    backgroundColor: 'rgba(255, 255, 255, 0.90)',
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     paddingHorizontal: Spacing.sm + 4,
     paddingVertical: 4,
     borderRadius: BorderRadius.full,
   },
   glassBadgeSage: {
-    borderColor: Colors.glassSageBorder,
-    backgroundColor: 'rgba(191, 204, 148, 0.12)',
+    borderColor: 'rgba(5, 150, 105, 0.25)',
+    backgroundColor: 'rgba(5, 150, 105, 0.08)',
   },
   glassBadgeText: {
     fontSize: Typography.xs - 2,
@@ -683,18 +687,21 @@ const styles = StyleSheet.create({
     marginTop: Spacing.lg,
     paddingTop: Spacing.md,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(52, 73, 102, 0.4)',
+    borderTopColor: 'rgba(226, 232, 240, 0.80)',
     justifyContent: 'space-around',
   },
   glassStatBox: {
     alignItems: 'center',
-    backgroundColor: 'rgba(52, 73, 102, 0.35)',
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.md,
     borderRadius: BorderRadius.lg,
     minWidth: 84,
+    ...(Platform.OS === 'web' ? {
+      boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
+    } : {}),
   },
   glassStatNumber: {
     fontSize: Typography.base,
@@ -704,7 +711,7 @@ const styles = StyleSheet.create({
   },
   glassStatLabel: {
     fontSize: Typography.xs - 3,
-    color: Colors.powderBlue,
+    color: '#64748B',
     textTransform: 'uppercase',
     marginTop: 2,
     fontWeight: '800',
@@ -714,8 +721,8 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xl,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: Colors.glassBorderGlow,
-    ...Shadows.glow,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
+    ...Shadows.subtle,
   },
   adminBlur: {
     width: '100%',
@@ -730,7 +737,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: 'rgba(180, 205, 237, 0.15)',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -743,7 +750,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   adminBannerSub: {
-    color: Colors.powderBlue,
+    color: '#64748B',
     fontSize: Typography.xs - 1,
     marginTop: 2,
   },
@@ -765,7 +772,7 @@ const styles = StyleSheet.create({
   },
   sectionSubtitle: {
     fontSize: Typography.xs,
-    color: Colors.powderBlue,
+    color: '#64748B',
     marginBottom: Spacing.md,
     lineHeight: 16,
   },
@@ -781,12 +788,12 @@ const styles = StyleSheet.create({
   editLink: {
     fontSize: Typography.xs,
     fontWeight: '800',
-    color: Colors.inkBlack,
+    color: '#FFFFFF',
   },
   trustedCountBadge: {
-    backgroundColor: 'rgba(191, 204, 148, 0.18)',
+    backgroundColor: 'rgba(5, 150, 105, 0.08)',
     borderWidth: 1,
-    borderColor: Colors.glassSageBorder,
+    borderColor: 'rgba(5, 150, 105, 0.25)',
     paddingHorizontal: Spacing.sm + 2,
     paddingVertical: 2,
     borderRadius: BorderRadius.full,
@@ -805,11 +812,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: Spacing.sm - 2,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(52, 73, 102, 0.35)',
+    borderBottomColor: 'rgba(226, 232, 240, 0.80)',
   },
   infoLabel: {
     fontSize: Typography.sm,
-    color: Colors.powderBlue,
+    color: '#64748B',
   },
   infoValue: {
     fontSize: Typography.sm,
@@ -823,18 +830,18 @@ const styles = StyleSheet.create({
   label: {
     fontSize: Typography.xs,
     fontWeight: '700',
-    color: Colors.powderBlue,
+    color: Colors.porcelain,
     marginTop: Spacing.xs,
   },
   input: {
     height: 44,
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     fontSize: Typography.sm,
     color: Colors.porcelain,
-    backgroundColor: 'rgba(13, 24, 33, 0.55)',
+    backgroundColor: '#FFFFFF',
   },
   saveBtnWrapper: {
     marginTop: Spacing.md,
@@ -848,7 +855,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   saveButtonText: {
-    color: Colors.inkBlack,
+    color: '#FFFFFF',
     fontWeight: '800',
     fontSize: Typography.sm,
   },
@@ -858,23 +865,23 @@ const styles = StyleSheet.create({
   contactCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(13, 24, 33, 0.55)',
+    backgroundColor: 'rgba(248, 250, 252, 0.90)',
     borderRadius: BorderRadius.lg,
     padding: Spacing.sm + 2,
     marginBottom: Spacing.xs,
     borderWidth: 1,
-    borderColor: 'rgba(52, 73, 102, 0.35)',
+    borderColor: 'rgba(226, 232, 240, 0.85)',
   },
   contactAvatar: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(52, 73, 102, 0.6)',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.sm,
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(37, 99, 235, 0.20)',
   },
   contactAvatarText: {
     color: Colors.powderBlue,
@@ -891,15 +898,15 @@ const styles = StyleSheet.create({
   },
   contactPhone: {
     fontSize: Typography.xs - 1,
-    color: Colors.powderBlue,
+    color: '#64748B',
   },
   contactCallBtn: {
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: 'rgba(180, 205, 237, 0.15)',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(37, 99, 235, 0.20)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 6,
@@ -908,9 +915,9 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    backgroundColor: 'rgba(239, 68, 68, 0.10)',
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
+    borderColor: 'rgba(239, 68, 68, 0.25)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -918,11 +925,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: Spacing.lg,
-    backgroundColor: 'rgba(13, 24, 33, 0.4)',
+    backgroundColor: 'rgba(248, 250, 252, 0.90)',
     borderRadius: BorderRadius.lg,
     marginVertical: Spacing.xs,
     borderWidth: 1,
-    borderColor: 'rgba(52, 73, 102, 0.25)',
+    borderColor: 'rgba(226, 232, 240, 0.85)',
   },
   emptyContactsTitle: {
     fontSize: Typography.sm,
@@ -932,7 +939,7 @@ const styles = StyleSheet.create({
   },
   emptyContactsSub: {
     fontSize: Typography.xs - 1,
-    color: Colors.powderBlue,
+    color: '#64748B',
     textAlign: 'center',
     marginTop: 3,
     lineHeight: 16,
@@ -949,9 +956,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 5,
     height: 44,
-    backgroundColor: 'rgba(52, 73, 102, 0.35)',
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     borderRadius: BorderRadius.full,
   },
   actionBtnSecondaryText: {
@@ -970,7 +977,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
   },
   actionBtnPrimaryText: {
-    color: Colors.inkBlack,
+    color: '#FFFFFF',
     fontSize: Typography.xs,
     fontWeight: '800',
   },
@@ -979,15 +986,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.xs,
-    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    backgroundColor: 'rgba(239, 68, 68, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.35)',
+    borderColor: 'rgba(239, 68, 68, 0.25)',
     borderRadius: BorderRadius.full,
     height: 48,
     marginTop: Spacing.xs,
   },
   logoutButtonText: {
-    color: '#F87171',
+    color: '#DC2626',
     fontSize: Typography.sm,
     fontWeight: '800',
   },
@@ -1010,11 +1017,11 @@ const styles = StyleSheet.create({
   },
   modalSearchInput: {
     height: 46,
-    backgroundColor: 'rgba(52, 73, 102, 0.35)',
+    backgroundColor: '#FFFFFF',
     borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     fontSize: Typography.sm,
     color: Colors.porcelain,
     marginBottom: Spacing.md,
@@ -1022,18 +1029,18 @@ const styles = StyleSheet.create({
   deviceContactItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(52, 73, 102, 0.25)',
+    backgroundColor: 'rgba(255, 255, 255, 0.90)',
     padding: Spacing.md,
     borderRadius: BorderRadius.xl,
     marginBottom: Spacing.xs,
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
   },
   deviceContactAvatar: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(180, 205, 237, 0.18)',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.sm,
@@ -1053,7 +1060,7 @@ const styles = StyleSheet.create({
   },
   deviceContactPhone: {
     fontSize: Typography.xs,
-    color: Colors.powderBlue,
+    color: '#64748B',
   },
   emptyContacts: {
     alignItems: 'center',
@@ -1065,20 +1072,22 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(13, 24, 33, 0.85)',
+    backgroundColor: 'rgba(15, 23, 42, 0.45)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.lg,
   },
   dialogCard: {
-    backgroundColor: Colors.yaleBlue,
+    backgroundColor: '#FFFFFF',
     borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
     width: '100%',
     maxWidth: 400,
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    ...Shadows.glow,
+    borderColor: 'rgba(226, 232, 240, 0.95)',
+    ...(Platform.OS === 'web' ? {
+      boxShadow: '0 12px 35px rgba(15, 23, 42, 0.12)',
+    } : {}),
   },
   dialogTitle: {
     fontSize: Typography.base,
@@ -1088,19 +1097,19 @@ const styles = StyleSheet.create({
   },
   dialogLabel: {
     fontSize: Typography.xs,
-    color: Colors.powderBlue,
+    color: '#64748B',
     fontWeight: '700',
     marginTop: Spacing.xs,
   },
   dialogInput: {
     height: 44,
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     fontSize: Typography.sm,
     color: Colors.porcelain,
-    backgroundColor: 'rgba(13, 24, 33, 0.65)',
+    backgroundColor: 'rgba(248, 250, 252, 0.90)',
     marginTop: 4,
   },
   dialogButtonsRow: {
@@ -1125,7 +1134,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
   },
   dialogSubmitText: {
-    color: Colors.inkBlack,
+    color: '#FFFFFF',
     fontWeight: '800',
     fontSize: Typography.xs,
   },
