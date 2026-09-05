@@ -67,7 +67,7 @@ const getAllUsers = async (req, res, next) => {
     }
 
     const users = await User.find(query)
-      .select('-password -refreshToken')
+      .select('-passwordHash -refreshToken')
       .sort({ createdAt: -1 });
 
     res.status(200).json({
