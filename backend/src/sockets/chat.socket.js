@@ -35,9 +35,21 @@ module.exports = (io, socket) => {
   // Send real-time chat message
   socket.on('send_message', async (data) => {
     try {
-      const { errandId, senderId, text } = data || {};
+      const { errandId, senderId, text, message } = data || {};
 
-      if (!errandId || !senderId || !text || !text.trim()) {
+      if (!errandId) {
+        socket.emit('error_message', { message: 'Errand ID required' });
+        return;
+      }
+
+      // If already saved via REST, broadcast directly
+      if (message) {
+        const roomName = `errand_${errandId}`;
+        socket.to(roomName).emit('receive_message', message);
+        return;
+      }
+
+      if (!senderId || !text || !text.trim()) {
         socket.emit('error_message', { message: 'Invalid message payload' });
         return;
       }
@@ -69,7 +81,7 @@ module.exports = (io, socket) => {
         createdAt: newMessage.createdAt,
       };
 
-      // Broadcast to everyone in the room (including sender or requester/runner)
+      // Broadcast to everyone in the room
       io.to(roomName).emit('receive_message', payload);
     } catch (error) {
       console.error('[Socket send_message Error]', error);
@@ -77,18 +89,25 @@ module.exports = (io, socket) => {
     }
   });
 
-  // Typing indicator
+  // Typing indicators
   socket.on('typing_start', (data) => {
-    const { errandId, userName } = data || {};
+    const { errandId, userName, user } = data || {};
+    const name = userName || user?.name || 'Peer';
+    const userId = user?._id;
     if (errandId) {
-      socket.to(`errand_${errandId}`).emit('user_typing', { userName, isTyping: true });
+      const roomName = `errand_${errandId}`;
+      socket.to(roomName).emit('user_typing', { userName: name, userId, isTyping: true });
+      socket.to(roomName).emit('peer_typing', { userName: name, userId, isTyping: true });
     }
   });
 
   socket.on('typing_stop', (data) => {
-    const { errandId } = data || {};
+    const { errandId, user } = data || {};
+    const userId = user?._id;
     if (errandId) {
-      socket.to(`errand_${errandId}`).emit('user_typing', { isTyping: false });
+      const roomName = `errand_${errandId}`;
+      socket.to(roomName).emit('user_typing', { userId, isTyping: false });
+      socket.to(roomName).emit('peer_stop_typing', { userId, isTyping: false });
     }
   });
 };
