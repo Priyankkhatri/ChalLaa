@@ -11,9 +11,11 @@ import {
   Alert,
   ActivityIndicator,
   Linking,
+  Platform,
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import * as Contacts from 'expo-contacts';
 import {
   CheckCircle2,
@@ -37,6 +39,7 @@ import {
 } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
+import { LiquidGlassCard, LiquidGlassButton } from '../../components/ui/LiquidGlass';
 
 export default function ProfileScreen() {
   const { user, logout, updateUser } = useAuth();
@@ -196,64 +199,72 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      {/* Luxury Gradient Profile Header */}
-      <LinearGradient
-        colors={['#4F46E5', '#6366F1', '#8B5CF6']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.heroCard}
-      >
-        <View style={styles.avatarGlow}>
-          <View style={styles.avatarCircle}>
-            <Text style={styles.avatarText}>
-              {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
-            </Text>
-          </View>
-        </View>
+      {/* Liquid Glass Luxury Profile Header */}
+      <View style={styles.heroOuter}>
+        <BlurView intensity={Platform.OS === 'ios' ? 45 : 60} tint="dark" style={styles.heroBlur}>
+          <LinearGradient
+            colors={['rgba(52, 73, 102, 0.65)', 'rgba(13, 24, 33, 0.9)']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0.9, y: 1 }}
+            style={styles.heroGradient}
+          >
+            <View style={styles.heroSpecular} />
 
-        <Text style={styles.userName}>{user?.name || 'Student'}</Text>
-        <Text style={styles.userEmail}>{user?.email || ''}</Text>
+            <View style={styles.avatarGlow}>
+              <View style={styles.avatarCircle}>
+                <Text style={styles.avatarText}>
+                  {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                </Text>
+              </View>
+            </View>
 
-        {/* Badges Row */}
-        <View style={styles.badgeRow}>
-          <View style={styles.glassBadge}>
-            {user?.isVerified ? (
-              <CheckCircle2 size={13} color="#4ADE80" />
-            ) : (
-              <Hourglass size={13} color="#FCD34D" />
-            )}
-            <Text style={styles.glassBadgeText}>
-              {user?.isVerified ? 'Verified Student' : 'Pending ID'}
-            </Text>
-          </View>
+            <Text style={styles.userName}>{user?.name || 'Student'}</Text>
+            <Text style={styles.userEmail}>{user?.email || ''}</Text>
 
-          <View style={styles.glassBadge}>
-            <Star size={13} color="#FCD34D" fill="#FCD34D" />
-            <Text style={styles.glassBadgeText}>Karma: {user?.karmaScore ?? 100}</Text>
-          </View>
-        </View>
+            {/* Glass Status Badges */}
+            <View style={styles.badgeRow}>
+              <View style={styles.glassBadge}>
+                {user?.isVerified ? (
+                  <CheckCircle2 size={13} color={Colors.drySage} />
+                ) : (
+                  <Hourglass size={13} color={Colors.powderBlue} />
+                )}
+                <Text style={styles.glassBadgeText}>
+                  {user?.isVerified ? 'Verified Student' : 'Pending ID'}
+                </Text>
+              </View>
 
-        {/* Glassmorphism Quick Stats Grid */}
-        <View style={styles.statsGrid}>
-          <View style={styles.glassStatBox}>
-            <Sparkles size={18} color="#FCD34D" />
-            <Text style={styles.glassStatNumber}>{user?.karmaScore ?? 100}</Text>
-            <Text style={styles.glassStatLabel}>Karma ⭐</Text>
-          </View>
+              <View style={[styles.glassBadge, styles.glassBadgeSage]}>
+                <Star size={13} color={Colors.drySage} fill={Colors.drySage} />
+                <Text style={[styles.glassBadgeText, { color: Colors.drySage }]}>
+                  Karma: {user?.karmaScore ?? 100}
+                </Text>
+              </View>
+            </View>
 
-          <View style={styles.glassStatBox}>
-            <ShieldCheck size={18} color="#4ADE80" />
-            <Text style={styles.glassStatNumber}>{user?.isVerified ? '100%' : '50%'}</Text>
-            <Text style={styles.glassStatLabel}>Trust Score</Text>
-          </View>
+            {/* Frosted Glass Quick Stats Grid */}
+            <View style={styles.statsGrid}>
+              <View style={styles.glassStatBox}>
+                <Sparkles size={18} color={Colors.drySage} />
+                <Text style={styles.glassStatNumber}>{user?.karmaScore ?? 100}</Text>
+                <Text style={styles.glassStatLabel}>Karma ⭐</Text>
+              </View>
 
-          <View style={styles.glassStatBox}>
-            <Users size={18} color="#93C5FD" />
-            <Text style={styles.glassStatNumber}>{user?.trustedContacts?.length || 0}</Text>
-            <Text style={styles.glassStatLabel}>Circle</Text>
-          </View>
-        </View>
-      </LinearGradient>
+              <View style={styles.glassStatBox}>
+                <ShieldCheck size={18} color={Colors.powderBlue} />
+                <Text style={styles.glassStatNumber}>{user?.isVerified ? '100%' : '50%'}</Text>
+                <Text style={styles.glassStatLabel}>Trust Score</Text>
+              </View>
+
+              <View style={styles.glassStatBox}>
+                <Users size={18} color={Colors.porcelain} />
+                <Text style={styles.glassStatNumber}>{user?.trustedContacts?.length || 0}</Text>
+                <Text style={styles.glassStatLabel}>Circle</Text>
+              </View>
+            </View>
+          </LinearGradient>
+        </BlurView>
+      </View>
 
       {/* Admin Portal Launcher Banner (Admin Only) */}
       {user?.role === 'admin' ? (
@@ -262,38 +273,41 @@ export default function ProfileScreen() {
           onPress={() => router.push('/admin')}
           style={styles.adminBannerWrapper}
         >
-          <LinearGradient
-            colors={['#0F172A', '#1E1B4B', '#312E81']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.adminBanner}
-          >
-            <View style={styles.adminIconCircle}>
-              <ShieldAlert size={22} color="#818CF8" />
-            </View>
-            <View style={styles.adminBannerText}>
-              <Text style={styles.adminBannerTitle}>Campus Moderation Panel</Text>
-              <Text style={styles.adminBannerSub}>
-                Manage disputes, student verifications & platform KPIs
-              </Text>
-            </View>
-            <ChevronRight size={20} color={Colors.white} />
-          </LinearGradient>
+          <BlurView intensity={35} tint="dark" style={styles.adminBlur}>
+            <LinearGradient
+              colors={['rgba(52, 73, 102, 0.45)', 'rgba(13, 24, 33, 0.7)']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.adminBanner}
+            >
+              <View style={styles.adminIconCircle}>
+                <ShieldAlert size={20} color={Colors.powderBlue} />
+              </View>
+              <View style={styles.adminBannerText}>
+                <Text style={styles.adminBannerTitle}>Campus Moderation Panel</Text>
+                <Text style={styles.adminBannerSub}>
+                  Manage disputes, student verifications & platform KPIs
+                </Text>
+              </View>
+              <ChevronRight size={18} color={Colors.porcelain} />
+            </LinearGradient>
+          </BlurView>
         </TouchableOpacity>
       ) : null}
 
-      {/* Account Details Section */}
-      <View style={styles.sectionCard}>
+      {/* Account Identity Section */}
+      <LiquidGlassCard variant="default">
         <View style={styles.sectionHeader}>
           <View style={styles.sectionTitleRow}>
-            <User size={18} color={Colors.primary} />
+            <User size={18} color={Colors.powderBlue} />
             <Text style={styles.sectionTitle}>Campus Identity</Text>
           </View>
           <TouchableOpacity
             style={styles.editToggleBtn}
             onPress={() => setIsEditing(!isEditing)}
+            activeOpacity={0.8}
           >
-            <Edit3 size={13} color={Colors.primary} />
+            <Edit3 size={13} color={Colors.inkBlack} />
             <Text style={styles.editLink}>{isEditing ? 'Cancel' : 'Edit'}</Text>
           </TouchableOpacity>
         </View>
@@ -306,6 +320,7 @@ export default function ProfileScreen() {
               value={name}
               onChangeText={setName}
               placeholder="Your name"
+              placeholderTextColor={Colors.textMuted}
             />
 
             <Text style={styles.label}>Phone Number</Text>
@@ -314,6 +329,7 @@ export default function ProfileScreen() {
               value={phone}
               onChangeText={setPhone}
               placeholder="e.g. +91 9876543210"
+              placeholderTextColor={Colors.textMuted}
               keyboardType="phone-pad"
             />
 
@@ -323,21 +339,23 @@ export default function ProfileScreen() {
               value={hostelOrCollegeId}
               onChangeText={setHostelOrCollegeId}
               placeholder="e.g. Hostel 4, Room 302"
+              placeholderTextColor={Colors.textMuted}
             />
 
             <TouchableOpacity
               onPress={handleSaveProfile}
               disabled={savingProfile}
               style={styles.saveBtnWrapper}
+              activeOpacity={0.85}
             >
               <LinearGradient
-                colors={['#4F46E5', '#6366F1']}
+                colors={Colors.gradientPrimary}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={[styles.saveButton, savingProfile && styles.btnDisabled]}
               >
                 {savingProfile ? (
-                  <ActivityIndicator color={Colors.white} />
+                  <ActivityIndicator color={Colors.inkBlack} />
                 ) : (
                   <Text style={styles.saveButtonText}>Save Details</Text>
                 )}
@@ -354,21 +372,21 @@ export default function ProfileScreen() {
               <Text style={styles.infoLabel}>Phone</Text>
               <Text style={styles.infoValue}>{user?.phone || 'Not set'}</Text>
             </View>
-            <View style={styles.infoRow}>
+            <View style={[styles.infoRow, { borderBottomWidth: 0 }]}>
               <Text style={styles.infoLabel}>Account Role</Text>
-              <Text style={[styles.infoValue, { textTransform: 'capitalize', fontWeight: 'bold', color: Colors.primary }]}>
+              <Text style={[styles.infoValue, { textTransform: 'capitalize', fontWeight: '800', color: Colors.powderBlue }]}>
                 {user?.role || 'Student'}
               </Text>
             </View>
           </View>
         )}
-      </View>
+      </LiquidGlassCard>
 
       {/* Trusted Contacts Section */}
-      <View style={styles.sectionCard}>
+      <LiquidGlassCard variant="default">
         <View style={styles.sectionHeader}>
           <View style={styles.sectionTitleRow}>
-            <Contact size={18} color={Colors.secondary} />
+            <Contact size={18} color={Colors.drySage} />
             <Text style={styles.sectionTitle}>Trusted Peer Circle</Text>
           </View>
           <View style={styles.trustedCountBadge}>
@@ -395,20 +413,20 @@ export default function ProfileScreen() {
                 style={styles.contactCallBtn}
                 onPress={() => Linking.openURL(`tel:${contact.phone}`)}
               >
-                <PhoneCall size={15} color={Colors.primary} />
+                <PhoneCall size={14} color={Colors.powderBlue} />
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.contactDeleteBtn}
                 onPress={() => handleRemoveContact(contact._id)}
               >
-                <Trash2 size={15} color={Colors.danger} />
+                <Trash2 size={14} color="#F87171" />
               </TouchableOpacity>
             </View>
           ))
         ) : (
           <View style={styles.emptyContactsBox}>
-            <Users size={32} color={Colors.textMuted} />
+            <Users size={32} color={Colors.powderBlue} />
             <Text style={styles.emptyContactsTitle}>No Trusted Contacts Added</Text>
             <Text style={styles.emptyContactsSub}>
               Add your roommates or close peers for safe, reliable errand coordination.
@@ -422,12 +440,13 @@ export default function ProfileScreen() {
             style={styles.actionBtnSecondary}
             onPress={handleOpenDeviceContacts}
             disabled={loadingContacts}
+            activeOpacity={0.8}
           >
             {loadingContacts ? (
-              <ActivityIndicator color={Colors.primary} size="small" />
+              <ActivityIndicator color={Colors.powderBlue} size="small" />
             ) : (
               <>
-                <Phone size={15} color={Colors.primary} />
+                <Phone size={14} color={Colors.powderBlue} />
                 <Text style={styles.actionBtnSecondaryText}>Import Contacts</Text>
               </>
             )}
@@ -436,16 +455,21 @@ export default function ProfileScreen() {
           <TouchableOpacity
             style={styles.actionBtnPrimary}
             onPress={() => setManualContactModalVisible(true)}
+            activeOpacity={0.8}
           >
-            <Plus size={15} color={Colors.white} />
+            <Plus size={15} color={Colors.inkBlack} strokeWidth={2.6} />
             <Text style={styles.actionBtnPrimaryText}>Add Peer</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </LiquidGlassCard>
 
       {/* Logout Button */}
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <LogOut size={18} color={Colors.danger} />
+      <TouchableOpacity
+        style={styles.logoutButton}
+        onPress={handleLogout}
+        activeOpacity={0.8}
+      >
+        <LogOut size={17} color="#F87171" />
         <Text style={styles.logoutButtonText}>Log Out</Text>
       </TouchableOpacity>
 
@@ -459,13 +483,14 @@ export default function ProfileScreen() {
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Import Phone Contacts</Text>
             <TouchableOpacity onPress={() => setContactsModalVisible(false)}>
-              <X size={22} color={Colors.text} />
+              <X size={22} color={Colors.porcelain} />
             </TouchableOpacity>
           </View>
 
           <TextInput
             style={styles.modalSearchInput}
             placeholder="Search contact by name or number..."
+            placeholderTextColor={Colors.textMuted}
             value={searchContactText}
             onChangeText={setSearchContactText}
           />
@@ -477,6 +502,7 @@ export default function ProfileScreen() {
               <TouchableOpacity
                 style={styles.deviceContactItem}
                 onPress={() => handleAddTrustedContact(item.name, item.phone)}
+                activeOpacity={0.8}
               >
                 <View style={styles.deviceContactAvatar}>
                   <Text style={styles.deviceContactAvatarText}>{item.name.charAt(0).toUpperCase()}</Text>
@@ -485,7 +511,7 @@ export default function ProfileScreen() {
                   <Text style={styles.deviceContactName}>{item.name}</Text>
                   <Text style={styles.deviceContactPhone}>{item.phone}</Text>
                 </View>
-                <Plus size={20} color={Colors.primary} />
+                <Plus size={18} color={Colors.powderBlue} strokeWidth={2.4} />
               </TouchableOpacity>
             )}
             ListEmptyComponent={
@@ -508,18 +534,20 @@ export default function ProfileScreen() {
           <View style={styles.dialogCard}>
             <Text style={styles.dialogTitle}>Add Trusted Contact</Text>
 
-            <Text style={styles.label}>Contact Name</Text>
+            <Text style={styles.dialogLabel}>Contact Name</Text>
             <TextInput
-              style={styles.input}
+              style={styles.dialogInput}
               placeholder="e.g. Roommate Aryan"
+              placeholderTextColor={Colors.textMuted}
               value={newContactName}
               onChangeText={setNewContactName}
             />
 
-            <Text style={styles.label}>Phone Number</Text>
+            <Text style={styles.dialogLabel}>Phone Number</Text>
             <TextInput
-              style={styles.input}
+              style={styles.dialogInput}
               placeholder="e.g. +91 9876543210"
+              placeholderTextColor={Colors.textMuted}
               value={newContactPhone}
               onChangeText={setNewContactPhone}
               keyboardType="phone-pad"
@@ -549,24 +577,42 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.inkBlack,
   },
   scrollContent: {
     padding: Spacing.md,
-    paddingBottom: Spacing.xxl,
+    paddingBottom: Spacing.xxl + 45,
     gap: Spacing.md,
   },
-  heroCard: {
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.xl,
-    alignItems: 'center',
+  heroOuter: {
+    borderRadius: BorderRadius.xxl,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
     ...Shadows.glow,
   },
+  heroBlur: {
+    width: '100%',
+  },
+  heroGradient: {
+    padding: Spacing.xl,
+    alignItems: 'center',
+  },
+  heroSpecular: {
+    position: 'absolute',
+    top: 0,
+    left: 40,
+    right: 40,
+    height: 1,
+    backgroundColor: 'rgba(240, 244, 239, 0.25)',
+  },
   avatarGlow: {
-    width: 84,
-    height: 84,
-    borderRadius: 42,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    width: 86,
+    height: 86,
+    borderRadius: 43,
+    backgroundColor: 'rgba(180, 205, 237, 0.15)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorderGlow,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.sm,
@@ -575,23 +621,24 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.yaleBlue,
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarText: {
     fontSize: Typography.title,
-    fontWeight: 'bold',
-    color: Colors.primary,
+    fontWeight: '800',
+    color: Colors.powderBlue,
   },
   userName: {
     fontSize: Typography.xl,
-    fontWeight: 'bold',
-    color: Colors.white,
+    fontWeight: '800',
+    color: Colors.porcelain,
+    letterSpacing: -0.3,
   },
   userEmail: {
     fontSize: Typography.xs,
-    color: 'rgba(255,255,255,0.85)',
+    color: Colors.powderBlue,
     marginTop: 2,
   },
   badgeRow: {
@@ -604,16 +651,22 @@ const styles = StyleSheet.create({
   glassBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    gap: 5,
+    backgroundColor: 'rgba(52, 73, 102, 0.45)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
     paddingHorizontal: Spacing.sm + 4,
     paddingVertical: 4,
     borderRadius: BorderRadius.full,
   },
+  glassBadgeSage: {
+    borderColor: Colors.glassSageBorder,
+    backgroundColor: 'rgba(191, 204, 148, 0.12)',
+  },
   glassBadgeText: {
     fontSize: Typography.xs - 2,
-    fontWeight: 'bold',
-    color: Colors.white,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   statsGrid: {
     flexDirection: 'row',
@@ -621,34 +674,42 @@ const styles = StyleSheet.create({
     marginTop: Spacing.lg,
     paddingTop: Spacing.md,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.2)',
+    borderTopColor: 'rgba(52, 73, 102, 0.4)',
     justifyContent: 'space-around',
   },
   glassStatBox: {
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(52, 73, 102, 0.35)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.md,
-    borderRadius: BorderRadius.md,
-    minWidth: 80,
+    borderRadius: BorderRadius.lg,
+    minWidth: 84,
   },
   glassStatNumber: {
     fontSize: Typography.base,
-    fontWeight: 'bold',
-    color: Colors.white,
+    fontWeight: '800',
+    color: Colors.porcelain,
     marginTop: 2,
   },
   glassStatLabel: {
     fontSize: Typography.xs - 3,
-    color: 'rgba(255,255,255,0.85)',
+    color: Colors.powderBlue,
     textTransform: 'uppercase',
     marginTop: 2,
-    fontWeight: 'bold',
+    fontWeight: '800',
+    letterSpacing: 0.3,
   },
   adminBannerWrapper: {
     borderRadius: BorderRadius.xl,
     overflow: 'hidden',
-    ...Shadows.card,
+    borderWidth: 1,
+    borderColor: Colors.glassBorderGlow,
+    ...Shadows.glow,
+  },
+  adminBlur: {
+    width: '100%',
   },
   adminBanner: {
     flexDirection: 'row',
@@ -657,10 +718,10 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   adminIconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(180, 205, 237, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -668,22 +729,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   adminBannerTitle: {
-    color: Colors.white,
+    color: Colors.porcelain,
     fontSize: Typography.sm,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   adminBannerSub: {
-    color: 'rgba(255,255,255,0.8)',
+    color: Colors.powderBlue,
     fontSize: Typography.xs - 1,
     marginTop: 2,
-  },
-  sectionCard: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.card,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -694,16 +747,16 @@ const styles = StyleSheet.create({
   sectionTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 7,
   },
   sectionTitle: {
     fontSize: Typography.base,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   sectionSubtitle: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     marginBottom: Spacing.md,
     lineHeight: 16,
   },
@@ -711,46 +764,48 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: Spacing.sm,
+    paddingHorizontal: Spacing.sm + 2,
     paddingVertical: 4,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: Colors.powderBlue,
     borderRadius: BorderRadius.full,
   },
   editLink: {
     fontSize: Typography.xs,
-    fontWeight: 'bold',
-    color: Colors.primary,
+    fontWeight: '800',
+    color: Colors.inkBlack,
   },
   trustedCountBadge: {
-    backgroundColor: Colors.secondaryLight,
-    paddingHorizontal: Spacing.sm,
+    backgroundColor: 'rgba(191, 204, 148, 0.18)',
+    borderWidth: 1,
+    borderColor: Colors.glassSageBorder,
+    paddingHorizontal: Spacing.sm + 2,
     paddingVertical: 2,
     borderRadius: BorderRadius.full,
   },
   trustedCountText: {
     fontSize: Typography.xs - 2,
-    fontWeight: 'bold',
-    color: Colors.secondaryDark,
+    fontWeight: '800',
+    color: Colors.drySage,
   },
   infoList: {
-    gap: Spacing.sm,
+    gap: Spacing.xs,
     marginTop: Spacing.xs,
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: Spacing.xs,
+    paddingVertical: Spacing.sm - 2,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.borderLight,
+    borderBottomColor: 'rgba(52, 73, 102, 0.35)',
   },
   infoLabel: {
     fontSize: Typography.sm,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
   },
   infoValue: {
     fontSize: Typography.sm,
-    fontWeight: '600',
-    color: Colors.text,
+    fontWeight: '700',
+    color: Colors.porcelain,
   },
   editForm: {
     gap: Spacing.xs,
@@ -758,24 +813,25 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: Typography.xs,
-    fontWeight: '600',
-    color: Colors.text,
+    fontWeight: '700',
+    color: Colors.powderBlue,
     marginTop: Spacing.xs,
   },
   input: {
     height: 44,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     fontSize: Typography.sm,
-    color: Colors.text,
-    backgroundColor: Colors.white,
+    color: Colors.porcelain,
+    backgroundColor: 'rgba(13, 24, 33, 0.55)',
   },
   saveBtnWrapper: {
     marginTop: Spacing.md,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.full,
     overflow: 'hidden',
+    ...Shadows.glow,
   },
   saveButton: {
     height: 44,
@@ -783,8 +839,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   saveButtonText: {
-    color: Colors.white,
-    fontWeight: 'bold',
+    color: Colors.inkBlack,
+    fontWeight: '800',
     fontSize: Typography.sm,
   },
   btnDisabled: {
@@ -793,25 +849,27 @@ const styles = StyleSheet.create({
   contactCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.background,
-    borderRadius: BorderRadius.md,
+    backgroundColor: 'rgba(13, 24, 33, 0.55)',
+    borderRadius: BorderRadius.lg,
     padding: Spacing.sm + 2,
     marginBottom: Spacing.xs,
     borderWidth: 1,
-    borderColor: Colors.borderLight,
+    borderColor: 'rgba(52, 73, 102, 0.35)',
   },
   contactAvatar: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: 'rgba(52, 73, 102, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
   },
   contactAvatarText: {
-    color: Colors.primary,
-    fontWeight: 'bold',
+    color: Colors.powderBlue,
+    fontWeight: '800',
     fontSize: Typography.sm,
   },
   contactInfo: {
@@ -819,27 +877,31 @@ const styles = StyleSheet.create({
   },
   contactName: {
     fontSize: Typography.sm,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '700',
+    color: Colors.porcelain,
   },
   contactPhone: {
     fontSize: Typography.xs - 1,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
   },
   contactCallBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: Colors.primaryLight,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(180, 205, 237, 0.15)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 6,
   },
   contactDeleteBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: Colors.dangerLight,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -847,21 +909,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: Spacing.lg,
-    backgroundColor: Colors.background,
-    borderRadius: BorderRadius.md,
+    backgroundColor: 'rgba(13, 24, 33, 0.4)',
+    borderRadius: BorderRadius.lg,
     marginVertical: Spacing.xs,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 73, 102, 0.25)',
   },
   emptyContactsTitle: {
     fontSize: Typography.sm,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
     marginTop: Spacing.xs,
   },
   emptyContactsSub: {
     fontSize: Typography.xs - 1,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     textAlign: 'center',
-    marginTop: 2,
+    marginTop: 3,
     lineHeight: 16,
   },
   contactActionButtonsRow: {
@@ -874,51 +938,53 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
-    height: 42,
-    backgroundColor: Colors.primaryLight,
-    borderRadius: BorderRadius.md,
+    gap: 5,
+    height: 44,
+    backgroundColor: 'rgba(52, 73, 102, 0.35)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    borderRadius: BorderRadius.full,
   },
   actionBtnSecondaryText: {
-    color: Colors.primary,
+    color: Colors.powderBlue,
     fontSize: Typography.xs,
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   actionBtnPrimary: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
-    height: 42,
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.md,
+    gap: 5,
+    height: 44,
+    backgroundColor: Colors.powderBlue,
+    borderRadius: BorderRadius.full,
   },
   actionBtnPrimaryText: {
-    color: Colors.white,
+    color: Colors.inkBlack,
     fontSize: Typography.xs,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.xs,
-    backgroundColor: Colors.card,
+    backgroundColor: 'rgba(239, 68, 68, 0.12)',
     borderWidth: 1,
-    borderColor: Colors.danger,
-    borderRadius: BorderRadius.lg,
+    borderColor: 'rgba(239, 68, 68, 0.35)',
+    borderRadius: BorderRadius.full,
     height: 48,
     marginTop: Spacing.xs,
   },
   logoutButtonText: {
-    color: Colors.danger,
+    color: '#F87171',
     fontSize: Typography.sm,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.inkBlack,
     paddingTop: Spacing.xxl,
     paddingHorizontal: Spacing.md,
   },
@@ -930,41 +996,42 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: Typography.lg,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   modalSearchInput: {
-    height: 44,
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.md,
+    height: 46,
+    backgroundColor: 'rgba(52, 73, 102, 0.35)',
+    borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
     fontSize: Typography.sm,
+    color: Colors.porcelain,
     marginBottom: Spacing.md,
   },
   deviceContactItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.card,
+    backgroundColor: 'rgba(52, 73, 102, 0.25)',
     padding: Spacing.md,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.xl,
     marginBottom: Spacing.xs,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
   },
   deviceContactAvatar: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: 'rgba(180, 205, 237, 0.18)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.sm,
   },
   deviceContactAvatarText: {
-    color: Colors.primary,
-    fontWeight: 'bold',
+    color: Colors.powderBlue,
+    fontWeight: '800',
     fontSize: Typography.sm,
   },
   deviceContactInfo: {
@@ -972,65 +1039,85 @@ const styles = StyleSheet.create({
   },
   deviceContactName: {
     fontSize: Typography.sm,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '700',
+    color: Colors.porcelain,
   },
   deviceContactPhone: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
   },
   emptyContacts: {
     alignItems: 'center',
     padding: Spacing.xl,
   },
   emptyContactsText: {
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     fontSize: Typography.sm,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(13, 24, 33, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.lg,
   },
   dialogCard: {
-    backgroundColor: Colors.card,
+    backgroundColor: Colors.yaleBlue,
     borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
     width: '100%',
     maxWidth: 400,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    ...Shadows.glow,
   },
   dialogTitle: {
     fontSize: Typography.base,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
     marginBottom: Spacing.sm,
+  },
+  dialogLabel: {
+    fontSize: Typography.xs,
+    color: Colors.powderBlue,
+    fontWeight: '700',
+    marginTop: Spacing.xs,
+  },
+  dialogInput: {
+    height: 44,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    fontSize: Typography.sm,
+    color: Colors.porcelain,
+    backgroundColor: 'rgba(13, 24, 33, 0.65)',
+    marginTop: 4,
   },
   dialogButtonsRow: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: Spacing.sm,
-    marginTop: Spacing.md,
+    marginTop: Spacing.md + 4,
   },
   dialogCancelBtn: {
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.md,
   },
   dialogCancelText: {
-    color: Colors.textSecondary,
-    fontWeight: 'bold',
+    color: Colors.powderBlue,
+    fontWeight: '700',
     fontSize: Typography.xs,
   },
   dialogSubmitBtn: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.powderBlue,
     paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md + 4,
+    borderRadius: BorderRadius.full,
   },
   dialogSubmitText: {
-    color: Colors.white,
-    fontWeight: 'bold',
+    color: Colors.inkBlack,
+    fontWeight: '800',
     fontSize: Typography.xs,
   },
 });
