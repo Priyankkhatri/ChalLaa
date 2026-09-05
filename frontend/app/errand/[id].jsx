@@ -9,9 +9,11 @@ import {
   Alert,
   Linking,
   RefreshControl,
+  Platform,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import {
   Info,
   MessageSquare,
@@ -37,6 +39,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getSocket } from '../../services/socket';
 import { sendLocalNotification } from '../../services/notifications';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
+import { LiquidGlassCard } from '../../components/ui/LiquidGlass';
 
 import TrackingSection from '../../components/TrackingSection';
 import ProofSection from '../../components/ProofSection';
@@ -180,7 +183,7 @@ export default function ErrandDetailScreen() {
   if (loading && !refreshing) {
     return (
       <View style={styles.centerLoading}>
-        <ActivityIndicator size="large" color={Colors.primary} />
+        <ActivityIndicator size="large" color={Colors.powderBlue} />
         <Text style={styles.loadingText}>Loading errand details...</Text>
       </View>
     );
@@ -189,7 +192,7 @@ export default function ErrandDetailScreen() {
   if (error || !errand) {
     return (
       <View style={styles.centerError}>
-        <AlertCircle size={52} color={Colors.danger} />
+        <AlertCircle size={52} color="#F87171" />
         <Text style={styles.errorTitle}>Errand Not Found</Text>
         <Text style={styles.errorSubtitle}>{error || 'Could not find the requested errand.'}</Text>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -205,51 +208,75 @@ export default function ErrandDetailScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Sub-view Navigation Tabs */}
-      <View style={styles.tabNav}>
-        <TouchableOpacity
-          style={[styles.tabNavItem, activeTab === 'overview' && styles.tabNavItemActive]}
-          onPress={() => setActiveTab('overview')}
-        >
-          <Info size={16} color={activeTab === 'overview' ? Colors.primary : Colors.textSecondary} />
-          <Text
-            style={[styles.tabNavText, activeTab === 'overview' && styles.tabNavTextActive]}
-          >
-            Overview
-          </Text>
-        </TouchableOpacity>
+      {/* Liquid Glass Navigation Sub-tabs */}
+      <View style={styles.tabNavWrapper}>
+        <BlurView intensity={Platform.OS === 'ios' ? 35 : 55} tint="dark" style={styles.tabBlur}>
+          <View style={styles.tabNav}>
+            <TouchableOpacity
+              style={[styles.tabNavItem, activeTab === 'overview' && styles.tabNavItemActive]}
+              onPress={() => setActiveTab('overview')}
+              activeOpacity={0.8}
+            >
+              <Info
+                size={15}
+                color={activeTab === 'overview' ? Colors.inkBlack : Colors.powderBlue}
+                strokeWidth={2.4}
+              />
+              <Text
+                style={[styles.tabNavText, activeTab === 'overview' && styles.tabNavTextActive]}
+              >
+                Overview
+              </Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.tabNavItem, activeTab === 'chat' && styles.tabNavItemActive]}
-          onPress={() => setActiveTab('chat')}
-        >
-          <MessageSquare size={16} color={activeTab === 'chat' ? Colors.primary : Colors.textSecondary} />
-          <Text style={[styles.tabNavText, activeTab === 'chat' && styles.tabNavTextActive]}>
-            Chat
-          </Text>
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tabNavItem, activeTab === 'chat' && styles.tabNavItemActive]}
+              onPress={() => setActiveTab('chat')}
+              activeOpacity={0.8}
+            >
+              <MessageSquare
+                size={15}
+                color={activeTab === 'chat' ? Colors.inkBlack : Colors.powderBlue}
+                strokeWidth={2.4}
+              />
+              <Text style={[styles.tabNavText, activeTab === 'chat' && styles.tabNavTextActive]}>
+                Chat
+              </Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.tabNavItem, activeTab === 'tracking' && styles.tabNavItemActive]}
-          onPress={() => setActiveTab('tracking')}
-        >
-          <Navigation size={16} color={activeTab === 'tracking' ? Colors.primary : Colors.textSecondary} />
-          <Text
-            style={[styles.tabNavText, activeTab === 'tracking' && styles.tabNavTextActive]}
-          >
-            Live GPS
-          </Text>
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tabNavItem, activeTab === 'tracking' && styles.tabNavItemActive]}
+              onPress={() => setActiveTab('tracking')}
+              activeOpacity={0.8}
+            >
+              <Navigation
+                size={15}
+                color={activeTab === 'tracking' ? Colors.inkBlack : Colors.powderBlue}
+                strokeWidth={2.4}
+              />
+              <Text
+                style={[styles.tabNavText, activeTab === 'tracking' && styles.tabNavTextActive]}
+              >
+                Live GPS
+              </Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.tabNavItem, activeTab === 'proof' && styles.tabNavItemActive]}
-          onPress={() => setActiveTab('proof')}
-        >
-          <Camera size={16} color={activeTab === 'proof' ? Colors.primary : Colors.textSecondary} />
-          <Text style={[styles.tabNavText, activeTab === 'proof' && styles.tabNavTextActive]}>
-            Proof & Bill
-          </Text>
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tabNavItem, activeTab === 'proof' && styles.tabNavItemActive]}
+              onPress={() => setActiveTab('proof')}
+              activeOpacity={0.8}
+            >
+              <Camera
+                size={15}
+                color={activeTab === 'proof' ? Colors.inkBlack : Colors.powderBlue}
+                strokeWidth={2.4}
+              />
+              <Text style={[styles.tabNavText, activeTab === 'proof' && styles.tabNavTextActive]}>
+                Proof & Bill
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </BlurView>
       </View>
 
       <ScrollView
@@ -259,8 +286,8 @@ export default function ErrandDetailScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[Colors.primary]}
-            tintColor={Colors.primary}
+            colors={[Colors.powderBlue]}
+            tintColor={Colors.powderBlue}
           />
         }
       >
@@ -273,7 +300,7 @@ export default function ErrandDetailScreen() {
         ) : activeTab === 'overview' ? (
           <>
             {/* Errand Header Card */}
-            <View style={styles.card}>
+            <LiquidGlassCard variant="default">
               <View style={styles.headerTopRow}>
                 <View style={styles.categoryBadge}>
                   <Text style={styles.categoryBadgeText}>
@@ -281,7 +308,8 @@ export default function ErrandDetailScreen() {
                   </Text>
                 </View>
                 <View style={styles.budgetBadge}>
-                  <Text style={styles.budgetText}>Budget: ₹{errand.budget || 0}</Text>
+                  <Text style={styles.budgetLabel}>Budget</Text>
+                  <Text style={styles.budgetText}>₹{errand.budget || 0}</Text>
                 </View>
               </View>
 
@@ -291,18 +319,18 @@ export default function ErrandDetailScreen() {
               ) : null}
 
               <View style={styles.addressRow}>
-                <MapPin size={16} color={Colors.primary} />
+                <MapPin size={15} color={Colors.powderBlue} />
                 <Text style={styles.addressText}>{errand.address || 'Campus Hostels'}</Text>
               </View>
-            </View>
+            </LiquidGlassCard>
 
             {/* Status Lifecycle Stepper Timeline */}
-            <View style={styles.card}>
+            <LiquidGlassCard variant="default">
               <Text style={styles.sectionTitle}>Status Lifecycle</Text>
 
               {errand.status === 'cancelled' ? (
                 <View style={styles.cancelledBanner}>
-                  <XCircle size={20} color={Colors.danger} />
+                  <XCircle size={20} color="#F87171" />
                   <Text style={styles.cancelledText}>This errand has been CANCELLED.</Text>
                 </View>
               ) : (
@@ -328,7 +356,7 @@ export default function ErrandDetailScreen() {
                           ]}
                         >
                           {isCompleted ? (
-                            <Check size={14} color={Colors.white} strokeWidth={3} />
+                            <Check size={14} color={Colors.inkBlack} strokeWidth={3.2} />
                           ) : (
                             <Text style={styles.stepNumber}>{idx + 1}</Text>
                           )}
@@ -353,7 +381,7 @@ export default function ErrandDetailScreen() {
                 <Text style={styles.historyTitle}>Activity Log</Text>
                 {errand.statusHistory?.map((hist, index) => (
                   <View key={index} style={styles.historyRow}>
-                    <Clock size={13} color={Colors.textSecondary} />
+                    <Clock size={12} color={Colors.powderBlue} />
                     <Text style={styles.historyText}>
                       <Text style={styles.historyStatus}>{hist.status.toUpperCase()}:</Text>{' '}
                       {new Date(hist.timestamp).toLocaleTimeString([], {
@@ -365,12 +393,12 @@ export default function ErrandDetailScreen() {
                   </View>
                 ))}
               </View>
-            </View>
+            </LiquidGlassCard>
 
             {/* People Involved (Requester & Runner Cards) */}
             <View style={styles.peopleSection}>
               {/* Requester Card */}
-              <View style={styles.personCard}>
+              <LiquidGlassCard variant="default">
                 <Text style={styles.personRoleLabel}>Requester (Posted By)</Text>
                 <View style={styles.personDetailsRow}>
                   <View style={styles.personAvatar}>
@@ -382,7 +410,7 @@ export default function ErrandDetailScreen() {
                     <View style={styles.nameRow}>
                       <Text style={styles.personName}>{errand.requesterId?.name || 'Peer'}</Text>
                       {errand.requesterId?.isVerified ? (
-                        <CheckCircle2 size={13} color={Colors.secondaryDark} />
+                        <CheckCircle2 size={13} color={Colors.drySage} />
                       ) : null}
                     </View>
                     <Text style={styles.personSubtext}>
@@ -395,20 +423,21 @@ export default function ErrandDetailScreen() {
                     <TouchableOpacity
                       style={styles.callBtn}
                       onPress={() => Linking.openURL(`tel:${errand.requesterId.phone}`)}
+                      activeOpacity={0.8}
                     >
-                      <Phone size={16} color={Colors.primary} />
+                      <Phone size={15} color={Colors.powderBlue} />
                     </TouchableOpacity>
                   ) : null}
                 </View>
-              </View>
+              </LiquidGlassCard>
 
               {/* Runner Card */}
-              <View style={styles.personCard}>
+              <LiquidGlassCard variant="default">
                 <Text style={styles.personRoleLabel}>Runner (Fulfilling Task)</Text>
                 {errand.runnerId ? (
                   <View style={styles.personDetailsRow}>
-                    <View style={[styles.personAvatar, { backgroundColor: '#DCFCE7' }]}>
-                      <Text style={[styles.personAvatarText, { color: Colors.secondaryDark }]}>
+                    <View style={[styles.personAvatar, { backgroundColor: 'rgba(191, 204, 148, 0.2)' }]}>
+                      <Text style={[styles.personAvatarText, { color: Colors.drySage }]}>
                         {errand.runnerId?.name ? errand.runnerId.name.charAt(0).toUpperCase() : 'R'}
                       </Text>
                     </View>
@@ -416,7 +445,7 @@ export default function ErrandDetailScreen() {
                       <View style={styles.nameRow}>
                         <Text style={styles.personName}>{errand.runnerId?.name || 'Runner'}</Text>
                         {errand.runnerId?.isVerified ? (
-                          <CheckCircle2 size={13} color={Colors.secondaryDark} />
+                          <CheckCircle2 size={13} color={Colors.drySage} />
                         ) : null}
                       </View>
                       <Text style={styles.personSubtext}>
@@ -429,20 +458,21 @@ export default function ErrandDetailScreen() {
                       <TouchableOpacity
                         style={styles.callBtn}
                         onPress={() => Linking.openURL(`tel:${errand.runnerId.phone}`)}
+                        activeOpacity={0.8}
                       >
-                        <Phone size={16} color={Colors.primary} />
+                        <Phone size={15} color={Colors.powderBlue} />
                       </TouchableOpacity>
                     ) : null}
                   </View>
                 ) : (
                   <View style={styles.unassignedBox}>
-                    <Hourglass size={18} color={Colors.accent} />
+                    <Hourglass size={16} color={Colors.powderBlue} />
                     <Text style={styles.unassignedText}>
                       Waiting for a peer to accept this errand.
                     </Text>
                   </View>
                 )}
-              </View>
+              </LiquidGlassCard>
             </View>
 
             {/* Dynamic Lifecycle Action Buttons */}
@@ -453,6 +483,7 @@ export default function ErrandDetailScreen() {
                   onPress={handleAcceptErrand}
                   disabled={actionLoading}
                   style={styles.primaryActionWrapper}
+                  activeOpacity={0.85}
                 >
                   <LinearGradient
                     colors={Colors.gradientPrimary}
@@ -461,10 +492,10 @@ export default function ErrandDetailScreen() {
                     style={[styles.primaryActionBtn, actionLoading && styles.btnDisabled]}
                   >
                     {actionLoading ? (
-                      <ActivityIndicator color={Colors.white} />
+                      <ActivityIndicator color={Colors.inkBlack} />
                     ) : (
                       <>
-                        <Bike size={20} color={Colors.white} />
+                        <Bike size={20} color={Colors.inkBlack} strokeWidth={2.4} />
                         <Text style={styles.primaryActionBtnText}>Accept Errand (Become Runner)</Text>
                       </>
                     )}
@@ -478,6 +509,7 @@ export default function ErrandDetailScreen() {
                   onPress={() => handleUpdateStatus('in_progress')}
                   disabled={actionLoading}
                   style={styles.primaryActionWrapper}
+                  activeOpacity={0.85}
                 >
                   <LinearGradient
                     colors={Colors.gradientPrimary}
@@ -486,10 +518,10 @@ export default function ErrandDetailScreen() {
                     style={[styles.primaryActionBtn, actionLoading && styles.btnDisabled]}
                   >
                     {actionLoading ? (
-                      <ActivityIndicator color={Colors.white} />
+                      <ActivityIndicator color={Colors.inkBlack} />
                     ) : (
                       <>
-                        <Navigation size={20} color={Colors.white} />
+                        <Navigation size={18} color={Colors.inkBlack} strokeWidth={2.4} />
                         <Text style={styles.primaryActionBtnText}>Start Errand & Share Live Location</Text>
                       </>
                     )}
@@ -503,18 +535,19 @@ export default function ErrandDetailScreen() {
                   onPress={() => handleUpdateStatus('delivered')}
                   disabled={actionLoading}
                   style={styles.primaryActionWrapper}
+                  activeOpacity={0.85}
                 >
                   <LinearGradient
-                    colors={Colors.gradientSuccess}
+                    colors={Colors.gradientSageGlow}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                     style={[styles.primaryActionBtn, actionLoading && styles.btnDisabled]}
                   >
                     {actionLoading ? (
-                      <ActivityIndicator color={Colors.white} />
+                      <ActivityIndicator color={Colors.inkBlack} />
                     ) : (
                       <>
-                        <CheckCheck size={20} color={Colors.white} strokeWidth={2.5} />
+                        <CheckCheck size={20} color={Colors.inkBlack} strokeWidth={2.6} />
                         <Text style={styles.primaryActionBtnText}>Mark as Delivered</Text>
                       </>
                     )}
@@ -526,7 +559,7 @@ export default function ErrandDetailScreen() {
               {errand.status === 'delivered' ? (
                 <>
                   <View style={styles.deliveredSuccessBox}>
-                    <CheckCircle2 size={26} color={Colors.secondaryDark} />
+                    <CheckCircle2 size={24} color={Colors.drySage} />
                     <Text style={styles.deliveredSuccessText}>
                       Errand Completed Successfully!
                     </Text>
@@ -535,14 +568,15 @@ export default function ErrandDetailScreen() {
                   <TouchableOpacity
                     onPress={() => setRatingModalVisible(true)}
                     style={styles.primaryActionWrapper}
+                    activeOpacity={0.85}
                   >
                     <LinearGradient
-                      colors={Colors.gradientAccent}
+                      colors={Colors.gradientSageGlow}
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 0 }}
                       style={styles.primaryActionBtn}
                     >
-                      <Star size={18} color={Colors.white} fill={Colors.white} />
+                      <Star size={18} color={Colors.inkBlack} fill={Colors.inkBlack} />
                       <Text style={styles.primaryActionBtnText}>Rate Peer & Award Karma</Text>
                     </LinearGradient>
                   </TouchableOpacity>
@@ -554,8 +588,9 @@ export default function ErrandDetailScreen() {
                 <TouchableOpacity
                   style={styles.disputeLinkBtn}
                   onPress={() => setDisputeModalVisible(true)}
+                  activeOpacity={0.8}
                 >
-                  <ShieldAlert size={14} color={Colors.textMuted} />
+                  <ShieldAlert size={14} color={Colors.powderBlue} />
                   <Text style={styles.disputeLinkText}>Report an issue with this errand</Text>
                 </TouchableOpacity>
               ) : null}
@@ -566,6 +601,7 @@ export default function ErrandDetailScreen() {
                   style={styles.cancelBtn}
                   onPress={() => handleUpdateStatus('cancelled')}
                   disabled={actionLoading}
+                  activeOpacity={0.8}
                 >
                   <Text style={styles.cancelBtnText}>Cancel Errand</Text>
                 </TouchableOpacity>
@@ -596,50 +632,45 @@ export default function ErrandDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.inkBlack,
+  },
+  tabNavWrapper: {
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(52, 73, 102, 0.35)',
+  },
+  tabBlur: {
+    width: '100%',
   },
   tabNav: {
     flexDirection: 'row',
-    backgroundColor: Colors.card,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    paddingHorizontal: Spacing.sm,
-    ...Shadows.subtle,
+    padding: Spacing.xs + 2,
+    backgroundColor: 'rgba(13, 24, 33, 0.45)',
   },
   tabNavItem: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
+    gap: 5,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.full,
   },
   tabNavItemActive: {
-    borderBottomColor: Colors.primary,
+    backgroundColor: Colors.powderBlue,
   },
   tabNavText: {
     fontSize: Typography.xs,
     fontWeight: '600',
-    color: Colors.textSecondary,
+    color: Colors.porcelain,
   },
   tabNavTextActive: {
-    color: Colors.primary,
-    fontWeight: 'bold',
+    color: Colors.inkBlack,
+    fontWeight: '800',
   },
   scrollContent: {
     padding: Spacing.md,
-    paddingBottom: Spacing.xxl + 20,
+    paddingBottom: Spacing.xxl + 40,
     gap: Spacing.md,
-  },
-  card: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.card,
   },
   headerTopRow: {
     flexDirection: 'row',
@@ -648,59 +679,72 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
   categoryBadge: {
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: 'rgba(180, 205, 237, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(180, 205, 237, 0.25)',
     paddingHorizontal: Spacing.sm + 4,
-    paddingVertical: 3,
+    paddingVertical: 4,
     borderRadius: BorderRadius.full,
   },
   categoryBadgeText: {
-    color: Colors.primary,
+    color: Colors.powderBlue,
     fontSize: Typography.xs - 2,
-    fontWeight: 'bold',
+    fontWeight: '800',
+    letterSpacing: 0.3,
   },
   budgetBadge: {
-    backgroundColor: '#ECFDF5',
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 4,
+    backgroundColor: 'rgba(191, 204, 148, 0.15)',
     paddingHorizontal: Spacing.md,
-    paddingVertical: 3,
+    paddingVertical: 4,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: '#A7F3D0',
+    borderColor: Colors.glassSageBorder,
+  },
+  budgetLabel: {
+    color: Colors.drySage,
+    fontSize: Typography.xs - 3,
+    fontWeight: '800',
+    textTransform: 'uppercase',
   },
   budgetText: {
-    color: Colors.secondaryDark,
-    fontSize: Typography.xs,
-    fontWeight: 'bold',
+    color: Colors.drySage,
+    fontSize: Typography.sm + 1,
+    fontWeight: '800',
   },
   title: {
     fontSize: Typography.lg,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
     marginTop: Spacing.xs,
+    letterSpacing: -0.2,
   },
   description: {
     fontSize: Typography.sm,
-    color: Colors.textSecondary,
+    color: 'rgba(240, 244, 239, 0.75)',
     marginTop: 4,
     lineHeight: 18,
   },
   addressRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
     marginTop: Spacing.md,
     paddingTop: Spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: Colors.borderLight,
+    borderTopColor: 'rgba(52, 73, 102, 0.35)',
   },
   addressText: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     flex: 1,
   },
   sectionTitle: {
     fontSize: Typography.base,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
     marginBottom: Spacing.md,
   },
   stepperContainer: {
@@ -718,115 +762,115 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: Colors.background,
-    borderWidth: 2,
-    borderColor: Colors.border,
+    backgroundColor: 'rgba(52, 73, 102, 0.35)',
+    borderWidth: 1.5,
+    borderColor: Colors.glassBorder,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 4,
   },
   stepCircleCurrent: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primaryLight,
+    borderColor: Colors.powderBlue,
+    backgroundColor: 'rgba(180, 205, 237, 0.25)',
   },
   stepCircleCompleted: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
+    backgroundColor: Colors.powderBlue,
+    borderColor: Colors.powderBlue,
   },
   stepNumber: {
     fontSize: Typography.xs,
-    color: Colors.textMuted,
-    fontWeight: 'bold',
+    color: Colors.powderBlue,
+    fontWeight: '800',
   },
   stepLabel: {
     fontSize: Typography.xs - 2,
-    color: Colors.textMuted,
+    color: Colors.powderBlue,
     textAlign: 'center',
   },
   stepLabelCurrent: {
-    color: Colors.primary,
-    fontWeight: 'bold',
+    color: Colors.porcelain,
+    fontWeight: '800',
   },
   stepLabelCompleted: {
-    color: Colors.text,
-    fontWeight: '600',
+    color: Colors.powderBlue,
+    fontWeight: '700',
   },
   historyBox: {
-    backgroundColor: Colors.background,
-    borderRadius: BorderRadius.md,
+    backgroundColor: 'rgba(13, 24, 33, 0.55)',
+    borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     marginTop: Spacing.xs,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 73, 102, 0.35)',
   },
   historyTitle: {
     fontSize: Typography.xs,
-    fontWeight: 'bold',
-    color: Colors.textSecondary,
+    fontWeight: '800',
+    color: Colors.powderBlue,
     marginBottom: Spacing.xs,
     textTransform: 'uppercase',
+    letterSpacing: 0.3,
   },
   historyRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingVertical: 2,
+    paddingVertical: 3,
   },
   historyText: {
     fontSize: Typography.xs - 1,
-    color: Colors.textSecondary,
+    color: 'rgba(240, 244, 239, 0.8)',
   },
   historyStatus: {
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   cancelledBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-    backgroundColor: Colors.dangerLight,
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.35)',
     padding: Spacing.md,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     marginBottom: Spacing.md,
   },
   cancelledText: {
-    color: Colors.dangerDark,
+    color: '#F87171',
     fontSize: Typography.xs,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   peopleSection: {
     gap: Spacing.sm,
   },
-  personCard: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.subtle,
-  },
   personRoleLabel: {
     fontSize: Typography.xs - 1,
-    fontWeight: 'bold',
-    color: Colors.textSecondary,
+    fontWeight: '800',
+    color: Colors.powderBlue,
     textTransform: 'uppercase',
     marginBottom: Spacing.xs,
+    letterSpacing: 0.4,
   },
   personDetailsRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   personAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.primaryLight,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(180, 205, 237, 0.15)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.sm,
   },
   personAvatarText: {
     fontSize: Typography.base,
-    fontWeight: 'bold',
-    color: Colors.primary,
+    fontWeight: '800',
+    color: Colors.powderBlue,
   },
   personInfo: {
     flex: 1,
@@ -837,26 +881,28 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   personName: {
-    fontSize: Typography.sm,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontSize: Typography.sm + 1,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   personSubtext: {
     fontSize: Typography.xs - 1,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     marginTop: 1,
   },
   personKarma: {
     fontSize: Typography.xs - 2,
-    color: '#B45309',
-    fontWeight: '600',
+    color: Colors.drySage,
+    fontWeight: '700',
     marginTop: 2,
   },
   callBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: 'rgba(180, 205, 237, 0.15)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -868,7 +914,7 @@ const styles = StyleSheet.create({
   },
   unassignedText: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     fontStyle: 'italic',
   },
   actionSection: {
@@ -876,7 +922,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xs,
   },
   primaryActionWrapper: {
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.full,
     overflow: 'hidden',
     ...Shadows.glow,
   },
@@ -885,39 +931,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.xs,
-    height: 50,
+    height: 52,
   },
   primaryActionBtnText: {
-    color: Colors.white,
+    color: Colors.inkBlack,
     fontSize: Typography.sm + 1,
-    fontWeight: 'bold',
+    fontWeight: '800',
+    letterSpacing: 0.2,
   },
   deliveredSuccessBox: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.xs,
-    backgroundColor: '#ECFDF5',
+    backgroundColor: 'rgba(191, 204, 148, 0.15)',
     padding: Spacing.md,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: '#A7F3D0',
+    borderColor: Colors.glassSageBorder,
   },
   deliveredSuccessText: {
-    color: Colors.secondaryDark,
+    color: Colors.drySage,
     fontSize: Typography.sm,
-    fontWeight: 'bold',
+    fontWeight: '800',
   },
   disputeLinkBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: 5,
     paddingVertical: Spacing.xs,
   },
   disputeLinkText: {
     fontSize: Typography.xs,
-    color: Colors.textMuted,
+    color: Colors.powderBlue,
     textDecorationLine: 'underline',
   },
   cancelBtn: {
@@ -926,48 +973,51 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
   },
   cancelBtnText: {
-    color: Colors.danger,
+    color: '#F87171',
     fontSize: Typography.xs,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   centerLoading: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: Colors.inkBlack,
   },
   loadingText: {
     marginTop: Spacing.sm,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     fontSize: Typography.sm,
+    fontWeight: '600',
   },
   centerError: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.xl,
+    backgroundColor: Colors.inkBlack,
   },
   errorTitle: {
     fontSize: Typography.lg,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
     marginTop: Spacing.sm,
   },
   errorSubtitle: {
     fontSize: Typography.sm,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     textAlign: 'center',
     marginTop: 4,
     marginBottom: Spacing.lg,
   },
   backButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.powderBlue,
     paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.sm + 2,
-    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.sm + 4,
+    borderRadius: BorderRadius.full,
   },
   backButtonText: {
-    color: Colors.white,
-    fontWeight: 'bold',
+    color: Colors.inkBlack,
+    fontWeight: '800',
   },
   btnDisabled: {
     opacity: 0.6,
