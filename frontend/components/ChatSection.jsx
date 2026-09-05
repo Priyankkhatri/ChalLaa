@@ -261,7 +261,7 @@ export default function ChatSection({ errand, currentUser }) {
           disabled={!inputText.trim()}
           activeOpacity={0.85}
         >
-          <Send size={16} color={Colors.inkBlack} strokeWidth={2.6} />
+          <Send size={16} color="#FFFFFF" strokeWidth={2.6} />
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -274,18 +274,19 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.inkBlack,
     borderRadius: BorderRadius.xl,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderWidth: 1.2,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
+    ...Shadows.subtle,
   },
   chatHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-    backgroundColor: 'rgba(52, 73, 102, 0.45)',
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.glassBorder,
+    borderBottomColor: 'rgba(226, 232, 240, 0.85)',
   },
   chatHeaderTitle: {
     fontSize: Typography.xs,
@@ -311,9 +312,9 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: 'rgba(180, 205, 237, 0.15)',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(37, 99, 235, 0.20)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 6,
@@ -336,10 +337,11 @@ const styles = StyleSheet.create({
     ...Shadows.glow,
   },
   bubbleOther: {
-    backgroundColor: 'rgba(52, 73, 102, 0.55)',
+    backgroundColor: '#FFFFFF',
     borderBottomLeftRadius: BorderRadius.xs,
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
+    ...Shadows.subtle,
   },
   senderName: {
     fontSize: Typography.xs - 2,
@@ -352,7 +354,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   messageTextMe: {
-    color: Colors.inkBlack,
+    color: '#FFFFFF',
     fontWeight: '600',
   },
   messageTextOther: {
@@ -365,10 +367,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   timeTextMe: {
-    color: 'rgba(13, 24, 33, 0.7)',
+    color: 'rgba(255, 255, 255, 0.85)',
   },
   timeTextOther: {
-    color: Colors.powderBlue,
+    color: '#94A3B8',
   },
   typingBanner: {
     flexDirection: 'row',
@@ -376,9 +378,9 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: Spacing.md,
     paddingVertical: 4,
-    backgroundColor: 'rgba(191, 204, 148, 0.12)',
+    backgroundColor: 'rgba(5, 150, 105, 0.08)',
     borderTopWidth: 1,
-    borderTopColor: Colors.glassSageBorder,
+    borderTopColor: 'rgba(5, 150, 105, 0.20)',
   },
   typingText: {
     fontSize: Typography.xs - 1,
@@ -387,9 +389,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   quickPromptsWrapper: {
-    backgroundColor: 'rgba(13, 24, 33, 0.75)',
+    backgroundColor: 'rgba(241, 245, 249, 0.95)',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(52, 73, 102, 0.35)',
+    borderTopColor: 'rgba(226, 232, 240, 0.85)',
     paddingVertical: 6,
   },
   quickPromptsScroll: {
@@ -397,12 +399,12 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
   },
   quickPromptChip: {
-    backgroundColor: 'rgba(52, 73, 102, 0.35)',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: Spacing.sm + 4,
     paddingVertical: 5,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
   },
   quickPromptText: {
     fontSize: Typography.xs - 1,
@@ -412,16 +414,16 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(13, 24, 33, 0.85)',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     gap: Spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: Colors.glassBorder,
+    borderTopColor: 'rgba(226, 232, 240, 0.85)',
   },
   textInput: {
     flex: 1,
-    backgroundColor: 'rgba(52, 73, 102, 0.3)',
+    backgroundColor: 'rgba(248, 250, 252, 0.90)',
     borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm - 2,
@@ -429,7 +431,7 @@ const styles = StyleSheet.create({
     color: Colors.porcelain,
     maxHeight: 80,
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
   },
   sendBtn: {
     width: 40,

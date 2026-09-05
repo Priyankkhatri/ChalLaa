@@ -177,9 +177,9 @@ export default function PostErrandScreen() {
         >
           {/* Liquid Glass Header Hero */}
           <View style={styles.headerHeroWrapper}>
-            <BlurView intensity={Platform.OS === 'ios' ? 45 : 60} tint="dark" style={styles.headerBlur}>
+            <BlurView intensity={Platform.OS === 'ios' ? 45 : 60} tint="light" style={styles.headerBlur}>
               <LinearGradient
-                colors={['rgba(52, 73, 102, 0.65)', 'rgba(13, 24, 33, 0.9)']}
+                colors={['rgba(255, 255, 255, 0.96)', 'rgba(241, 245, 249, 0.90)']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 0.9, y: 1 }}
                 style={styles.headerHero}
@@ -216,7 +216,7 @@ export default function PostErrandScreen() {
                   >
                     <Icon
                       size={22}
-                      color={isSelected ? Colors.inkBlack : Colors.powderBlue}
+                      color={isSelected ? '#FFFFFF' : Colors.powderBlue}
                       strokeWidth={2.4}
                     />
                     <Text style={[styles.categoryTileText, isSelected && styles.categoryTileTextActive]}>
@@ -336,10 +336,10 @@ export default function PostErrandScreen() {
               style={[styles.submitButton, submitting && styles.btnDisabled]}
             >
               {submitting ? (
-                <ActivityIndicator color={Colors.inkBlack} />
+                <ActivityIndicator color="#FFFFFF" />
               ) : (
                 <>
-                  <Send size={18} color={Colors.inkBlack} strokeWidth={2.6} />
+                  <Send size={18} color="#FFFFFF" strokeWidth={2.6} />
                   <Text style={styles.submitButtonText}>Broadcast Errand</Text>
                 </>
               )}
@@ -354,6 +354,7 @@ export default function PostErrandScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.inkBlack,
   },
   flexFill: {
     flex: 1,
@@ -367,13 +368,13 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xl,
     overflow: 'hidden',
     borderWidth: 1.2,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     ...(Platform.OS === 'web' ? {
       backdropFilter: 'blur(30px) saturate(190%)',
       WebkitBackdropFilter: 'blur(30px) saturate(190%)',
-      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(240, 244, 239, 0.3)',
+      boxShadow: '0 10px 30px rgba(15, 23, 42, 0.05), inset 0 1px 1px #FFFFFF',
     } : {}),
-    ...Shadows.glow,
+    ...Shadows.subtle,
   },
   headerBlur: {
     width: '100%',
@@ -387,7 +388,7 @@ const styles = StyleSheet.create({
     left: 30,
     right: 30,
     height: 1,
-    backgroundColor: 'rgba(240, 244, 239, 0.25)',
+    backgroundColor: '#FFFFFF',
   },
   headerTitle: {
     fontSize: Typography.lg,
@@ -397,21 +398,21 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     fontSize: Typography.xs,
-    color: Colors.powderBlue,
+    color: '#64748B',
     marginTop: 4,
   },
   errorBox: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
-    borderColor: 'rgba(239, 68, 68, 0.35)',
+    backgroundColor: 'rgba(239, 68, 68, 0.10)',
+    borderColor: 'rgba(239, 68, 68, 0.25)',
     borderWidth: 1,
     borderRadius: BorderRadius.md,
     padding: Spacing.sm + 2,
   },
   errorText: {
-    color: '#F87171',
+    color: '#DC2626',
     fontSize: Typography.xs,
     flex: 1,
   },
@@ -428,17 +429,23 @@ const styles = StyleSheet.create({
   },
   categoryTile: {
     width: '31%',
-    backgroundColor: 'rgba(13, 24, 33, 0.65)',
+    backgroundColor: 'rgba(255, 255, 255, 0.90)',
     borderRadius: BorderRadius.lg,
     paddingVertical: Spacing.sm + 2,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     gap: 4,
+    ...(Platform.OS === 'web' ? {
+      boxShadow: '0 2px 6px rgba(15, 23, 42, 0.03)',
+    } : {}),
   },
   categoryTileActive: {
     backgroundColor: Colors.powderBlue,
     borderColor: Colors.powderBlue,
+    ...(Platform.OS === 'web' ? {
+      boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)',
+    } : {}),
   },
   categoryTileText: {
     fontSize: Typography.xs - 2,
@@ -447,25 +454,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   categoryTileTextActive: {
-    color: Colors.inkBlack,
+    color: '#FFFFFF',
     fontWeight: '800',
   },
   inputLabel: {
     fontSize: Typography.xs,
     fontWeight: '700',
-    color: Colors.powderBlue,
+    color: Colors.porcelain,
     marginTop: Spacing.xs,
     marginBottom: 4,
   },
   input: {
     height: 46,
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     fontSize: Typography.sm,
     color: Colors.porcelain,
-    backgroundColor: 'rgba(13, 24, 33, 0.65)',
+    backgroundColor: '#FFFFFF',
     marginBottom: Spacing.xs,
   },
   textArea: {
@@ -488,13 +495,13 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 48,
     borderWidth: 1,
-    borderColor: Colors.glassSageBorder,
+    borderColor: 'rgba(5, 150, 105, 0.25)',
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     fontSize: Typography.xl,
     fontWeight: '800',
     color: Colors.drySage,
-    backgroundColor: 'rgba(13, 24, 33, 0.65)',
+    backgroundColor: '#FFFFFF',
   },
   presetChipsRow: {
     flexDirection: 'row',
@@ -502,12 +509,12 @@ const styles = StyleSheet.create({
   },
   presetChip: {
     flex: 1,
-    backgroundColor: 'rgba(52, 73, 102, 0.35)',
+    backgroundColor: 'rgba(255, 255, 255, 0.90)',
     paddingVertical: 7,
     borderRadius: BorderRadius.full,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
   },
   presetChipActive: {
     backgroundColor: Colors.drySage,
@@ -519,7 +526,7 @@ const styles = StyleSheet.create({
     color: Colors.porcelain,
   },
   presetChipTextActive: {
-    color: Colors.inkBlack,
+    color: '#FFFFFF',
     fontWeight: '800',
   },
   locationHeaderRow: {
@@ -532,9 +539,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(52, 73, 102, 0.45)',
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     paddingHorizontal: Spacing.sm + 2,
     paddingVertical: 4,
     borderRadius: BorderRadius.full,
@@ -558,7 +565,7 @@ const styles = StyleSheet.create({
     height: 52,
   },
   submitButtonText: {
-    color: Colors.inkBlack,
+    color: '#FFFFFF',
     fontSize: Typography.base,
     fontWeight: '800',
     letterSpacing: 0.3,

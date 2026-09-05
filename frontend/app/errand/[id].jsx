@@ -210,7 +210,7 @@ export default function ErrandDetailScreen() {
     <LiquidCanvas style={styles.container}>
       {/* Liquid Glass Navigation Sub-tabs */}
       <View style={styles.tabNavWrapper}>
-        <BlurView intensity={Platform.OS === 'ios' ? 35 : 55} tint="dark" style={styles.tabBlur}>
+        <BlurView intensity={Platform.OS === 'ios' ? 35 : 55} tint="light" style={styles.tabBlur}>
           <View style={styles.tabNav}>
             <TouchableOpacity
               style={[styles.tabNavItem, activeTab === 'overview' && styles.tabNavItemActive]}
@@ -219,7 +219,7 @@ export default function ErrandDetailScreen() {
             >
               <Info
                 size={15}
-                color={activeTab === 'overview' ? Colors.inkBlack : Colors.powderBlue}
+                color={activeTab === 'overview' ? '#FFFFFF' : Colors.powderBlue}
                 strokeWidth={2.4}
               />
               <Text
@@ -236,7 +236,7 @@ export default function ErrandDetailScreen() {
             >
               <MessageSquare
                 size={15}
-                color={activeTab === 'chat' ? Colors.inkBlack : Colors.powderBlue}
+                color={activeTab === 'chat' ? '#FFFFFF' : Colors.powderBlue}
                 strokeWidth={2.4}
               />
               <Text style={[styles.tabNavText, activeTab === 'chat' && styles.tabNavTextActive]}>
@@ -251,7 +251,7 @@ export default function ErrandDetailScreen() {
             >
               <Navigation
                 size={15}
-                color={activeTab === 'tracking' ? Colors.inkBlack : Colors.powderBlue}
+                color={activeTab === 'tracking' ? '#FFFFFF' : Colors.powderBlue}
                 strokeWidth={2.4}
               />
               <Text
@@ -268,7 +268,7 @@ export default function ErrandDetailScreen() {
             >
               <Camera
                 size={15}
-                color={activeTab === 'proof' ? Colors.inkBlack : Colors.powderBlue}
+                color={activeTab === 'proof' ? '#FFFFFF' : Colors.powderBlue}
                 strokeWidth={2.4}
               />
               <Text style={[styles.tabNavText, activeTab === 'proof' && styles.tabNavTextActive]}>
@@ -634,20 +634,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tabNavWrapper: {
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(52, 73, 102, 0.35)',
-    ...(Platform.OS === 'web' ? {
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-    } : {}),
+    margin: Spacing.md,
+    borderRadius: BorderRadius.full,
+    overflow: 'hidden',
+    borderWidth: 1.2,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
+    ...Shadows.subtle,
   },
   tabBlur: {
     width: '100%',
   },
   tabNav: {
     flexDirection: 'row',
-    padding: Spacing.xs + 2,
-    backgroundColor: 'rgba(13, 24, 33, 0.45)',
+    padding: 4,
+    backgroundColor: 'rgba(241, 245, 249, 0.85)',
   },
   tabNavItem: {
     flex: 1,
@@ -664,10 +664,10 @@ const styles = StyleSheet.create({
   tabNavText: {
     fontSize: Typography.xs,
     fontWeight: '600',
-    color: Colors.porcelain,
+    color: Colors.textMuted,
   },
   tabNavTextActive: {
-    color: Colors.inkBlack,
+    color: '#FFFFFF',
     fontWeight: '800',
   },
   scrollContent: {
@@ -682,9 +682,9 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
   categoryBadge: {
-    backgroundColor: 'rgba(180, 205, 237, 0.15)',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(180, 205, 237, 0.25)',
+    borderColor: 'rgba(37, 99, 235, 0.20)',
     paddingHorizontal: Spacing.sm + 4,
     paddingVertical: 4,
     borderRadius: BorderRadius.full,
@@ -699,12 +699,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'baseline',
     gap: 4,
-    backgroundColor: 'rgba(191, 204, 148, 0.15)',
+    backgroundColor: 'rgba(5, 150, 105, 0.08)',
     paddingHorizontal: Spacing.md,
     paddingVertical: 4,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: Colors.glassSageBorder,
+    borderColor: 'rgba(5, 150, 105, 0.25)',
   },
   budgetLabel: {
     color: Colors.drySage,
@@ -726,7 +726,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: Typography.sm,
-    color: 'rgba(240, 244, 239, 0.75)',
+    color: '#475569',
     marginTop: 4,
     lineHeight: 18,
   },
@@ -737,11 +737,11 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
     paddingTop: Spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(52, 73, 102, 0.35)',
+    borderTopColor: 'rgba(226, 232, 240, 0.80)',
   },
   addressText: {
     fontSize: Typography.xs,
-    color: Colors.powderBlue,
+    color: '#64748B',
     flex: 1,
   },
   sectionTitle: {
@@ -765,16 +765,16 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: 'rgba(52, 73, 102, 0.35)',
+    backgroundColor: 'rgba(241, 245, 249, 0.90)',
     borderWidth: 1.5,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(226, 232, 240, 0.90)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 4,
   },
   stepCircleCurrent: {
     borderColor: Colors.powderBlue,
-    backgroundColor: 'rgba(180, 205, 237, 0.25)',
+    backgroundColor: 'rgba(37, 99, 235, 0.12)',
   },
   stepCircleCompleted: {
     backgroundColor: Colors.powderBlue,
@@ -782,12 +782,12 @@ const styles = StyleSheet.create({
   },
   stepNumber: {
     fontSize: Typography.xs,
-    color: Colors.powderBlue,
+    color: Colors.textMuted,
     fontWeight: '800',
   },
   stepLabel: {
     fontSize: Typography.xs - 2,
-    color: Colors.powderBlue,
+    color: Colors.textMuted,
     textAlign: 'center',
   },
   stepLabelCurrent: {
@@ -799,12 +799,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   historyBox: {
-    backgroundColor: 'rgba(13, 24, 33, 0.55)',
+    backgroundColor: 'rgba(248, 250, 252, 0.90)',
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     marginTop: Spacing.xs,
     borderWidth: 1,
-    borderColor: 'rgba(52, 73, 102, 0.35)',
+    borderColor: 'rgba(226, 232, 240, 0.85)',
   },
   historyTitle: {
     fontSize: Typography.xs,
@@ -822,7 +822,7 @@ const styles = StyleSheet.create({
   },
   historyText: {
     fontSize: Typography.xs - 1,
-    color: 'rgba(240, 244, 239, 0.8)',
+    color: '#475569',
   },
   historyStatus: {
     fontWeight: '800',
@@ -832,15 +832,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    backgroundColor: 'rgba(239, 68, 68, 0.10)',
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.35)',
+    borderColor: 'rgba(239, 68, 68, 0.25)',
     padding: Spacing.md,
     borderRadius: BorderRadius.lg,
     marginBottom: Spacing.md,
   },
   cancelledText: {
-    color: '#F87171',
+    color: '#DC2626',
     fontSize: Typography.xs,
     fontWeight: '800',
   },
@@ -863,9 +863,9 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: 'rgba(180, 205, 237, 0.15)',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(37, 99, 235, 0.20)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.sm,
@@ -890,7 +890,7 @@ const styles = StyleSheet.create({
   },
   personSubtext: {
     fontSize: Typography.xs - 1,
-    color: Colors.powderBlue,
+    color: '#64748B',
     marginTop: 1,
   },
   personKarma: {
@@ -903,9 +903,9 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(180, 205, 237, 0.15)',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
+    borderColor: 'rgba(37, 99, 235, 0.20)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -937,7 +937,7 @@ const styles = StyleSheet.create({
     height: 52,
   },
   primaryActionBtnText: {
-    color: Colors.inkBlack,
+    color: '#FFFFFF',
     fontSize: Typography.sm + 1,
     fontWeight: '800',
     letterSpacing: 0.2,
@@ -947,11 +947,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.xs,
-    backgroundColor: 'rgba(191, 204, 148, 0.15)',
-    padding: Spacing.md,
-    borderRadius: BorderRadius.full,
+    backgroundColor: 'rgba(5, 150, 105, 0.08)',
+    borderColor: 'rgba(5, 150, 105, 0.25)',
     borderWidth: 1,
-    borderColor: Colors.glassSageBorder,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
   },
   deliveredSuccessText: {
     color: Colors.drySage,
