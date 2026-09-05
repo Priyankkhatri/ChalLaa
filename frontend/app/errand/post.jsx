@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import * as Location from 'expo-location';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import {
   ShoppingBag,
   Utensils,
@@ -28,6 +29,7 @@ import {
 import { router } from 'expo-router';
 import api from '../../services/api';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
+import { LiquidGlassCard } from '../../components/ui/LiquidGlass';
 
 const CATEGORIES = [
   { id: 'grocery', label: 'Grocery', icon: ShoppingBag },
@@ -172,28 +174,33 @@ export default function PostErrandScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Header Hero Banner */}
-        <LinearGradient
-          colors={['#4F46E5', '#6366F1']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.headerCard}
-        >
-          <Text style={styles.headerTitle}>Need something done? 🏃</Text>
-          <Text style={styles.headerSubtitle}>
-            Broadcast your request to active peers across campus
-          </Text>
-        </LinearGradient>
+        {/* Liquid Glass Header Hero */}
+        <View style={styles.headerHeroWrapper}>
+          <BlurView intensity={Platform.OS === 'ios' ? 45 : 60} tint="dark" style={styles.headerBlur}>
+            <LinearGradient
+              colors={['rgba(52, 73, 102, 0.65)', 'rgba(13, 24, 33, 0.9)']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0.9, y: 1 }}
+              style={styles.headerHero}
+            >
+              <View style={styles.headerSpecular} />
+              <Text style={styles.headerTitle}>Need something done? 🏃</Text>
+              <Text style={styles.headerSubtitle}>
+                Broadcast your request to active peers across campus
+              </Text>
+            </LinearGradient>
+          </BlurView>
+        </View>
 
         {errorMessage ? (
           <View style={styles.errorBox}>
-            <AlertCircle size={16} color={Colors.danger} />
+            <AlertCircle size={16} color="#F87171" />
             <Text style={styles.errorText}>{errorMessage}</Text>
           </View>
         ) : null}
 
         {/* 1. Category Selection */}
-        <View style={styles.sectionCard}>
+        <LiquidGlassCard variant="default">
           <Text style={styles.sectionTitle}>1. Choose Category</Text>
           <View style={styles.categoryGrid}>
             {CATEGORIES.map((cat) => {
@@ -204,10 +211,12 @@ export default function PostErrandScreen() {
                   key={cat.id}
                   style={[styles.categoryTile, isSelected && styles.categoryTileActive]}
                   onPress={() => setCategory(cat.id)}
+                  activeOpacity={0.8}
                 >
                   <Icon
                     size={22}
-                    color={isSelected ? Colors.primary : Colors.textSecondary}
+                    color={isSelected ? Colors.inkBlack : Colors.powderBlue}
+                    strokeWidth={2.4}
                   />
                   <Text style={[styles.categoryTileText, isSelected && styles.categoryTileTextActive]}>
                     {cat.label}
@@ -216,10 +225,10 @@ export default function PostErrandScreen() {
               );
             })}
           </View>
-        </View>
+        </LiquidGlassCard>
 
         {/* 2. Task Details */}
-        <View style={styles.sectionCard}>
+        <LiquidGlassCard variant="default">
           <Text style={styles.sectionTitle}>2. Errand Details</Text>
 
           <Text style={styles.inputLabel}>Title *</Text>
@@ -244,10 +253,10 @@ export default function PostErrandScreen() {
             multiline
             numberOfLines={3}
           />
-        </View>
+        </LiquidGlassCard>
 
         {/* 3. Budget & Compensation */}
-        <View style={styles.sectionCard}>
+        <LiquidGlassCard variant="sage">
           <Text style={styles.sectionTitle}>3. Estimated Budget (₹)</Text>
 
           <View style={styles.budgetInputRow}>
@@ -264,39 +273,39 @@ export default function PostErrandScreen() {
 
           {/* Quick preset chips */}
           <View style={styles.presetChipsRow}>
-            {BUDGET_PRESETS.map((amt) => (
-              <TouchableOpacity
-                key={amt}
-                style={[styles.presetChip, budget === amt.toString() && styles.presetChipActive]}
-                onPress={() => setBudget(amt.toString())}
-              >
-                <Text
-                  style={[
-                    styles.presetChipText,
-                    budget === amt.toString() && styles.presetChipTextActive,
-                  ]}
+            {BUDGET_PRESETS.map((amt) => {
+              const active = budget === amt.toString();
+              return (
+                <TouchableOpacity
+                  key={amt}
+                  style={[styles.presetChip, active && styles.presetChipActive]}
+                  onPress={() => setBudget(amt.toString())}
+                  activeOpacity={0.8}
                 >
-                  ₹{amt}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  <Text style={[styles.presetChipText, active && styles.presetChipTextActive]}>
+                    ₹{amt}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
-        </View>
+        </LiquidGlassCard>
 
         {/* 4. Delivery Destination */}
-        <View style={styles.sectionCard}>
+        <LiquidGlassCard variant="default">
           <View style={styles.locationHeaderRow}>
             <Text style={styles.sectionTitle}>4. Delivery Address</Text>
             <TouchableOpacity
               style={styles.refreshLocBtn}
               onPress={fetchCurrentLocation}
               disabled={loadingLocation}
+              activeOpacity={0.8}
             >
               {loadingLocation ? (
-                <ActivityIndicator size="small" color={Colors.primary} />
+                <ActivityIndicator size="small" color={Colors.powderBlue} />
               ) : (
                 <>
-                  <LocateFixed size={14} color={Colors.primary} />
+                  <LocateFixed size={14} color={Colors.powderBlue} />
                   <Text style={styles.refreshLocText}>GPS Auto-Fill</Text>
                 </>
               )}
@@ -310,7 +319,7 @@ export default function PostErrandScreen() {
             value={address}
             onChangeText={setAddress}
           />
-        </View>
+        </LiquidGlassCard>
 
         {/* Submit Button */}
         <TouchableOpacity
@@ -320,16 +329,16 @@ export default function PostErrandScreen() {
           style={styles.submitBtnWrapper}
         >
           <LinearGradient
-            colors={['#4F46E5', '#6366F1']}
+            colors={Colors.gradientPrimary}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={[styles.submitButton, submitting && styles.btnDisabled]}
           >
             {submitting ? (
-              <ActivityIndicator color={Colors.white} />
+              <ActivityIndicator color={Colors.inkBlack} />
             ) : (
               <>
-                <Send size={18} color={Colors.white} />
+                <Send size={18} color={Colors.inkBlack} strokeWidth={2.6} />
                 <Text style={styles.submitButtonText}>Broadcast Errand</Text>
               </>
             )}
@@ -343,55 +352,64 @@ export default function PostErrandScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.inkBlack,
   },
   scrollContent: {
     padding: Spacing.md,
-    paddingBottom: Spacing.xxl,
+    paddingBottom: Spacing.xxl + 40,
     gap: Spacing.md,
   },
-  headerCard: {
+  headerHeroWrapper: {
     borderRadius: BorderRadius.xl,
-    padding: Spacing.lg,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
     ...Shadows.glow,
+  },
+  headerBlur: {
+    width: '100%',
+  },
+  headerHero: {
+    padding: Spacing.lg,
+  },
+  headerSpecular: {
+    position: 'absolute',
+    top: 0,
+    left: 30,
+    right: 30,
+    height: 1,
+    backgroundColor: 'rgba(240, 244, 239, 0.25)',
   },
   headerTitle: {
     fontSize: Typography.lg,
-    fontWeight: 'bold',
-    color: Colors.white,
+    fontWeight: '800',
+    color: Colors.porcelain,
+    letterSpacing: -0.2,
   },
   headerSubtitle: {
     fontSize: Typography.xs,
-    color: 'rgba(255,255,255,0.85)',
-    marginTop: 2,
+    color: Colors.powderBlue,
+    marginTop: 4,
   },
   errorBox: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-    backgroundColor: Colors.dangerLight,
-    borderColor: Colors.danger,
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderColor: 'rgba(239, 68, 68, 0.35)',
     borderWidth: 1,
     borderRadius: BorderRadius.md,
     padding: Spacing.sm + 2,
   },
   errorText: {
-    color: Colors.dangerDark,
+    color: '#F87171',
     fontSize: Typography.xs,
     flex: 1,
   },
-  sectionCard: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.card,
-  },
   sectionTitle: {
     fontSize: Typography.sm,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
     marginBottom: Spacing.sm,
   },
   categoryGrid: {
@@ -401,48 +419,48 @@ const styles = StyleSheet.create({
   },
   categoryTile: {
     width: '31%',
-    backgroundColor: Colors.background,
-    borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.sm,
+    backgroundColor: 'rgba(13, 24, 33, 0.65)',
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.sm + 2,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
     gap: 4,
   },
   categoryTileActive: {
-    backgroundColor: Colors.primaryLight,
-    borderColor: Colors.primary,
+    backgroundColor: Colors.powderBlue,
+    borderColor: Colors.powderBlue,
   },
   categoryTileText: {
     fontSize: Typography.xs - 2,
-    fontWeight: '600',
-    color: Colors.textSecondary,
+    fontWeight: '700',
+    color: Colors.porcelain,
     textAlign: 'center',
   },
   categoryTileTextActive: {
-    color: Colors.primary,
-    fontWeight: 'bold',
+    color: Colors.inkBlack,
+    fontWeight: '800',
   },
   inputLabel: {
     fontSize: Typography.xs,
-    fontWeight: '600',
-    color: Colors.textSecondary,
+    fontWeight: '700',
+    color: Colors.powderBlue,
     marginTop: Spacing.xs,
     marginBottom: 4,
   },
   input: {
     height: 46,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     fontSize: Typography.sm,
-    color: Colors.text,
-    backgroundColor: Colors.white,
+    color: Colors.porcelain,
+    backgroundColor: 'rgba(13, 24, 33, 0.65)',
     marginBottom: Spacing.xs,
   },
   textArea: {
-    height: 72,
+    height: 76,
     textAlignVertical: 'top',
     paddingTop: Spacing.sm,
   },
@@ -453,21 +471,21 @@ const styles = StyleSheet.create({
   },
   rupeeSymbol: {
     fontSize: Typography.xxl,
-    fontWeight: 'bold',
-    color: Colors.textSecondary,
+    fontWeight: '800',
+    color: Colors.drySage,
     marginRight: Spacing.sm,
   },
   budgetInput: {
     flex: 1,
     height: 48,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassSageBorder,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     fontSize: Typography.xl,
-    fontWeight: 'bold',
-    color: Colors.text,
-    backgroundColor: Colors.white,
+    fontWeight: '800',
+    color: Colors.drySage,
+    backgroundColor: 'rgba(13, 24, 33, 0.65)',
   },
   presetChipsRow: {
     flexDirection: 'row',
@@ -475,24 +493,25 @@ const styles = StyleSheet.create({
   },
   presetChip: {
     flex: 1,
-    backgroundColor: Colors.background,
-    paddingVertical: 6,
+    backgroundColor: 'rgba(52, 73, 102, 0.35)',
+    paddingVertical: 7,
     borderRadius: BorderRadius.full,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
   },
   presetChipActive: {
-    backgroundColor: Colors.secondary,
-    borderColor: Colors.secondary,
+    backgroundColor: Colors.drySage,
+    borderColor: Colors.drySage,
   },
   presetChipText: {
     fontSize: Typography.xs,
-    fontWeight: 'bold',
-    color: Colors.textSecondary,
+    fontWeight: '700',
+    color: Colors.porcelain,
   },
   presetChipTextActive: {
-    color: Colors.white,
+    color: Colors.inkBlack,
+    fontWeight: '800',
   },
   locationHeaderRow: {
     flexDirection: 'row',
@@ -504,32 +523,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: Colors.primaryLight,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 3,
+    backgroundColor: 'rgba(52, 73, 102, 0.45)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    paddingHorizontal: Spacing.sm + 2,
+    paddingVertical: 4,
     borderRadius: BorderRadius.full,
   },
   refreshLocText: {
     fontSize: Typography.xs - 2,
-    fontWeight: 'bold',
-    color: Colors.primary,
+    fontWeight: '700',
+    color: Colors.powderBlue,
   },
   submitBtnWrapper: {
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.full,
     overflow: 'hidden',
     ...Shadows.glow,
+    marginTop: Spacing.xs,
   },
   submitButton: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: Spacing.sm,
-    height: 50,
+    height: 52,
   },
   submitButtonText: {
-    color: Colors.white,
+    color: Colors.inkBlack,
     fontSize: Typography.base,
-    fontWeight: 'bold',
+    fontWeight: '800',
+    letterSpacing: 0.3,
   },
   btnDisabled: {
     opacity: 0.6,
