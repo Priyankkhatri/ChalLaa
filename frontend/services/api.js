@@ -3,7 +3,12 @@ import * as SecureStore from 'expo-secure-store';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
-// Dynamically resolve API URL using host machine IP from Expo Go / Metro
+/**
+ * Dynamically resolves the API base URL depending on runtime environment:
+ * - Real Device with Expo Go / Metro: uses host machine LAN IP
+ * - Android Emulator: fallback 10.0.2.2:5000
+ * - iOS Simulator / Web: localhost:5000
+ */
 export const getBaseUrl = () => {
   const hostUri =
     Constants.expoConfig?.hostUri ||
