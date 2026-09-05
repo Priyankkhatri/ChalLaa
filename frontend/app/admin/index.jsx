@@ -32,7 +32,7 @@ import {
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
-import { LiquidGlassCard } from '../../components/ui/LiquidGlass';
+import { LiquidGlassCard, LiquidCanvas } from '../../components/ui/LiquidGlass';
 
 /**
  * Admin Dashboard Screen
@@ -158,7 +158,7 @@ export default function AdminDashboardScreen() {
   });
 
   return (
-    <View style={styles.container}>
+    <LiquidCanvas style={styles.container}>
       {/* Sub-tab Navigation */}
       <View style={styles.tabNavWrapper}>
         <BlurView intensity={Platform.OS === 'ios' ? 35 : 55} tint="dark" style={styles.tabBlur}>
@@ -453,18 +453,21 @@ export default function AdminDashboardScreen() {
           </View>
         ) : null}
       </ScrollView>
-    </View>
+    </LiquidCanvas>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.inkBlack,
   },
   tabNavWrapper: {
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(52, 73, 102, 0.35)',
+    ...(Platform.OS === 'web' ? {
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+    } : {}),
   },
   tabBlur: {
     width: '100%',

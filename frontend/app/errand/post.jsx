@@ -29,7 +29,7 @@ import {
 import { router } from 'expo-router';
 import api from '../../services/api';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
-import { LiquidGlassCard } from '../../components/ui/LiquidGlass';
+import { LiquidGlassCard, LiquidCanvas } from '../../components/ui/LiquidGlass';
 
 const CATEGORIES = [
   { id: 'grocery', label: 'Grocery', icon: ShoppingBag },
@@ -165,194 +165,198 @@ export default function PostErrandScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+    <LiquidCanvas style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.flexFill}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* Liquid Glass Header Hero */}
-        <View style={styles.headerHeroWrapper}>
-          <BlurView intensity={Platform.OS === 'ios' ? 45 : 60} tint="dark" style={styles.headerBlur}>
-            <LinearGradient
-              colors={['rgba(52, 73, 102, 0.65)', 'rgba(13, 24, 33, 0.9)']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0.9, y: 1 }}
-              style={styles.headerHero}
-            >
-              <View style={styles.headerSpecular} />
-              <Text style={styles.headerTitle}>Need something done? 🏃</Text>
-              <Text style={styles.headerSubtitle}>
-                Broadcast your request to active peers across campus
-              </Text>
-            </LinearGradient>
-          </BlurView>
-        </View>
-
-        {errorMessage ? (
-          <View style={styles.errorBox}>
-            <AlertCircle size={16} color="#F87171" />
-            <Text style={styles.errorText}>{errorMessage}</Text>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Liquid Glass Header Hero */}
+          <View style={styles.headerHeroWrapper}>
+            <BlurView intensity={Platform.OS === 'ios' ? 45 : 60} tint="dark" style={styles.headerBlur}>
+              <LinearGradient
+                colors={['rgba(52, 73, 102, 0.65)', 'rgba(13, 24, 33, 0.9)']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0.9, y: 1 }}
+                style={styles.headerHero}
+              >
+                <View style={styles.headerSpecular} />
+                <Text style={styles.headerTitle}>Need something done? 🏃</Text>
+                <Text style={styles.headerSubtitle}>
+                  Broadcast your request to active peers across campus
+                </Text>
+              </LinearGradient>
+            </BlurView>
           </View>
-        ) : null}
 
-        {/* 1. Category Selection */}
-        <LiquidGlassCard variant="default">
-          <Text style={styles.sectionTitle}>1. Choose Category</Text>
-          <View style={styles.categoryGrid}>
-            {CATEGORIES.map((cat) => {
-              const isSelected = category === cat.id;
-              const Icon = cat.icon;
-              return (
-                <TouchableOpacity
-                  key={cat.id}
-                  style={[styles.categoryTile, isSelected && styles.categoryTileActive]}
-                  onPress={() => setCategory(cat.id)}
-                  activeOpacity={0.8}
-                >
-                  <Icon
-                    size={22}
-                    color={isSelected ? Colors.inkBlack : Colors.powderBlue}
-                    strokeWidth={2.4}
-                  />
-                  <Text style={[styles.categoryTileText, isSelected && styles.categoryTileTextActive]}>
-                    {cat.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </LiquidGlassCard>
+          {errorMessage ? (
+            <View style={styles.errorBox}>
+              <AlertCircle size={16} color="#F87171" />
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            </View>
+          ) : null}
 
-        {/* 2. Task Details */}
-        <LiquidGlassCard variant="default">
-          <Text style={styles.sectionTitle}>2. Errand Details</Text>
+          {/* 1. Category Selection */}
+          <LiquidGlassCard variant="default">
+            <Text style={styles.sectionTitle}>1. Choose Category</Text>
+            <View style={styles.categoryGrid}>
+              {CATEGORIES.map((cat) => {
+                const isSelected = category === cat.id;
+                const Icon = cat.icon;
+                return (
+                  <TouchableOpacity
+                    key={cat.id}
+                    style={[styles.categoryTile, isSelected && styles.categoryTileActive]}
+                    onPress={() => setCategory(cat.id)}
+                    activeOpacity={0.8}
+                  >
+                    <Icon
+                      size={22}
+                      color={isSelected ? Colors.inkBlack : Colors.powderBlue}
+                      strokeWidth={2.4}
+                    />
+                    <Text style={[styles.categoryTileText, isSelected && styles.categoryTileTextActive]}>
+                      {cat.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </LiquidGlassCard>
 
-          <Text style={styles.inputLabel}>Title *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g. 2 Packets of Maggi & 1 Amul Milk"
-            placeholderTextColor={Colors.textMuted}
-            value={title}
-            onChangeText={(val) => {
-              setTitle(val);
-              if (errorMessage) setErrorMessage(null);
-            }}
-          />
+          {/* 2. Task Details */}
+          <LiquidGlassCard variant="default">
+            <Text style={styles.sectionTitle}>2. Errand Details</Text>
 
-          <Text style={styles.inputLabel}>Notes & Instructions (Optional)</Text>
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            placeholder="e.g. Pick up from Night Canteen and deliver to H4 Room 302."
-            placeholderTextColor={Colors.textMuted}
-            value={description}
-            onChangeText={setDescription}
-            multiline
-            numberOfLines={3}
-          />
-        </LiquidGlassCard>
-
-        {/* 3. Budget & Compensation */}
-        <LiquidGlassCard variant="sage">
-          <Text style={styles.sectionTitle}>3. Estimated Budget (₹)</Text>
-
-          <View style={styles.budgetInputRow}>
-            <Text style={styles.rupeeSymbol}>₹</Text>
+            <Text style={styles.inputLabel}>Title *</Text>
             <TextInput
-              style={styles.budgetInput}
-              placeholder="100"
+              style={styles.input}
+              placeholder="e.g. 2 Packets of Maggi & 1 Amul Milk"
               placeholderTextColor={Colors.textMuted}
-              value={budget}
-              onChangeText={setBudget}
-              keyboardType="numeric"
+              value={title}
+              onChangeText={(val) => {
+                setTitle(val);
+                if (errorMessage) setErrorMessage(null);
+              }}
             />
-          </View>
 
-          {/* Quick preset chips */}
-          <View style={styles.presetChipsRow}>
-            {BUDGET_PRESETS.map((amt) => {
-              const active = budget === amt.toString();
-              return (
-                <TouchableOpacity
-                  key={amt}
-                  style={[styles.presetChip, active && styles.presetChipActive]}
-                  onPress={() => setBudget(amt.toString())}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[styles.presetChipText, active && styles.presetChipTextActive]}>
-                    ₹{amt}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </LiquidGlassCard>
+            <Text style={styles.inputLabel}>Notes & Instructions (Optional)</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="e.g. Pick up from Night Canteen and deliver to H4 Room 302."
+              placeholderTextColor={Colors.textMuted}
+              value={description}
+              onChangeText={setDescription}
+              multiline
+              numberOfLines={3}
+            />
+          </LiquidGlassCard>
 
-        {/* 4. Delivery Destination */}
-        <LiquidGlassCard variant="default">
-          <View style={styles.locationHeaderRow}>
-            <Text style={styles.sectionTitle}>4. Delivery Address</Text>
-            <TouchableOpacity
-              style={styles.refreshLocBtn}
-              onPress={fetchCurrentLocation}
-              disabled={loadingLocation}
-              activeOpacity={0.8}
+          {/* 3. Budget & Compensation */}
+          <LiquidGlassCard variant="sage">
+            <Text style={styles.sectionTitle}>3. Estimated Budget (₹)</Text>
+
+            <View style={styles.budgetInputRow}>
+              <Text style={styles.rupeeSymbol}>₹</Text>
+              <TextInput
+                style={styles.budgetInput}
+                placeholder="100"
+                placeholderTextColor={Colors.textMuted}
+                value={budget}
+                onChangeText={setBudget}
+                keyboardType="numeric"
+              />
+            </View>
+
+            {/* Quick preset chips */}
+            <View style={styles.presetChipsRow}>
+              {BUDGET_PRESETS.map((amt) => {
+                const active = budget === amt.toString();
+                return (
+                  <TouchableOpacity
+                    key={amt}
+                    style={[styles.presetChip, active && styles.presetChipActive]}
+                    onPress={() => setBudget(amt.toString())}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={[styles.presetChipText, active && styles.presetChipTextActive]}>
+                      ₹{amt}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </LiquidGlassCard>
+
+          {/* 4. Delivery Destination */}
+          <LiquidGlassCard variant="default">
+            <View style={styles.locationHeaderRow}>
+              <Text style={styles.sectionTitle}>4. Delivery Address</Text>
+              <TouchableOpacity
+                style={styles.refreshLocBtn}
+                onPress={fetchCurrentLocation}
+                disabled={loadingLocation}
+                activeOpacity={0.8}
+              >
+                {loadingLocation ? (
+                  <ActivityIndicator size="small" color={Colors.powderBlue} />
+                ) : (
+                  <>
+                    <LocateFixed size={14} color={Colors.powderBlue} />
+                    <Text style={styles.refreshLocText}>GPS Auto-Fill</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. Hostel 4, Room 302"
+              placeholderTextColor={Colors.textMuted}
+              value={address}
+              onChangeText={setAddress}
+            />
+          </LiquidGlassCard>
+
+          {/* Submit Button */}
+          <TouchableOpacity
+            onPress={handleSubmit}
+            disabled={submitting}
+            activeOpacity={0.85}
+            style={styles.submitBtnWrapper}
+          >
+            <LinearGradient
+              colors={Colors.gradientPrimary}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={[styles.submitButton, submitting && styles.btnDisabled]}
             >
-              {loadingLocation ? (
-                <ActivityIndicator size="small" color={Colors.powderBlue} />
+              {submitting ? (
+                <ActivityIndicator color={Colors.inkBlack} />
               ) : (
                 <>
-                  <LocateFixed size={14} color={Colors.powderBlue} />
-                  <Text style={styles.refreshLocText}>GPS Auto-Fill</Text>
+                  <Send size={18} color={Colors.inkBlack} strokeWidth={2.6} />
+                  <Text style={styles.submitButtonText}>Broadcast Errand</Text>
                 </>
               )}
-            </TouchableOpacity>
-          </View>
-
-          <TextInput
-            style={styles.input}
-            placeholder="e.g. Hostel 4, Room 302"
-            placeholderTextColor={Colors.textMuted}
-            value={address}
-            onChangeText={setAddress}
-          />
-        </LiquidGlassCard>
-
-        {/* Submit Button */}
-        <TouchableOpacity
-          onPress={handleSubmit}
-          disabled={submitting}
-          activeOpacity={0.85}
-          style={styles.submitBtnWrapper}
-        >
-          <LinearGradient
-            colors={Colors.gradientPrimary}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={[styles.submitButton, submitting && styles.btnDisabled]}
-          >
-            {submitting ? (
-              <ActivityIndicator color={Colors.inkBlack} />
-            ) : (
-              <>
-                <Send size={18} color={Colors.inkBlack} strokeWidth={2.6} />
-                <Text style={styles.submitButtonText}>Broadcast Errand</Text>
-              </>
-            )}
-          </LinearGradient>
-        </TouchableOpacity>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            </LinearGradient>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </LiquidCanvas>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.inkBlack,
+  },
+  flexFill: {
+    flex: 1,
   },
   scrollContent: {
     padding: Spacing.md,
@@ -362,8 +366,13 @@ const styles = StyleSheet.create({
   headerHeroWrapper: {
     borderRadius: BorderRadius.xl,
     overflow: 'hidden',
-    borderWidth: 1,
+    borderWidth: 1.2,
     borderColor: Colors.glassBorder,
+    ...(Platform.OS === 'web' ? {
+      backdropFilter: 'blur(30px) saturate(190%)',
+      WebkitBackdropFilter: 'blur(30px) saturate(190%)',
+      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(240, 244, 239, 0.3)',
+    } : {}),
     ...Shadows.glow,
   },
   headerBlur: {

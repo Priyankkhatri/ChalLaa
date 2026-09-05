@@ -39,7 +39,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getSocket } from '../../services/socket';
 import { sendLocalNotification } from '../../services/notifications';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
-import { LiquidGlassCard } from '../../components/ui/LiquidGlass';
+import { LiquidGlassCard, LiquidCanvas } from '../../components/ui/LiquidGlass';
 
 import TrackingSection from '../../components/TrackingSection';
 import ProofSection from '../../components/ProofSection';
@@ -207,7 +207,7 @@ export default function ErrandDetailScreen() {
   const currentStepIndex = STATUS_STEPS.indexOf(errand.status);
 
   return (
-    <View style={styles.container}>
+    <LiquidCanvas style={styles.container}>
       {/* Liquid Glass Navigation Sub-tabs */}
       <View style={styles.tabNavWrapper}>
         <BlurView intensity={Platform.OS === 'ios' ? 35 : 55} tint="dark" style={styles.tabBlur}>
@@ -625,18 +625,21 @@ export default function ErrandDetailScreen() {
         errand={errand}
         onClose={() => setDisputeModalVisible(false)}
       />
-    </View>
+    </LiquidCanvas>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.inkBlack,
   },
   tabNavWrapper: {
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(52, 73, 102, 0.35)',
+    ...(Platform.OS === 'web' ? {
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+    } : {}),
   },
   tabBlur: {
     width: '100%',
