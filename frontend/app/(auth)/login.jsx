@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import {
   Bike,
   Mail,
@@ -24,6 +25,7 @@ import {
 } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../../constants/theme';
+import { LiquidGlassCard } from '../../components/ui/LiquidGlass';
 
 export default function LoginScreen() {
   const { login } = useAuth();
@@ -73,39 +75,45 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Luxury Hero Banner */}
-        <LinearGradient
-          colors={['#4F46E5', '#6366F1', '#8B5CF6']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.heroBanner}
-        >
-          <View style={styles.logoBadge}>
-            <Bike size={32} color={Colors.primary} strokeWidth={2.5} />
-          </View>
-          <Text style={styles.brandTitle}>ChalLaa</Text>
-          <View style={styles.taglineRow}>
-            <Sparkles size={14} color="#FDE68A" />
-            <Text style={styles.taglineText}>Peer-to-Peer Campus Errands</Text>
-          </View>
-          <Text style={styles.subtext}>Deliveries, food, prints & pharmacy in minutes</Text>
-        </LinearGradient>
+        {/* Liquid Glass Hero Banner */}
+        <View style={styles.heroOuter}>
+          <BlurView intensity={Platform.OS === 'ios' ? 45 : 60} tint="dark" style={styles.heroBlur}>
+            <LinearGradient
+              colors={['rgba(52, 73, 102, 0.65)', 'rgba(13, 24, 33, 0.9)']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0.9, y: 1 }}
+              style={styles.heroBanner}
+            >
+              <View style={styles.heroSpecular} />
+
+              <View style={styles.logoBadge}>
+                <Bike size={34} color={Colors.powderBlue} strokeWidth={2.4} />
+              </View>
+              <Text style={styles.brandTitle}>ChalLaa</Text>
+              <View style={styles.taglineRow}>
+                <Sparkles size={14} color={Colors.drySage} />
+                <Text style={styles.taglineText}>Peer-to-Peer Campus Errands</Text>
+              </View>
+              <Text style={styles.subtext}>Deliveries, food, prints & pharmacy in minutes</Text>
+            </LinearGradient>
+          </BlurView>
+        </View>
 
         {errorMessage ? (
           <View style={styles.errorContainer}>
-            <AlertCircle size={18} color={Colors.danger} />
+            <AlertCircle size={18} color="#F87171" />
             <Text style={styles.errorText}>{errorMessage}</Text>
           </View>
         ) : null}
 
-        {/* Form Card */}
-        <View style={styles.formCard}>
+        {/* Liquid Glass Form Card */}
+        <LiquidGlassCard variant="default">
           <Text style={styles.formHeader}>Sign In</Text>
           <Text style={styles.formSubHeader}>Access your hostel errand feed</Text>
 
           <Text style={styles.inputLabel}>Campus Email</Text>
           <View style={styles.inputBox}>
-            <Mail size={18} color={Colors.textMuted} style={styles.fieldIcon} />
+            <Mail size={18} color={Colors.powderBlue} style={styles.fieldIcon} />
             <TextInput
               style={styles.input}
               placeholder="e.g. aryan@campus.edu"
@@ -123,7 +131,7 @@ export default function LoginScreen() {
 
           <Text style={styles.inputLabel}>Password</Text>
           <View style={styles.inputBox}>
-            <Lock size={18} color={Colors.textMuted} style={styles.fieldIcon} />
+            <Lock size={18} color={Colors.powderBlue} style={styles.fieldIcon} />
             <TextInput
               style={styles.input}
               placeholder="••••••••"
@@ -146,25 +154,25 @@ export default function LoginScreen() {
             style={styles.ctaWrapper}
           >
             <LinearGradient
-              colors={['#4F46E5', '#6366F1']}
+              colors={Colors.gradientPrimary}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={[styles.ctaButton, loading && styles.buttonDisabled]}
             >
               {loading ? (
-                <ActivityIndicator color={Colors.white} />
+                <ActivityIndicator color={Colors.inkBlack} />
               ) : (
                 <View style={styles.ctaInner}>
                   <Text style={styles.ctaText}>Continue to Campus Feed</Text>
-                  <ArrowRight size={18} color={Colors.white} strokeWidth={2.5} />
+                  <ArrowRight size={18} color={Colors.inkBlack} strokeWidth={2.8} />
                 </View>
               )}
             </LinearGradient>
           </TouchableOpacity>
-        </View>
+        </LiquidGlassCard>
 
         {/* 1-Tap Quick Demo Logins */}
-        <View style={styles.demoSection}>
+        <LiquidGlassCard variant="default">
           <Text style={styles.demoHeader}>⚡ Instant 1-Tap Demo Logins</Text>
           <View style={styles.demoGrid}>
             <TouchableOpacity
@@ -173,8 +181,8 @@ export default function LoginScreen() {
               disabled={loading}
               activeOpacity={0.8}
             >
-              <View style={[styles.demoBadgeIcon, { backgroundColor: '#EEF2FF' }]}>
-                <ShieldCheck size={18} color={Colors.primary} />
+              <View style={[styles.demoBadgeIcon, { backgroundColor: 'rgba(180, 205, 237, 0.15)' }]}>
+                <ShieldCheck size={18} color={Colors.powderBlue} />
               </View>
               <Text style={styles.demoRole}>Admin</Text>
               <Text style={styles.demoName}>Aryan</Text>
@@ -186,8 +194,8 @@ export default function LoginScreen() {
               disabled={loading}
               activeOpacity={0.8}
             >
-              <View style={[styles.demoBadgeIcon, { backgroundColor: '#ECFDF5' }]}>
-                <User size={18} color={Colors.secondaryDark} />
+              <View style={[styles.demoBadgeIcon, { backgroundColor: 'rgba(191, 204, 148, 0.15)' }]}>
+                <User size={18} color={Colors.drySage} />
               </View>
               <Text style={styles.demoRole}>Student</Text>
               <Text style={styles.demoName}>Priya</Text>
@@ -199,14 +207,14 @@ export default function LoginScreen() {
               disabled={loading}
               activeOpacity={0.8}
             >
-              <View style={[styles.demoBadgeIcon, { backgroundColor: '#FEF3C7' }]}>
-                <Bike size={18} color="#D97706" />
+              <View style={[styles.demoBadgeIcon, { backgroundColor: 'rgba(52, 73, 102, 0.4)' }]}>
+                <Bike size={18} color={Colors.powderBlue} />
               </View>
               <Text style={styles.demoRole}>Runner</Text>
               <Text style={styles.demoName}>Rahul</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </LiquidGlassCard>
 
         {/* Footer */}
         <View style={styles.footerRow}>
@@ -223,34 +231,52 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.inkBlack,
   },
   scrollContent: {
     padding: Spacing.md,
     paddingTop: Platform.OS === 'ios' ? Spacing.xl : Spacing.md,
-    paddingBottom: Spacing.xxl,
+    paddingBottom: Spacing.xxl + 20,
     gap: Spacing.md,
   },
+  heroOuter: {
+    borderRadius: BorderRadius.xxl,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    ...Shadows.glow,
+  },
+  heroBlur: {
+    width: '100%',
+  },
   heroBanner: {
-    borderRadius: BorderRadius.xl,
     padding: Spacing.xl,
     alignItems: 'center',
-    ...Shadows.glow,
+  },
+  heroSpecular: {
+    position: 'absolute',
+    top: 0,
+    left: 40,
+    right: 40,
+    height: 1,
+    backgroundColor: 'rgba(240, 244, 239, 0.25)',
   },
   logoBadge: {
     width: 68,
     height: 68,
     borderRadius: 34,
-    backgroundColor: Colors.white,
+    backgroundColor: 'rgba(52, 73, 102, 0.55)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorderGlow,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.sm,
-    ...Shadows.card,
+    ...Shadows.glow,
   },
   brandTitle: {
     fontSize: Typography.title + 2,
-    fontWeight: 'bold',
-    color: Colors.white,
+    fontWeight: '800',
+    color: Colors.porcelain,
     letterSpacing: 0.5,
   },
   taglineRow: {
@@ -261,12 +287,12 @@ const styles = StyleSheet.create({
   },
   taglineText: {
     fontSize: Typography.sm,
-    fontWeight: '600',
-    color: 'rgba(255,255,255,0.95)',
+    fontWeight: '700',
+    color: Colors.powderBlue,
   },
   subtext: {
     fontSize: Typography.xs,
-    color: 'rgba(255,255,255,0.75)',
+    color: 'rgba(240, 244, 239, 0.7)',
     textAlign: 'center',
     marginTop: 4,
   },
@@ -274,40 +300,32 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-    backgroundColor: Colors.dangerLight,
-    borderColor: Colors.danger,
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderColor: 'rgba(239, 68, 68, 0.35)',
     borderWidth: 1,
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
   },
   errorText: {
-    color: Colors.dangerDark,
+    color: '#F87171',
     fontSize: Typography.xs,
     flex: 1,
-    fontWeight: '500',
-  },
-  formCard: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.card,
+    fontWeight: '600',
   },
   formHeader: {
     fontSize: Typography.xl,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   formSubHeader: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     marginBottom: Spacing.md,
   },
   inputLabel: {
     fontSize: Typography.xs,
-    fontWeight: '600',
-    color: Colors.text,
+    fontWeight: '700',
+    color: Colors.powderBlue,
     marginBottom: 6,
     marginTop: Spacing.xs,
   },
@@ -316,9 +334,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 48,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
     borderRadius: BorderRadius.md,
-    backgroundColor: Colors.white,
+    backgroundColor: 'rgba(13, 24, 33, 0.6)',
     paddingHorizontal: Spacing.sm,
     marginBottom: Spacing.xs,
   },
@@ -328,11 +346,11 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: Typography.sm,
-    color: Colors.text,
+    color: Colors.porcelain,
   },
   ctaWrapper: {
     marginTop: Spacing.lg,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.full,
     overflow: 'hidden',
     ...Shadows.glow,
   },
@@ -350,22 +368,14 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   ctaText: {
-    color: Colors.white,
+    color: Colors.inkBlack,
     fontSize: Typography.sm + 1,
-    fontWeight: 'bold',
-  },
-  demoSection: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.subtle,
+    fontWeight: '800',
   },
   demoHeader: {
     fontSize: Typography.xs,
-    fontWeight: 'bold',
-    color: Colors.textSecondary,
+    fontWeight: '800',
+    color: Colors.powderBlue,
     marginBottom: Spacing.sm,
     textAlign: 'center',
     textTransform: 'uppercase',
@@ -379,30 +389,33 @@ const styles = StyleSheet.create({
   demoCard: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: Colors.background,
+    backgroundColor: 'rgba(13, 24, 33, 0.55)',
     paddingVertical: Spacing.sm + 2,
     paddingHorizontal: 4,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
   },
   demoBadgeIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 4,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
   },
   demoRole: {
     fontSize: Typography.xs,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   demoName: {
     fontSize: Typography.xs - 2,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     marginTop: 1,
+    fontWeight: '600',
   },
   footerRow: {
     flexDirection: 'row',
@@ -412,11 +425,11 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: Typography.sm,
-    color: Colors.textSecondary,
+    color: 'rgba(240, 244, 239, 0.7)',
   },
   registerLink: {
     fontSize: Typography.sm,
-    color: Colors.primary,
-    fontWeight: 'bold',
+    color: Colors.powderBlue,
+    fontWeight: '800',
   },
 });
