@@ -17,6 +17,7 @@ import { getSocketUrl } from '../services/socket';
 import CameraModal from './CameraModal';
 import ExpenseSection from './ExpenseSection';
 import { Colors, Spacing, Typography, BorderRadius, Shadows } from '../constants/theme';
+import { LiquidGlassCard } from './ui/LiquidGlass';
 
 const getBackendBaseUrl = () => getSocketUrl();
 
@@ -81,7 +82,7 @@ export default function ProofSection({ errand, currentUser, onErrandUpdated }) {
 
       {/* Runner Photo Upload Action Card */}
       {isRunner || isRequester ? (
-        <View style={styles.actionCard}>
+        <LiquidGlassCard variant="default">
           <Text style={styles.actionPromptText}>
             {isRunner
               ? 'Attach photo of receipt or purchased items to prevent disputes:'
@@ -92,6 +93,7 @@ export default function ProofSection({ errand, currentUser, onErrandUpdated }) {
             onPress={() => setCameraVisible(true)}
             disabled={uploading}
             style={styles.cameraLaunchBtnWrapper}
+            activeOpacity={0.85}
           >
             <LinearGradient
               colors={Colors.gradientPrimary}
@@ -100,16 +102,16 @@ export default function ProofSection({ errand, currentUser, onErrandUpdated }) {
               style={[styles.cameraLaunchBtn, uploading && styles.btnDisabled]}
             >
               {uploading ? (
-                <ActivityIndicator color={Colors.white} />
+                <ActivityIndicator color={Colors.inkBlack} />
               ) : (
                 <>
-                  <Camera size={18} color={Colors.white} />
+                  <Camera size={18} color={Colors.inkBlack} strokeWidth={2.4} />
                   <Text style={styles.cameraLaunchBtnText}>Capture Proof Photo</Text>
                 </>
               )}
             </LinearGradient>
           </TouchableOpacity>
-        </View>
+        </LiquidGlassCard>
       ) : null}
 
       {/* Images Grid */}
@@ -125,25 +127,28 @@ export default function ProofSection({ errand, currentUser, onErrandUpdated }) {
                 key={idx}
                 style={styles.imageThumbnailWrapper}
                 onPress={() => setSelectedImage(fullUrl)}
+                activeOpacity={0.85}
               >
                 <Image source={{ uri: fullUrl }} style={styles.imageThumbnail} resizeMode="cover" />
                 <View style={styles.zoomIconBadge}>
-                  <Maximize2 size={13} color={Colors.white} />
+                  <Maximize2 size={13} color={Colors.porcelain} />
                 </View>
               </TouchableOpacity>
             );
           })}
         </View>
       ) : (
-        <View style={styles.emptyBox}>
-          <ImageIcon size={44} color={Colors.textMuted} />
-          <Text style={styles.emptyTitle}>No Proof Photos Attached</Text>
-          <Text style={styles.emptySubtitle}>
-            {isRunner
-              ? 'Tap "Capture Proof Photo" above to upload bill or item photo.'
-              : 'Runner has not attached any proof photos yet.'}
-          </Text>
-        </View>
+        <LiquidGlassCard variant="default">
+          <View style={styles.emptyBox}>
+            <ImageIcon size={44} color={Colors.powderBlue} />
+            <Text style={styles.emptyTitle}>No Proof Photos Attached</Text>
+            <Text style={styles.emptySubtitle}>
+              {isRunner
+                ? 'Tap "Capture Proof Photo" above to upload bill or item photo.'
+                : 'Runner has not attached any proof photos yet.'}
+            </Text>
+          </View>
+        </LiquidGlassCard>
       )}
 
       {/* Expense Logging & Settlement Component */}
@@ -153,7 +158,7 @@ export default function ProofSection({ errand, currentUser, onErrandUpdated }) {
       <Modal visible={!!selectedImage} transparent animationType="fade">
         <View style={styles.fullModalOverlay}>
           <TouchableOpacity style={styles.closeModalBtn} onPress={() => setSelectedImage(null)}>
-            <X size={26} color={Colors.white} />
+            <X size={26} color={Colors.porcelain} />
           </TouchableOpacity>
 
           {selectedImage ? (
@@ -174,7 +179,6 @@ export default function ProofSection({ errand, currentUser, onErrandUpdated }) {
 
 const styles = StyleSheet.create({
   container: {
-    padding: Spacing.md,
     gap: Spacing.md,
   },
   headerRow: {
@@ -182,29 +186,21 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: Typography.base,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
   },
   sectionSubtitle: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     marginTop: 2,
-  },
-  actionCard: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    ...Shadows.subtle,
   },
   actionPromptText: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     marginBottom: Spacing.sm,
   },
   cameraLaunchBtnWrapper: {
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.full,
     overflow: 'hidden',
     ...Shadows.glow,
   },
@@ -213,11 +209,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.sm,
-    height: 46,
+    height: 48,
   },
   cameraLaunchBtnText: {
-    color: Colors.white,
-    fontWeight: 'bold',
+    color: Colors.inkBlack,
+    fontWeight: '800',
     fontSize: Typography.sm,
   },
   btnDisabled: {
@@ -233,9 +229,9 @@ const styles = StyleSheet.create({
     height: 140,
     borderRadius: BorderRadius.lg,
     overflow: 'hidden',
-    backgroundColor: Colors.card,
+    backgroundColor: 'rgba(52, 73, 102, 0.45)',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.glassBorder,
     position: 'relative',
   },
   imageThumbnail: {
@@ -246,7 +242,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 6,
     right: 6,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(13, 24, 33, 0.75)',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
     width: 26,
     height: 26,
     borderRadius: 13,
@@ -254,35 +252,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyBox: {
-    backgroundColor: Colors.card,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.xl,
+    padding: Spacing.lg,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
   },
   emptyTitle: {
     fontSize: Typography.sm,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: '800',
+    color: Colors.porcelain,
     marginTop: Spacing.xs,
   },
   emptySubtitle: {
     fontSize: Typography.xs,
-    color: Colors.textSecondary,
+    color: Colors.powderBlue,
     textAlign: 'center',
-    marginTop: 2,
+    marginTop: 3,
     lineHeight: 16,
   },
   fullModalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.9)',
+    backgroundColor: 'rgba(13, 24, 33, 0.95)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   fullImage: {
-    width: '90%',
-    height: '80%',
+    width: '92%',
+    height: '82%',
   },
   closeModalBtn: {
     position: 'absolute',
