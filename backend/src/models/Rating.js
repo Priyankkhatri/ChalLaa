@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 
+/**
+ * Rating Schema
+ * Peer reputation ratings (1-5) and feedback attached to fulfilled errands.
+ */
 const ratingSchema = new mongoose.Schema(
   {
     errandId: {
