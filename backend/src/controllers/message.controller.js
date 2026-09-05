@@ -43,6 +43,62 @@ const getErrandMessages = async (req, res, next) => {
   }
 };
 
+// @desc    Send a chat message for an errand
+// @route   POST /api/errands/:id/messages
+// @access  Private
+const sendErrandMessage = async (req, res, next) => {
+  try {
+    const errandId = req.params.id;
+    const { text } = req.body;
+
+    if (!text || !text.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Message text is required',
+      });
+    }
+
+    const errand = await Errand.findById(errandId);
+    if (!errand) {
+      return res.status(404).json({
+        success: false,
+        message: 'Errand not found',
+      });
+    }
+
+    const userId = req.user._id.toString();
+    const isRequester = errand.requesterId.toString() === userId;
+    const isRunner = errand.runnerId && errand.runnerId.toString() === userId;
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isRequester && !isRunner && !isAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to send messages for this errand',
+      });
+    }
+
+    const newMessage = new Message({
+      errandId,
+      senderId: req.user._id,
+      text: text.trim(),
+      read: false,
+    });
+
+    await newMessage.save();
+    await newMessage.populate('senderId', 'name avatarUrl karmaScore');
+
+    res.status(201).json({
+      success: true,
+      message: 'Message sent',
+      data: newMessage,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getErrandMessages,
+  sendErrandMessage,
 };
