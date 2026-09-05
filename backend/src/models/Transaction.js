@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 
+/**
+ * Transaction Schema
+ * Itemized out-of-pocket expenses logged during errand fulfillment with settlement status.
+ */
 const transactionSchema = new mongoose.Schema(
   {
     errandId: {
