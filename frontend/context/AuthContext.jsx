@@ -2,6 +2,11 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import api from '../services/api';
 
+/**
+ * Authentication Context & Provider for ChalLaa
+ * Handles persistent JWT session storage in SecureStore,
+ * login, registration, user profile updates, and logout.
+ */
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
